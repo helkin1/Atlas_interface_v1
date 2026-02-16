@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercise Database v3 — Weighted Muscle Contributions</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root {
+    --bg: #0C0F14;
+    --surface: #151921;
+    --surface-2: #1C2230;
+    --surface-3: #232A3A;
+    --border: #2A3040;
+    --text: #E8ECF2;
+    --text-muted: #8892A4;
+    --text-dim: #5A6478;
+    --accent-blue: #4C9EFF;
+    --accent-green: #3DDC84;
+    --accent-orange: #FF8A50;
+    --accent-purple: #A78BFA;
+    --accent-pink: #F472B6;
+    --accent-yellow: #FBBF24;
+    --accent-red: #EF4444;
+    --accent-teal: #2DD4BF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  .container { max-width: 1600px; margin: 0 auto; padding: 32px 24px; }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
+
+  /* Legend */
+  .role-legend {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  .legend-label { color: var(--text-muted); }
+  .legend-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 12px; }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .stat-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .stat-pill .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--accent-blue);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-box:focus { border-color: var(--accent-blue); }
+  .search-box::placeholder { color: var(--text-dim); }
+
+  .filter-group {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+  }
+
+  .filter-btn {
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    background: none;
+    font-family: inherit;
+  }
+
+  .filter-btn:hover { color: var(--text); background: var(--surface-2); }
+  .filter-btn.active { color: var(--text); background: var(--surface-3); }
+
+  /* Table */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 800px;
+  }
+
+  thead th {
+    background: var(--surface-2);
+    padding: 10px 14px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  thead th:hover { color: var(--text); }
+  thead th.sorted { color: var(--accent-blue); }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(42,48,64,0.5);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  tbody tr:hover { background: var(--surface-2); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr.expanded { background: var(--surface-2); }
+
+  td { padding: 10px 14px; vertical-align: middle; }
+
+  .exercise-name { font-weight: 600; white-space: nowrap; }
+
+  .pattern-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+  }
+
+  .pattern-push { background: rgba(255,138,80,0.15); color: var(--accent-orange); }
+  .pattern-pull { background: rgba(76,158,255,0.15); color: var(--accent-blue); }
+  .pattern-legs { background: rgba(61,220,132,0.15); color: var(--accent-green); }
+  .pattern-core { background: rgba(167,139,250,0.15); color: var(--accent-purple); }
+
+  .muscle-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    margin: 1px 2px;
+  }
+
+  .muscle-pill .contrib {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 10px;
+  }
+
+  .role-direct { background: rgba(61,220,132,0.15); color: var(--accent-green); }
+  .role-direct .contrib { color: var(--accent-green); }
+
+  .role-partial { background: rgba(251,191,36,0.12); color: var(--accent-yellow); }
+  .role-partial .contrib { color: var(--accent-yellow); }
+
+  .role-minimal { background: rgba(90,100,120,0.2); color: var(--text-muted); }
+  .role-minimal .contrib { color: var(--text-dim); }
+
+  .equip-text { color: var(--text-dim); font-size: 12px; }
+
+  .count-bar {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+
+  .count-bar span { color: var(--accent-blue); font-weight: 700; }
+
+  /* Expanded detail row */
+  .detail-row { display: none; }
+  .detail-row.visible { display: table-row; }
+
+  .detail-row td {
+    padding: 16px 14px;
+    background: var(--surface-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-content {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .detail-muscles {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .detail-muscle-card {
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 10px 14px;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .detail-muscle-name {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .detail-muscle-bar {
+    height: 4px;
+    border-radius: 2px;
+    margin-bottom: 4px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+
+  .detail-muscle-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+
+  .detail-muscle-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+
+  /* Effective volume section */
+  .effective-section {
+    margin-top: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .effective-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+
+  .eff-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border-radius: 8px;
+  }
+
+  .eff-item .label { font-size: 13px; }
+
+  .eff-item .values {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .eff-raw { color: var(--text-dim); }
+  .eff-arrow { color: var(--text-dim); font-size: 10px; }
+  .eff-weighted { font-weight: 700; }
+
+  .note-box {
+    background: rgba(76,158,255,0.06);
+    border: 1px solid rgba(76,158,255,0.15);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .note-box strong { color: var(--accent-blue); }
+
+  /* JSON toggle */
+  .json-toggle { margin-top: 24px; }
+
+  .json-toggle-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+
+  .json-toggle-btn:hover { color: var(--text); border-color: var(--accent-blue); }
+
+  .json-block {
+    display: none;
+    margin-top: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    overflow-x: auto;
+    max-height: 600px;
+    overflow-y: auto;
+    color: var(--text-muted);
+    white-space: pre;
+  }
+
+  .json-block.visible { display: block; }
+
+  @media (max-width: 900px) {
+    .controls { flex-direction: column; }
+    .search-box { min-width: 100%; }
+    .detail-content { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Exercise Database v3</h1>
+<p class="subtitle">125 exercises with weighted muscle contributions. Each muscle mapped as direct (1.0), partial (0.5), or minimal (0.25). Click any row to see the full muscle breakdown.</p>
+
+<div class="role-legend">
+  <div class="legend-item">
+    <div class="legend-dot" style="background:var(--accent-green)"></div>
+    <span class="legend-label">Direct</span>
+    <span class="legend-value" style="color:var(--accent-green)">1.0</span>
+    <span class="legend-label">— primary target, full hypertrophic stimulus</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:var(--accent-yellow)"></div>
+    <span class="legend-label">Partial</span>
+    <span class="legend-value" style="color:var(--accent-yellow)">0.5</span>
+    <span class="legend-label">— meaningful stimulus, not the primary driver</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:var(--text-dim)"></div>
+    <span class="legend-label">Minimal</span>
+    <span class="legend-value" style="color:var(--text-dim)">0.25</span>
+    <span class="legend-label">— stabilizer / isometric role, limited growth stimulus</span>
+  </div>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<div class="controls">
+  <input type="text" class="search-box" id="searchBox" placeholder="Search exercises or muscle groups...">
+  <div class="filter-group" id="patternFilters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="push">Push</button>
+    <button class="filter-btn" data-filter="pull">Pull</button>
+    <button class="filter-btn" data-filter="legs">Legs</button>
+    <button class="filter-btn" data-filter="core">Core</button>
+  </div>
+  <div class="filter-group" id="equipFilters">
+    <button class="filter-btn active" data-filter="all">All Equip</button>
+    <button class="filter-btn" data-filter="Barbell">Barbell</button>
+    <button class="filter-btn" data-filter="Dumbbells">DB</button>
+    <button class="filter-btn" data-filter="Cable">Cable</button>
+    <button class="filter-btn" data-filter="Machine">Machine</button>
+    <button class="filter-btn" data-filter="Bodyweight">BW</button>
+  </div>
+  <div class="filter-group" id="roleFilters">
+    <button class="filter-btn active" data-filter="all">All Roles</button>
+    <button class="filter-btn" data-filter="direct">Direct Only</button>
+    <button class="filter-btn" data-filter="has-partial">Has Partial</button>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th id="sortName" class="sorted">Exercise ↕</th>
+          <th id="sortPattern">Pattern ↕</th>
+          <th>Muscles (weighted)</th>
+          <th id="sortEquip">Equipment ↕</th>
+          <th>Eff. Sets</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="count-bar" id="countBar"></div>
+</div>
+
+<!-- Effective Volume Calculator -->
+<div class="effective-section">
+  <h2>Effective Volume Calculator</h2>
+  <div class="note-box">
+    <strong>How it works:</strong> A sample Push/Pull/Legs week (16 sets push day, 16 sets pull day, 18 sets leg day). Raw sets = total sets where the muscle appears. Effective sets = sum of weighted contributions. This is what the insight engine will calculate from logged sessions.
+  </div>
+  <div class="effective-grid" id="effGrid"></div>
+</div>
+
+<div class="json-toggle">
+  <button class="json-toggle-btn" onclick="toggleJson()">Show Raw JSON (copy-paste into app)</button>
+  <pre class="json-block" id="jsonBlock"></pre>
+</div>
+
+</div>
+
+<script>
+// ============================================================
+// EXERCISE DATABASE v3 — Weighted Muscle Contributions
+// Structure: { name, pattern, muscles: [{ name, role, contribution }], equipment }
+// Roles: "direct" (1.0), "partial" (0.5), "minimal" (0.25)
+// ============================================================
+
+const exerciseDatabase = [
+
+  // ════════════════════════════════════════════════════
+  // PUSH: CHEST
+  // ════════════════════════════════════════════════════
+  {
+    name: "Barbell Bench Press", pattern: "push", equipment: "Barbell",
+    muscles: [
+      { name: "Chest", role: "direct", contribution: 1.0 },
+      { name: "Triceps", role: "partial", contribution: 0.5 },
+      { name: "Front Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Incline Barbell Bench Press", pattern: "push", equipment: "Barbell",
+    muscles: [
+      { name: "Upper Chest", role: "direct", contribution: 1.0 },
+      { name: "Front Delts", role: "partial", contribution: 0.5 },
+      { name: "Triceps", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Decline Barbell Bench Press", pattern: "push", equipment: "Barbell",
+    muscles: [
+      { name: "Chest", role: "direct", contribution: 1.0 },
+      { name: "Triceps", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Close-Grip Bench Press", pattern: "push", equipment: "Barbell",
+    muscles: [
+      { name: "Triceps", role: "direct", contribution: 1.0 },
+      { name: "Chest", role: "partial", contribution: 0.5 },
+      { name: "Front Delts", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Dumbbell Bench Press", pattern: "push", equipment: "Dumbbells",
+    muscles: [
+      { name: "Chest", role: "direct", contribution: 1.0 },
+      { name: "Triceps", role: "partial", contribution: 0.5 },
+      { name: "Front Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Incline Dumbbell Bench Press", pattern: "push", equipment: "Dumbbells",
+    muscles: [
+      { name: "Upper Chest", role: "direct", contribution: 1.0 },
+      { name: "Front Delts", role: "partial", contribution: 0.5 },
+      { name: "Triceps", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Decline Dumbbell Bench Press", pattern: "push", equipment: "Dumbbells",
+    muscles: [
+      { name: "Chest", role: "direct", contribution: 1.0 },
+      { name: "Triceps", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Dumbbell Fly", pattern: "push", equipment: "Dumbbells",
+    muscles: [
+      { name: "Chest", role: "direct", contribution: 1.0 },
+      { name: "Front Delts", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Incline Dumbbell Fly", pattern: "push", equipment: "Dumbbells",
+    muscles: [
+      { name: "Upper Chest", role: "direct", contribution: 1.0 },
+      { name: "Front Delts", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Cable Fly", pattern: "push", equipment: "Cable",
+    muscles: [
+      { name: "Chest", role: "direct", contribution: 1.0 },
+      { name: "Front Delts", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Low-to-High Cable Fly", pattern: "push", equipment: "Cable",
+    muscles: [
+      { name: "Upper Chest", role: "direct", contribution: 1.0 },
+      { name: "Front Delts", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "High-to-Low Cable Fly", pattern: "push", equipment: "Cable",
+    muscles: [
+      { name: "Chest", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Machine Chest Press", pattern: "push", equipment: "Machine",
+    muscles: [
+      { name: "Chest", role: "direct", contribution: 1.0 },
+      { name: "Triceps", role: "partial", contribution: 0.5 },
+      { name: "Front Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Pec Deck", pattern: "push", equipment: "Machine",
+    muscles: [
+      { name: "Chest", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Push-Up", pattern: "push", equipment: "Bodyweight",
+    muscles: [
+      { name: "Chest", role: "direct", contribution: 1.0 },
+      { name: "Triceps", role: "partial", contribution: 0.5 },
+      { name: "Front Delts", role: "partial", contribution: 0.5 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Dip (Chest Focus)", pattern: "push", equipment: "Bodyweight",
+    muscles: [
+      { name: "Chest", role: "direct", contribution: 1.0 },
+      { name: "Triceps", role: "partial", contribution: 0.5 },
+      { name: "Front Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+
+  // ════════════════════════════════════════════════════
+  // PUSH: SHOULDERS
+  // ════════════════════════════════════════════════════
+  {
+    name: "Overhead Press (Barbell)", pattern: "push", equipment: "Barbell",
+    muscles: [
+      { name: "Front Delts", role: "direct", contribution: 1.0 },
+      { name: "Triceps", role: "partial", contribution: 0.5 },
+      { name: "Side Delts", role: "partial", contribution: 0.5 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Push Press", pattern: "push", equipment: "Barbell",
+    muscles: [
+      { name: "Front Delts", role: "direct", contribution: 1.0 },
+      { name: "Triceps", role: "partial", contribution: 0.5 },
+      { name: "Side Delts", role: "partial", contribution: 0.5 },
+      { name: "Quads", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Dumbbell Shoulder Press", pattern: "push", equipment: "Dumbbells",
+    muscles: [
+      { name: "Front Delts", role: "direct", contribution: 1.0 },
+      { name: "Triceps", role: "partial", contribution: 0.5 },
+      { name: "Side Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Arnold Press", pattern: "push", equipment: "Dumbbells",
+    muscles: [
+      { name: "Front Delts", role: "direct", contribution: 1.0 },
+      { name: "Side Delts", role: "direct", contribution: 1.0 },
+      { name: "Triceps", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Lateral Raise", pattern: "push", equipment: "Dumbbells",
+    muscles: [
+      { name: "Side Delts", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Cable Lateral Raise", pattern: "push", equipment: "Cable",
+    muscles: [
+      { name: "Side Delts", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Machine Lateral Raise", pattern: "push", equipment: "Machine",
+    muscles: [
+      { name: "Side Delts", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Front Raise", pattern: "push", equipment: "Dumbbells",
+    muscles: [
+      { name: "Front Delts", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Upright Row", pattern: "push", equipment: "Barbell",
+    muscles: [
+      { name: "Side Delts", role: "direct", contribution: 1.0 },
+      { name: "Traps", role: "partial", contribution: 0.5 },
+      { name: "Front Delts", role: "minimal", contribution: 0.25 },
+      { name: "Biceps", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Machine Shoulder Press", pattern: "push", equipment: "Machine",
+    muscles: [
+      { name: "Front Delts", role: "direct", contribution: 1.0 },
+      { name: "Triceps", role: "partial", contribution: 0.5 },
+      { name: "Side Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Landmine Press", pattern: "push", equipment: "Barbell",
+    muscles: [
+      { name: "Front Delts", role: "direct", contribution: 1.0 },
+      { name: "Upper Chest", role: "partial", contribution: 0.5 },
+      { name: "Triceps", role: "partial", contribution: 0.5 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+
+  // ════════════════════════════════════════════════════
+  // PUSH: TRICEPS
+  // ════════════════════════════════════════════════════
+  {
+    name: "Tricep Pushdown (Rope)", pattern: "push", equipment: "Cable",
+    muscles: [
+      { name: "Triceps", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Tricep Pushdown (Bar)", pattern: "push", equipment: "Cable",
+    muscles: [
+      { name: "Triceps", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Overhead Tricep Extension (Cable)", pattern: "push", equipment: "Cable",
+    muscles: [
+      { name: "Triceps", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Overhead Tricep Extension (Dumbbell)", pattern: "push", equipment: "Dumbbells",
+    muscles: [
+      { name: "Triceps", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Skull Crushers", pattern: "push", equipment: "Barbell",
+    muscles: [
+      { name: "Triceps", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Dip (Tricep Focus)", pattern: "push", equipment: "Bodyweight",
+    muscles: [
+      { name: "Triceps", role: "direct", contribution: 1.0 },
+      { name: "Chest", role: "partial", contribution: 0.5 },
+      { name: "Front Delts", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Diamond Push-Up", pattern: "push", equipment: "Bodyweight",
+    muscles: [
+      { name: "Triceps", role: "direct", contribution: 1.0 },
+      { name: "Chest", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Kickbacks", pattern: "push", equipment: "Dumbbells",
+    muscles: [
+      { name: "Triceps", role: "direct", contribution: 1.0 }
+    ]
+  },
+
+  // ════════════════════════════════════════════════════
+  // PULL: BACK
+  // ════════════════════════════════════════════════════
+  {
+    name: "Barbell Row", pattern: "pull", equipment: "Barbell",
+    muscles: [
+      { name: "Upper Back", role: "direct", contribution: 1.0 },
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "partial", contribution: 0.5 },
+      { name: "Rear Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Pendlay Row", pattern: "pull", equipment: "Barbell",
+    muscles: [
+      { name: "Upper Back", role: "direct", contribution: 1.0 },
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "partial", contribution: 0.5 },
+      { name: "Rear Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Dumbbell Row", pattern: "pull", equipment: "Dumbbells",
+    muscles: [
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Upper Back", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "partial", contribution: 0.5 },
+      { name: "Rear Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Chest-Supported Row", pattern: "pull", equipment: "Dumbbells",
+    muscles: [
+      { name: "Upper Back", role: "direct", contribution: 1.0 },
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "partial", contribution: 0.5 },
+      { name: "Rear Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Seated Cable Row", pattern: "pull", equipment: "Cable",
+    muscles: [
+      { name: "Upper Back", role: "direct", contribution: 1.0 },
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "partial", contribution: 0.5 },
+      { name: "Rear Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Seated Cable Row (Wide Grip)", pattern: "pull", equipment: "Cable",
+    muscles: [
+      { name: "Upper Back", role: "direct", contribution: 1.0 },
+      { name: "Rear Delts", role: "partial", contribution: 0.5 },
+      { name: "Lats", role: "partial", contribution: 0.5 },
+      { name: "Biceps", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "T-Bar Row", pattern: "pull", equipment: "Barbell",
+    muscles: [
+      { name: "Upper Back", role: "direct", contribution: 1.0 },
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "partial", contribution: 0.5 },
+      { name: "Rear Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Machine Row", pattern: "pull", equipment: "Machine",
+    muscles: [
+      { name: "Upper Back", role: "direct", contribution: 1.0 },
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Pull-Up", pattern: "pull", equipment: "Bodyweight",
+    muscles: [
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "partial", contribution: 0.5 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Chin-Up", pattern: "pull", equipment: "Bodyweight",
+    muscles: [
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "direct", contribution: 1.0 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Neutral-Grip Pull-Up", pattern: "pull", equipment: "Bodyweight",
+    muscles: [
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "partial", contribution: 0.5 },
+      { name: "Brachialis", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Lat Pulldown", pattern: "pull", equipment: "Cable",
+    muscles: [
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Close-Grip Lat Pulldown", pattern: "pull", equipment: "Cable",
+    muscles: [
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "partial", contribution: 0.5 },
+      { name: "Brachialis", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Straight-Arm Pulldown", pattern: "pull", equipment: "Cable",
+    muscles: [
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Single-Arm Cable Row", pattern: "pull", equipment: "Cable",
+    muscles: [
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Upper Back", role: "partial", contribution: 0.5 },
+      { name: "Biceps", role: "partial", contribution: 0.5 },
+      { name: "Rear Delts", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Meadows Row", pattern: "pull", equipment: "Barbell",
+    muscles: [
+      { name: "Lats", role: "direct", contribution: 1.0 },
+      { name: "Upper Back", role: "partial", contribution: 0.5 },
+      { name: "Biceps", role: "partial", contribution: 0.5 },
+      { name: "Rear Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Inverted Row", pattern: "pull", equipment: "Bodyweight",
+    muscles: [
+      { name: "Upper Back", role: "direct", contribution: 1.0 },
+      { name: "Lats", role: "partial", contribution: 0.5 },
+      { name: "Biceps", role: "partial", contribution: 0.5 },
+      { name: "Rear Delts", role: "partial", contribution: 0.5 }
+    ]
+  },
+
+  // ════════════════════════════════════════════════════
+  // PULL: REAR DELTS / TRAPS
+  // ════════════════════════════════════════════════════
+  {
+    name: "Face Pull", pattern: "pull", equipment: "Cable",
+    muscles: [
+      { name: "Rear Delts", role: "direct", contribution: 1.0 },
+      { name: "Rotator Cuff", role: "direct", contribution: 1.0 },
+      { name: "Traps", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Reverse Fly (Dumbbell)", pattern: "pull", equipment: "Dumbbells",
+    muscles: [
+      { name: "Rear Delts", role: "direct", contribution: 1.0 },
+      { name: "Upper Back", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Reverse Fly (Cable)", pattern: "pull", equipment: "Cable",
+    muscles: [
+      { name: "Rear Delts", role: "direct", contribution: 1.0 },
+      { name: "Upper Back", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Reverse Pec Deck", pattern: "pull", equipment: "Machine",
+    muscles: [
+      { name: "Rear Delts", role: "direct", contribution: 1.0 },
+      { name: "Upper Back", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Barbell Shrug", pattern: "pull", equipment: "Barbell",
+    muscles: [
+      { name: "Traps", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Dumbbell Shrug", pattern: "pull", equipment: "Dumbbells",
+    muscles: [
+      { name: "Traps", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Rack Pull", pattern: "pull", equipment: "Barbell",
+    muscles: [
+      { name: "Traps", role: "direct", contribution: 1.0 },
+      { name: "Upper Back", role: "direct", contribution: 1.0 },
+      { name: "Lower Back", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "partial", contribution: 0.5 },
+      { name: "Hamstrings", role: "partial", contribution: 0.5 }
+    ]
+  },
+
+  // ════════════════════════════════════════════════════
+  // PULL: BICEPS
+  // ════════════════════════════════════════════════════
+  {
+    name: "Barbell Curl", pattern: "pull", equipment: "Barbell",
+    muscles: [
+      { name: "Biceps", role: "direct", contribution: 1.0 },
+      { name: "Forearms", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "EZ-Bar Curl", pattern: "pull", equipment: "Barbell",
+    muscles: [
+      { name: "Biceps", role: "direct", contribution: 1.0 },
+      { name: "Forearms", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Dumbbell Curl", pattern: "pull", equipment: "Dumbbells",
+    muscles: [
+      { name: "Biceps", role: "direct", contribution: 1.0 },
+      { name: "Forearms", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Hammer Curl", pattern: "pull", equipment: "Dumbbells",
+    muscles: [
+      { name: "Biceps", role: "direct", contribution: 1.0 },
+      { name: "Brachialis", role: "direct", contribution: 1.0 },
+      { name: "Forearms", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Incline Dumbbell Curl", pattern: "pull", equipment: "Dumbbells",
+    muscles: [
+      { name: "Biceps", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Preacher Curl", pattern: "pull", equipment: "Barbell",
+    muscles: [
+      { name: "Biceps", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Cable Curl", pattern: "pull", equipment: "Cable",
+    muscles: [
+      { name: "Biceps", role: "direct", contribution: 1.0 },
+      { name: "Forearms", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Concentration Curl", pattern: "pull", equipment: "Dumbbells",
+    muscles: [
+      { name: "Biceps", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Reverse Curl", pattern: "pull", equipment: "Barbell",
+    muscles: [
+      { name: "Brachialis", role: "direct", contribution: 1.0 },
+      { name: "Forearms", role: "direct", contribution: 1.0 },
+      { name: "Biceps", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Wrist Curl", pattern: "pull", equipment: "Barbell",
+    muscles: [
+      { name: "Forearms", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Reverse Wrist Curl", pattern: "pull", equipment: "Barbell",
+    muscles: [
+      { name: "Forearms", role: "direct", contribution: 1.0 }
+    ]
+  },
+
+  // ════════════════════════════════════════════════════
+  // LEGS: QUAD DOMINANT
+  // ════════════════════════════════════════════════════
+  {
+    name: "Barbell Back Squat", pattern: "legs", equipment: "Barbell",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Hamstrings", role: "minimal", contribution: 0.25 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Barbell Front Squat", pattern: "legs", equipment: "Barbell",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "partial", contribution: 0.5 },
+      { name: "Core", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Goblet Squat", pattern: "legs", equipment: "Dumbbells",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "partial", contribution: 0.5 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Hack Squat", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Leg Press", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "partial", contribution: 0.5 },
+      { name: "Hamstrings", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Leg Extension", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Bulgarian Split Squat", pattern: "legs", equipment: "Dumbbells",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Hamstrings", role: "minimal", contribution: 0.25 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Walking Lunge", pattern: "legs", equipment: "Dumbbells",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Hamstrings", role: "minimal", contribution: 0.25 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Reverse Lunge", pattern: "legs", equipment: "Dumbbells",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Hamstrings", role: "partial", contribution: 0.5 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Step-Up", pattern: "legs", equipment: "Dumbbells",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Hamstrings", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Sissy Squat", pattern: "legs", equipment: "Bodyweight",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Leg Press (Narrow Stance)", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Smith Machine Squat", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "partial", contribution: 0.5 },
+      { name: "Hamstrings", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Pendulum Squat", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Quads", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "partial", contribution: 0.5 }
+    ]
+  },
+
+  // ════════════════════════════════════════════════════
+  // LEGS: HIP / GLUTE DOMINANT
+  // ════════════════════════════════════════════════════
+  {
+    name: "Conventional Deadlift", pattern: "legs", equipment: "Barbell",
+    muscles: [
+      { name: "Hamstrings", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Lower Back", role: "direct", contribution: 1.0 },
+      { name: "Quads", role: "partial", contribution: 0.5 },
+      { name: "Traps", role: "partial", contribution: 0.5 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Sumo Deadlift", pattern: "legs", equipment: "Barbell",
+    muscles: [
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Hamstrings", role: "direct", contribution: 1.0 },
+      { name: "Quads", role: "partial", contribution: 0.5 },
+      { name: "Lower Back", role: "partial", contribution: 0.5 },
+      { name: "Adductors", role: "partial", contribution: 0.5 },
+      { name: "Core", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Romanian Deadlift", pattern: "legs", equipment: "Barbell",
+    muscles: [
+      { name: "Hamstrings", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Lower Back", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Dumbbell Romanian Deadlift", pattern: "legs", equipment: "Dumbbells",
+    muscles: [
+      { name: "Hamstrings", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Lower Back", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Stiff-Leg Deadlift", pattern: "legs", equipment: "Barbell",
+    muscles: [
+      { name: "Hamstrings", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "partial", contribution: 0.5 },
+      { name: "Lower Back", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Hip Thrust", pattern: "legs", equipment: "Barbell",
+    muscles: [
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Hamstrings", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Glute Bridge", pattern: "legs", equipment: "Bodyweight",
+    muscles: [
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Hamstrings", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Cable Pull-Through", pattern: "legs", equipment: "Cable",
+    muscles: [
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Hamstrings", role: "partial", contribution: 0.5 },
+      { name: "Lower Back", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Good Morning", pattern: "legs", equipment: "Barbell",
+    muscles: [
+      { name: "Hamstrings", role: "direct", contribution: 1.0 },
+      { name: "Lower Back", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Glute-Ham Raise", pattern: "legs", equipment: "Bodyweight",
+    muscles: [
+      { name: "Hamstrings", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "partial", contribution: 0.5 },
+      { name: "Lower Back", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Leg Curl (Lying)", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Hamstrings", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Leg Curl (Seated)", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Hamstrings", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Nordic Hamstring Curl", pattern: "legs", equipment: "Bodyweight",
+    muscles: [
+      { name: "Hamstrings", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Single-Leg Romanian Deadlift", pattern: "legs", equipment: "Dumbbells",
+    muscles: [
+      { name: "Hamstrings", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Core", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Kettlebell Swing", pattern: "legs", equipment: "Dumbbells",
+    muscles: [
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Hamstrings", role: "partial", contribution: 0.5 },
+      { name: "Core", role: "partial", contribution: 0.5 },
+      { name: "Lower Back", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Hip Abduction Machine", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Glutes", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Hip Adduction Machine", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Adductors", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Cable Kickback", pattern: "legs", equipment: "Cable",
+    muscles: [
+      { name: "Glutes", role: "direct", contribution: 1.0 }
+    ]
+  },
+
+  // ════════════════════════════════════════════════════
+  // LEGS: CALVES
+  // ════════════════════════════════════════════════════
+  {
+    name: "Standing Calf Raise", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Calves", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Seated Calf Raise", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Calves", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Donkey Calf Raise", pattern: "legs", equipment: "Machine",
+    muscles: [
+      { name: "Calves", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Single-Leg Calf Raise", pattern: "legs", equipment: "Bodyweight",
+    muscles: [
+      { name: "Calves", role: "direct", contribution: 1.0 }
+    ]
+  },
+
+  // ════════════════════════════════════════════════════
+  // CORE
+  // ════════════════════════════════════════════════════
+  {
+    name: "Plank", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Side Plank", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Obliques", role: "direct", contribution: 1.0 },
+      { name: "Core", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Ab Rollout", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 },
+      { name: "Lats", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Hanging Leg Raise", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 },
+      { name: "Hip Flexors", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Hanging Knee Raise", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 },
+      { name: "Hip Flexors", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Cable Crunch", pattern: "core", equipment: "Cable",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Cable Woodchop", pattern: "core", equipment: "Cable",
+    muscles: [
+      { name: "Obliques", role: "direct", contribution: 1.0 },
+      { name: "Core", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Pallof Press", pattern: "core", equipment: "Cable",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 },
+      { name: "Obliques", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Russian Twist", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Obliques", role: "direct", contribution: 1.0 },
+      { name: "Core", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Dead Bug", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Bird Dog", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 },
+      { name: "Lower Back", role: "partial", contribution: 0.5 },
+      { name: "Glutes", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Crunch", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Bicycle Crunch", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 },
+      { name: "Obliques", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Decline Sit-Up", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 },
+      { name: "Hip Flexors", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Dragon Flag", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 }
+    ]
+  },
+  {
+    name: "Back Extension", pattern: "core", equipment: "Bodyweight",
+    muscles: [
+      { name: "Lower Back", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "partial", contribution: 0.5 },
+      { name: "Hamstrings", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Reverse Hyperextension", pattern: "core", equipment: "Machine",
+    muscles: [
+      { name: "Lower Back", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "direct", contribution: 1.0 },
+      { name: "Hamstrings", role: "partial", contribution: 0.5 }
+    ]
+  },
+  {
+    name: "Farmer's Walk", pattern: "core", equipment: "Dumbbells",
+    muscles: [
+      { name: "Core", role: "direct", contribution: 1.0 },
+      { name: "Traps", role: "direct", contribution: 1.0 },
+      { name: "Forearms", role: "direct", contribution: 1.0 },
+      { name: "Glutes", role: "minimal", contribution: 0.25 }
+    ]
+  },
+  {
+    name: "Suitcase Carry", pattern: "core", equipment: "Dumbbells",
+    muscles: [
+      { name: "Obliques", role: "direct", contribution: 1.0 },
+      { name: "Core", role: "direct", contribution: 1.0 },
+      { name: "Traps", role: "partial", contribution: 0.5 },
+      { name: "Forearms", role: "partial", contribution: 0.5 }
+    ]
+  }
+];
+
+
+// ============================================================
+// RENDERING LOGIC
+// ============================================================
+
+let currentPattern = 'all';
+let currentEquip = 'all';
+let currentRole = 'all';
+let currentSearch = '';
+let sortKey = 'name';
+let sortAsc = true;
+let expandedRow = null;
+
+// Helpers
+function getDirect(ex) { return ex.muscles.filter(m => m.role === 'direct'); }
+function getPartial(ex) { return ex.muscles.filter(m => m.role === 'partial'); }
+function getMinimal(ex) { return ex.muscles.filter(m => m.role === 'minimal'); }
+function getEffSets(ex) { return ex.muscles.reduce((sum, m) => sum + m.contribution, 0).toFixed(1); }
+
+function getFiltered() {
+  return exerciseDatabase.filter(ex => {
+    const matchPattern = currentPattern === 'all' || ex.pattern === currentPattern;
+    const matchEquip = currentEquip === 'all' || ex.equipment.includes(currentEquip);
+    const matchRole = currentRole === 'all' ||
+      (currentRole === 'direct' && ex.muscles.every(m => m.role === 'direct')) ||
+      (currentRole === 'has-partial' && ex.muscles.some(m => m.role === 'partial'));
+    const matchSearch = currentSearch === '' ||
+      ex.name.toLowerCase().includes(currentSearch) ||
+      ex.muscles.some(m => m.name.toLowerCase().includes(currentSearch));
+    return matchPattern && matchEquip && matchRole && matchSearch;
+  }).sort((a, b) => {
+    let va, vb;
+    if (sortKey === 'name') { va = a.name; vb = b.name; }
+    else if (sortKey === 'pattern') { va = a.pattern; vb = b.pattern; }
+    else if (sortKey === 'equipment') { va = a.equipment; vb = b.equipment; }
+    else if (sortKey === 'eff') { return sortAsc ? getEffSets(a) - getEffSets(b) : getEffSets(b) - getEffSets(a); }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+}
+
+function musclePill(m) {
+  return `<span class="muscle-pill role-${m.role}"><span class="contrib">${m.contribution}</span> ${m.name}</span>`;
+}
+
+function renderDetailRow(ex, idx) {
+  const roleColor = { direct: 'var(--accent-green)', partial: 'var(--accent-yellow)', minimal: 'var(--text-dim)' };
+  return `
+    <tr class="detail-row" id="detail-${idx}">
+      <td colspan="5">
+        <div class="detail-content">
+          <div class="detail-muscles">
+            ${ex.muscles.map(m => `
+              <div class="detail-muscle-card">
+                <div class="detail-muscle-name" style="color:${roleColor[m.role]}">${m.name}</div>
+                <div class="detail-muscle-bar">
+                  <div class="detail-muscle-fill" style="width:${m.contribution * 100}%;background:${roleColor[m.role]}"></div>
+                </div>
+                <div class="detail-muscle-meta" style="color:${roleColor[m.role]}">${m.role} · ${m.contribution}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
+function render() {
+  const filtered = getFiltered();
+  const tbody = document.getElementById('tbody');
+
+  tbody.innerHTML = filtered.map((ex, i) => {
+    const allMuscles = [...getDirect(ex), ...getPartial(ex), ...getMinimal(ex)];
+    return `
+      <tr onclick="toggleDetail(${i}, this)">
+        <td class="exercise-name">${ex.name}</td>
+        <td><span class="pattern-badge pattern-${ex.pattern}">${ex.pattern}</span></td>
+        <td>${allMuscles.map(m => musclePill(m)).join('')}</td>
+        <td class="equip-text">${ex.equipment}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim)">${getEffSets(ex)}</td>
+      </tr>
+      ${renderDetailRow(ex, i)}
+    `;
+  }).join('');
+
+  document.getElementById('countBar').innerHTML = `Showing <span>${filtered.length}</span> of <span>${exerciseDatabase.length}</span> exercises`;
+}
+
+function toggleDetail(idx, rowEl) {
+  const detail = document.getElementById(`detail-${idx}`);
+  const wasVisible = detail.classList.contains('visible');
+
+  // Close all
+  document.querySelectorAll('.detail-row').forEach(d => d.classList.remove('visible'));
+  document.querySelectorAll('tbody tr').forEach(r => r.classList.remove('expanded'));
+
+  if (!wasVisible) {
+    detail.classList.add('visible');
+    rowEl.classList.add('expanded');
+  }
+}
+
+function renderStats() {
+  const patterns = {};
+  const totalMuscles = new Set();
+  exerciseDatabase.forEach(ex => {
+    patterns[ex.pattern] = (patterns[ex.pattern] || 0) + 1;
+    ex.muscles.forEach(m => totalMuscles.add(m.name));
+  });
+
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat-pill"><span class="num">${exerciseDatabase.length}</span> Exercises</div>
+    <div class="stat-pill"><span class="num" style="color:var(--accent-orange)">${patterns.push || 0}</span> Push</div>
+    <div class="stat-pill"><span class="num" style="color:var(--accent-blue)">${patterns.pull || 0}</span> Pull</div>
+    <div class="stat-pill"><span class="num" style="color:var(--accent-green)">${patterns.legs || 0}</span> Legs</div>
+    <div class="stat-pill"><span class="num" style="color:var(--accent-purple)">${patterns.core || 0}</span> Core</div>
+    <div class="stat-pill"><span class="num" style="color:var(--accent-teal)">${totalMuscles.size}</span> Muscle Groups</div>
+  `;
+}
+
+function renderEffectiveVolume() {
+  // Sample PPL week
+  const sampleWeek = [
+    // Push Day (16 sets)
+    { ex: "Barbell Bench Press", sets: 4 },
+    { ex: "Incline Dumbbell Bench Press", sets: 3 },
+    { ex: "Cable Fly", sets: 3 },
+    { ex: "Overhead Press (Barbell)", sets: 3 },
+    { ex: "Tricep Pushdown (Rope)", sets: 3 },
+    // Pull Day (16 sets)
+    { ex: "Barbell Row", sets: 4 },
+    { ex: "Pull-Up", sets: 3 },
+    { ex: "Seated Cable Row", sets: 3 },
+    { ex: "Face Pull", sets: 3 },
+    { ex: "Barbell Curl", sets: 3 },
+    // Leg Day (18 sets)
+    { ex: "Barbell Back Squat", sets: 4 },
+    { ex: "Romanian Deadlift", sets: 3 },
+    { ex: "Leg Press", sets: 3 },
+    { ex: "Leg Curl (Seated)", sets: 3 },
+    { ex: "Bulgarian Split Squat", sets: 3 },
+    { ex: "Standing Calf Raise", sets: 2 },
+  ];
+
+  const rawSets = {};
+  const effSets = {};
+
+  sampleWeek.forEach(item => {
+    const ex = exerciseDatabase.find(e => e.name === item.ex);
+    if (!ex) return;
+    ex.muscles.forEach(m => {
+      rawSets[m.name] = (rawSets[m.name] || 0) + item.sets;
+      effSets[m.name] = (effSets[m.name] || 0) + (item.sets * m.contribution);
+    });
+  });
+
+  const sorted = Object.keys(rawSets).sort((a, b) => effSets[b] - effSets[a]);
+
+  document.getElementById('effGrid').innerHTML = sorted.map(muscle => {
+    const raw = rawSets[muscle];
+    const eff = effSets[muscle].toFixed(1);
+    const color = eff >= 10 ? 'var(--accent-green)' : eff >= 5 ? 'var(--accent-yellow)' : 'var(--accent-red)';
+    return `
+      <div class="eff-item">
+        <span class="label">${muscle}</span>
+        <span class="values">
+          <span class="eff-raw">${raw} raw</span>
+          <span class="eff-arrow">→</span>
+          <span class="eff-weighted" style="color:${color}">${eff} eff</span>
+        </span>
+      </div>
+    `;
+  }).join('');
+}
+
+// Filter handlers
+document.getElementById('patternFilters').addEventListener('click', e => {
+  if (!e.target.dataset.filter) return;
+  currentPattern = e.target.dataset.filter;
+  document.querySelectorAll('#patternFilters .filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  render();
+});
+
+document.getElementById('equipFilters').addEventListener('click', e => {
+  if (!e.target.dataset.filter) return;
+  currentEquip = e.target.dataset.filter;
+  document.querySelectorAll('#equipFilters .filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  render();
+});
+
+document.getElementById('roleFilters').addEventListener('click', e => {
+  if (!e.target.dataset.filter) return;
+  currentRole = e.target.dataset.filter;
+  document.querySelectorAll('#roleFilters .filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  render();
+});
+
+document.getElementById('searchBox').addEventListener('input', e => {
+  currentSearch = e.target.value.toLowerCase();
+  render();
+});
+
+// Sorting
+document.getElementById('sortName').addEventListener('click', () => { toggleSort('name'); });
+document.getElementById('sortPattern').addEventListener('click', () => { toggleSort('pattern'); });
+document.getElementById('sortEquip').addEventListener('click', () => { toggleSort('equipment'); });
+
+function toggleSort(key) {
+  if (sortKey === key) sortAsc = !sortAsc;
+  else { sortKey = key; sortAsc = true; }
+  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+  const thMap = { name: 'sortName', pattern: 'sortPattern', equipment: 'sortEquip' };
+  if (thMap[key]) document.getElementById(thMap[key]).classList.add('sorted');
+  render();
+}
+
+// JSON
+function toggleJson() {
+  const block = document.getElementById('jsonBlock');
+  if (block.classList.contains('visible')) {
+    block.classList.remove('visible');
+  } else {
+    block.textContent = 'const exerciseDatabase = ' + JSON.stringify(exerciseDatabase, null, 2) + ';';
+    block.classList.add('visible');
+  }
+}
+
+// Init
+renderStats();
+render();
+renderEffectiveVolume();
+</script>
+</body>
+</html>
