@@ -15,6 +15,14 @@ const KEYS = {
 
 /* ── Plan ─────────────────────────────────────────────────────── */
 
+export function hasSavedPlan() {
+  try {
+    return localStorage.getItem(KEYS.plan) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export function loadPlan(fallback) {
   try {
     const raw = localStorage.getItem(KEYS.plan);
