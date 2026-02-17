@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { themes, ThemeContext } from "./context/theme.js";
 import { PlanDataContext } from "./context/plan-data.js";
 import { MO_NAMES } from "./utils/helpers.js";
 import { buildMonthFromPlan, DEFAULT_PLAN } from "./utils/plan-engine.js";
+import { loadPlan, savePlan, loadTheme, saveTheme } from "./utils/storage.js";
 
 import MonthView from "./components/MonthView.jsx";
 import WeekView from "./components/WeekView.jsx";
@@ -19,10 +20,10 @@ import BuilderSidebar from "./components/BuilderSidebar.jsx";
 const BUILDER_STEPS = [{ key: "split", label: "Split" }, { key: "schedule", label: "Schedule" }, { key: "exercises", label: "Exercises" }, { key: "review", label: "Review" }];
 
 export default function App() {
-  const [themeMode, setThemeMode] = useState("dark");
+  const [themeMode, setThemeMode] = useState(() => loadTheme("dark"));
   const [mode, setMode] = useState("dashboard");
-  const [plan, setPlan] = useState(DEFAULT_PLAN);
-  const [monthData, setMonthData] = useState(() => buildMonthFromPlan(DEFAULT_PLAN));
+  const [plan, setPlan] = useState(() => loadPlan(DEFAULT_PLAN));
+  const [monthData, setMonthData] = useState(() => buildMonthFromPlan(loadPlan(DEFAULT_PLAN)));
 
   // Dashboard state
   const [viewLevel, setViewLevel] = useState("month");
@@ -32,6 +33,9 @@ export default function App() {
   // Builder state
   const [builderStep, setBuilderStep] = useState(0);
   const [builderPlan, setBuilderPlan] = useState(DEFAULT_PLAN);
+
+  useEffect(() => { saveTheme(themeMode); }, [themeMode]);
+  useEffect(() => { savePlan(plan); }, [plan]);
 
   const t = themes[themeMode];
   const goMonth = () => { setViewLevel("month"); setWeekIdx(null); setDayIdx(null); };
