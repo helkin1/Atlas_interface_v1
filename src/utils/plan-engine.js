@@ -6,7 +6,9 @@ export function buildMonthFromPlan(plan) {
   const wt = plan.weekTemplate || [];
   const weeks = plan.weeks || 4;
   const progressRate = plan.progressRate || 2.5;
-  const startDate = new Date(2026, 1, 2); // Feb 2, 2026
+  const startDate = plan.startDate ? new Date(plan.startDate) : new Date();
+  // Align to next Monday if today
+  if (!plan.startDate) { const dayOff = (8 - startDate.getDay()) % 7 || 7; startDate.setDate(startDate.getDate() + dayOff); }
 
   return Array.from({ length: weeks }, (_, wi) => {
     const overloadFactor = 1 + wi * (progressRate / 100);

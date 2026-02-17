@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { themes, ThemeContext } from "./context/theme.js";
 import { PlanDataContext } from "./context/plan-data.js";
 import { MO_NAMES } from "./utils/helpers.js";
@@ -33,10 +33,39 @@ export default function App() {
 
   // Builder state
   const [builderStep, setBuilderStep] = useState(0);
-  const [builderPlan, setBuilderPlan] = useState(DEFAULT_PLAN);
+  const [builderPlan, _setBuilderPlan] = useState(DEFAULT_PLAN);
+
+  // Undo / redo history for builder
+  const historyRef = useRef({ past: [], future: [] });
+  const setBuilderPlan = useCallback((planOrFn) => {
+    _setBuilderPlan(prev => {
+      const next = typeof planOrFn === "function" ? planOrFn(prev) : planOrFn;
+      historyRef.current.past.push(prev);
+      if (historyRef.current.past.length > 40) historyRef.current.past.shift();
+      historyRef.current.future = [];
+      return next;
+    });
+  }, []);
+  const canUndo = historyRef.current.past.length > 0;
+  const canRedo = historyRef.current.future.length > 0;
+  const undo = () => { if (!canUndo) return; const prev = historyRef.current.past.pop(); historyRef.current.future.push(builderPlan); _setBuilderPlan(prev); };
+  const redo = () => { if (!canRedo) return; const next = historyRef.current.future.pop(); historyRef.current.past.push(builderPlan); _setBuilderPlan(next); };
 
   useEffect(() => { saveTheme(themeMode); }, [themeMode]);
   useEffect(() => { savePlan(plan); }, [plan]);
+
+  // Keyboard shortcut: Ctrl/Cmd+Z = undo, Ctrl/Cmd+Shift+Z = redo
+  useEffect(() => {
+    if (mode !== "builder") return;
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "z") {
+        e.preventDefault();
+        if (e.shiftKey) redo(); else undo();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  });
 
   const t = themes[themeMode];
   const toggleTheme = () => setThemeMode(m => m === "dark" ? "light" : "dark");
@@ -49,7 +78,8 @@ export default function App() {
   const curDay = curWeek && dayIdx !== null ? curWeek.days[dayIdx] : null;
 
   const startBuilder = () => {
-    setBuilderPlan(DEFAULT_PLAN);
+    historyRef.current = { past: [], future: [] };
+    _setBuilderPlan(DEFAULT_PLAN);
     setBuilderStep(0);
     setMode("builder");
   };
@@ -63,7 +93,8 @@ export default function App() {
   };
 
   const editPlan = () => {
-    setBuilderPlan({ ...plan });
+    historyRef.current = { past: [], future: [] };
+    _setBuilderPlan({ ...plan });
     setBuilderStep(0);
     setMode("builder");
   };
@@ -163,6 +194,10 @@ export default function App() {
                       {i < BUILDER_STEPS.length - 1 && <span style={{ color: t.textFaint, fontSize: 10 }}>&rarr;</span>}
                     </div>
                   ))}
+                </div>
+                <div style={{ display: "flex", gap: 2, marginLeft: 4 }}>
+                  <button onClick={undo} disabled={!canUndo} title="Undo (Ctrl+Z)" style={{ padding: "4px 8px", borderRadius: 6, border: `1px solid ${t.borderLight}`, background: "transparent", color: canUndo ? t.textMuted : t.textFaint, cursor: canUndo ? "pointer" : "default", fontSize: 13, fontWeight: 700, opacity: canUndo ? 1 : 0.35 }}>{"\u21A9"}</button>
+                  <button onClick={redo} disabled={!canRedo} title="Redo (Ctrl+Shift+Z)" style={{ padding: "4px 8px", borderRadius: 6, border: `1px solid ${t.borderLight}`, background: "transparent", color: canRedo ? t.textMuted : t.textFaint, cursor: canRedo ? "pointer" : "default", fontSize: 13, fontWeight: 700, opacity: canRedo ? 1 : 0.35 }}>{"\u21AA"}</button>
                 </div>
                 <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
               </div>

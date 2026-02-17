@@ -10,6 +10,7 @@ const PREFIX = "atlas_";
 
 const KEYS = {
   plan: `${PREFIX}plan`,
+  logs: `${PREFIX}logs`,
   theme: `${PREFIX}theme`,
 };
 
@@ -37,6 +38,25 @@ export function savePlan(plan) {
     localStorage.setItem(KEYS.plan, JSON.stringify(plan));
   } catch {
     // Silently fail (e.g. quota exceeded in private browsing).
+  }
+}
+
+/* ── Workout Logs ─────────────────────────────────────────────── */
+
+export function loadWorkoutLogs() {
+  try {
+    const raw = localStorage.getItem(KEYS.logs);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveWorkoutLogs(logs) {
+  try {
+    localStorage.setItem(KEYS.logs, JSON.stringify(logs));
+  } catch {
+    // Silently fail.
   }
 }
 
