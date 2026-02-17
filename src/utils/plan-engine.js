@@ -38,17 +38,54 @@ export function buildMonthFromPlan(plan) {
   });
 }
 
-export const DEFAULT_PLAN = {
-  splitKey: "ppl",
-  splitName: "Push / Pull / Legs",
-  weekTemplate: SPLIT_PRESETS.ppl.weekTemplate.map(d => ({
+/* ── Build a plan object from a preset key ────────────────── */
+
+export function buildPlanFromPreset(key) {
+  const preset = SPLIT_PRESETS[key];
+  if (!preset) return null;
+
+  const weekTemplate = preset.weekTemplate.map(d => ({
     ...d,
-    isRest: !d.exercises.length && d.label === "Rest",
+    isRest: d.isRest || (!d.exercises.length && d.label === "Rest"),
     exercises: d.exercises.map(exId => getExDefault(exId)),
-  })),
-  weeks: 4,
-  progressRate: 2.5,
-};
+  }));
+
+  const trainingSequence = weekTemplate.filter(d => !d.isRest);
+
+  return {
+    splitKey: key,
+    splitName: preset.name,
+    weekTemplate,
+    trainingSequence,
+    cycleLength: preset.cycleLength || trainingSequence.length,
+    weeks: 4,
+    progressRate: 2.5,
+  };
+}
+
+export const DEFAULT_PLAN = buildPlanFromPreset("ppl");
+
+/* ── Redistribute training sequence across training slots ── */
+
+export function redistributeTrainingDays(plan) {
+  const wt = plan.weekTemplate || [];
+  const seq = plan.trainingSequence || [];
+  const trainingPositions = [];
+  wt.forEach((d, i) => { if (!d.isRest) trainingPositions.push(i); });
+
+  const rebuilt = wt.map((d, i) => {
+    if (d.isRest) return { ...d, label: "Rest", exercises: [] };
+    const seqIdx = trainingPositions.indexOf(i);
+    if (seqIdx < seq.length) {
+      return { ...seq[seqIdx], isRest: false };
+    }
+    // More training slots than sequence entries (custom — grow)
+    const letter = String.fromCharCode(65 + seqIdx);
+    return { label: `Training ${letter}`, isRest: false, exercises: [] };
+  });
+
+  return rebuilt;
+}
 
 export function getGapSuggestions(weekTemplate, count = 3) {
   const vol = {};

@@ -1,5 +1,5 @@
 export const SPLIT_PRESETS = {
-  ppl: { name: "Push / Pull / Legs", shortName: "PPL", description: "Classic 6-day split. Each muscle group hit 2x/week.", daysPerWeek: 6, tags: ["hypertrophy", "intermediate", "6-day"],
+  ppl: { name: "Push / Pull / Legs", shortName: "PPL", description: "Classic 6-day split. Each muscle group hit 2x/week.", daysPerWeek: 6, cycleLength: 3, tags: ["hypertrophy", "intermediate", "6-day"],
     weekTemplate: [
       { label: "Push A", exercises: ["barbell_bench_press", "overhead_press", "incline_db_press", "cable_lateral_raise", "tricep_pushdown"] },
       { label: "Pull A", exercises: ["barbell_row", "pull_up", "seated_cable_row", "face_pull", "barbell_curl"] },
@@ -10,7 +10,7 @@ export const SPLIT_PRESETS = {
       { label: "Legs B", exercises: ["romanian_deadlift", "bulgarian_split_squat", "hip_thrust", "leg_extension", "calf_raise"] },
     ],
   },
-  upper_lower: { name: "Upper / Lower", shortName: "U/L", description: "4-day split alternating upper and lower body.", daysPerWeek: 4, tags: ["hypertrophy", "beginner-intermediate", "4-day"],
+  upper_lower: { name: "Upper / Lower", shortName: "U/L", description: "4-day split alternating upper and lower body.", daysPerWeek: 4, cycleLength: 2, tags: ["hypertrophy", "beginner-intermediate", "4-day"],
     weekTemplate: [
       { label: "Upper A", exercises: ["barbell_bench_press", "barbell_row", "overhead_press", "lat_pulldown", "cable_lateral_raise", "barbell_curl", "tricep_pushdown"] },
       { label: "Lower A", exercises: ["barbell_back_squat", "romanian_deadlift", "leg_press", "leg_curl", "calf_raise"] },
@@ -21,7 +21,7 @@ export const SPLIT_PRESETS = {
       { label: "Rest", exercises: [] },
     ],
   },
-  full_body: { name: "Full Body", shortName: "FB", description: "3-day full body. High frequency, ideal for beginners.", daysPerWeek: 3, tags: ["hypertrophy", "beginner", "3-day"],
+  full_body: { name: "Full Body", shortName: "FB", description: "3-day full body. High frequency, ideal for beginners.", daysPerWeek: 3, cycleLength: 3, tags: ["hypertrophy", "beginner", "3-day"],
     weekTemplate: [
       { label: "Full Body A", exercises: ["barbell_back_squat", "barbell_bench_press", "barbell_row", "overhead_press", "barbell_curl", "calf_raise"] },
       { label: "Rest", exercises: [] },
@@ -32,7 +32,7 @@ export const SPLIT_PRESETS = {
       { label: "Rest", exercises: [] },
     ],
   },
-  bro_split: { name: "Bro Split", shortName: "Bro", description: "5-day bodypart split. One muscle group per day.", daysPerWeek: 5, tags: ["hypertrophy", "intermediate-advanced", "5-day"],
+  bro_split: { name: "Bro Split", shortName: "Bro", description: "5-day bodypart split. One muscle group per day.", daysPerWeek: 5, cycleLength: 5, tags: ["hypertrophy", "intermediate-advanced", "5-day"],
     weekTemplate: [
       { label: "Chest", exercises: ["barbell_bench_press", "incline_db_press", "dumbbell_fly", "dips"] },
       { label: "Back", exercises: ["barbell_row", "pull_up", "lat_pulldown", "seated_cable_row"] },
@@ -43,7 +43,7 @@ export const SPLIT_PRESETS = {
       { label: "Rest", exercises: [] },
     ],
   },
-  custom: { name: "Custom", shortName: "Custom", description: "Build your own split from scratch.", daysPerWeek: 0, tags: ["flexible"],
+  custom: { name: "Custom", shortName: "Custom", description: "Build your own split from scratch.", daysPerWeek: 0, cycleLength: 0, tags: ["flexible"],
     weekTemplate: Array(7).fill(null).map(() => ({ label: "Rest", isRest: true, exercises: [] })),
   },
 };

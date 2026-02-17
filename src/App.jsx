@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { themes, ThemeContext } from "./context/theme.js";
 import { PlanDataContext } from "./context/plan-data.js";
 import { MO_NAMES } from "./utils/helpers.js";
 import { buildMonthFromPlan, DEFAULT_PLAN } from "./utils/plan-engine.js";
+import { loadPlan, savePlan, loadTheme, saveTheme, hasSavedPlan } from "./utils/storage.js";
 
 import MonthView from "./components/MonthView.jsx";
 import WeekView from "./components/WeekView.jsx";
@@ -10,6 +11,7 @@ import DayView from "./components/DayView.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import ThemeToggle from "./components/ThemeToggle.jsx";
 import SettingsMenu from "./components/SettingsMenu.jsx";
+import IntroScreen from "./components/IntroScreen.jsx";
 import StepGoalSplit from "./components/StepGoalSplit.jsx";
 import StepSchedule from "./components/StepSchedule.jsx";
 import StepExercises from "./components/StepExercises.jsx";
@@ -19,10 +21,10 @@ import BuilderSidebar from "./components/BuilderSidebar.jsx";
 const BUILDER_STEPS = [{ key: "split", label: "Split" }, { key: "schedule", label: "Schedule" }, { key: "exercises", label: "Exercises" }, { key: "review", label: "Review" }];
 
 export default function App() {
-  const [themeMode, setThemeMode] = useState("dark");
-  const [mode, setMode] = useState("dashboard");
-  const [plan, setPlan] = useState(DEFAULT_PLAN);
-  const [monthData, setMonthData] = useState(() => buildMonthFromPlan(DEFAULT_PLAN));
+  const [themeMode, setThemeMode] = useState(() => loadTheme("dark"));
+  const [mode, setMode] = useState(() => hasSavedPlan() ? "dashboard" : "intro");
+  const [plan, setPlan] = useState(() => loadPlan(DEFAULT_PLAN));
+  const [monthData, setMonthData] = useState(() => buildMonthFromPlan(loadPlan(DEFAULT_PLAN)));
 
   // Dashboard state
   const [viewLevel, setViewLevel] = useState("month");
@@ -33,7 +35,11 @@ export default function App() {
   const [builderStep, setBuilderStep] = useState(0);
   const [builderPlan, setBuilderPlan] = useState(DEFAULT_PLAN);
 
+  useEffect(() => { saveTheme(themeMode); }, [themeMode]);
+  useEffect(() => { savePlan(plan); }, [plan]);
+
   const t = themes[themeMode];
+  const toggleTheme = () => setThemeMode(m => m === "dark" ? "light" : "dark");
   const goMonth = () => { setViewLevel("month"); setWeekIdx(null); setDayIdx(null); };
   const goWeek = (wi) => { setWeekIdx(wi); setDayIdx(null); setViewLevel("week"); };
   const goDay = (wi, di) => { setWeekIdx(wi); setDayIdx(di); setViewLevel("day"); };
@@ -41,6 +47,12 @@ export default function App() {
 
   const curWeek = weekIdx !== null ? monthData[weekIdx] : null;
   const curDay = curWeek && dayIdx !== null ? curWeek.days[dayIdx] : null;
+
+  const startBuilder = () => {
+    setBuilderPlan(DEFAULT_PLAN);
+    setBuilderStep(0);
+    setMode("builder");
+  };
 
   const activatePlan = () => {
     const newMonth = buildMonthFromPlan(builderPlan);
@@ -54,6 +66,14 @@ export default function App() {
     setBuilderPlan({ ...plan });
     setBuilderStep(0);
     setMode("builder");
+  };
+
+  const cancelBuilder = () => {
+    if (builderStep > 0) {
+      setBuilderStep(builderStep - 1);
+    } else {
+      setMode(hasSavedPlan() ? "dashboard" : "intro");
+    }
   };
 
   const canNext = builderStep === 0 ? !!builderPlan.splitKey : builderStep === 1 ? builderPlan.weekTemplate.some(d => !d.isRest) : true;
@@ -78,6 +98,9 @@ export default function App() {
         input[type=number] { -moz-appearance: textfield; }
       `}</style>
 
+      {mode === "intro" ? (
+        <IntroScreen onStart={startBuilder} themeMode={themeMode} onToggleTheme={toggleTheme} />
+      ) : (
       <div style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 24px", color: t.text, transition: "color 0.3s" }}>
 
         {mode === "dashboard" ? (
@@ -99,7 +122,7 @@ export default function App() {
                   {viewLevel !== "month" && curWeek && <><span style={{ color: t.textFaint }}>/</span><button onClick={() => { setViewLevel("week"); setDayIdx(null); }} style={{ color: viewLevel === "week" ? t.text : "#4C9EFF", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", textDecoration: viewLevel === "week" ? "none" : "underline", textUnderlineOffset: 3 }}>{curWeek.label}</button></>}
                   {viewLevel === "day" && curDay && <><span style={{ color: t.textFaint }}>/</span><span style={{ color: t.text }}>{curDay.label}</span></>}
                 </div>
-                <ThemeToggle mode={themeMode} onToggle={() => setThemeMode(m => m === "dark" ? "light" : "dark")} />
+                <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
                 <SettingsMenu onEditPlan={editPlan} />
               </div>
             </div>
@@ -141,7 +164,7 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <ThemeToggle mode={themeMode} onToggle={() => setThemeMode(m => m === "dark" ? "light" : "dark")} />
+                <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
               </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: builderStep >= 1 ? "1fr 320px" : "1fr", gap: 28 }}>
@@ -151,7 +174,7 @@ export default function App() {
                 {builderStep === 2 && <StepExercises plan={builderPlan} onChange={setBuilderPlan} />}
                 {builderStep === 3 && <StepReview plan={builderPlan} />}
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 28, paddingTop: 20, borderTop: `1px solid ${t.border}` }}>
-                  <button onClick={() => builderStep > 0 ? setBuilderStep(builderStep - 1) : setMode("dashboard")} style={{ padding: "10px 24px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", background: "transparent", border: `1px solid ${t.borderLight}`, color: t.textMuted }}>{builderStep > 0 ? "\u2190 Back" : "\u2190 Cancel"}</button>
+                  <button onClick={cancelBuilder} style={{ padding: "10px 24px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", background: "transparent", border: `1px solid ${t.borderLight}`, color: t.textMuted }}>{builderStep > 0 ? "\u2190 Back" : "\u2190 Cancel"}</button>
                   {builderStep < 3 ? (
                     <button onClick={() => canNext && setBuilderStep(builderStep + 1)} style={{ padding: "10px 28px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: canNext ? "pointer" : "default", background: canNext ? "rgba(76,158,255,0.12)" : t.surface2, border: `1px solid ${canNext ? "#4C9EFF" : t.border}`, color: canNext ? "#4C9EFF" : t.textDim }}>Next: {BUILDER_STEPS[builderStep + 1]?.label} &rarr;</button>
                   ) : (
@@ -164,6 +187,7 @@ export default function App() {
           </>
         )}
       </div>
+      )}
       </PlanDataContext.Provider>
     </ThemeContext.Provider>
   );

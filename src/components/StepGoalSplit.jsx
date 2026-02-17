@@ -1,6 +1,6 @@
 import { useTheme } from "../context/theme.js";
 import { SPLIT_PRESETS } from "../data/split-presets.js";
-import { getExDefault } from "../data/exercise-data.js";
+import { buildPlanFromPreset } from "../utils/plan-engine.js";
 import { goalPctColor } from "../utils/helpers.js";
 
 export default function StepGoalSplit({ plan, onChange }) {
@@ -13,7 +13,7 @@ export default function StepGoalSplit({ plan, onChange }) {
         {Object.entries(SPLIT_PRESETS).map(([key, preset]) => {
           const sel = plan.splitKey === key;
           return (
-            <button key={key} onClick={() => onChange({ ...plan, splitKey: key, splitName: preset.name, weekTemplate: preset.weekTemplate.map(d => ({ ...d, isRest: d.isRest || (!d.exercises.length && d.label === "Rest"), exercises: d.exercises.map(exId => getExDefault(exId)) })), weeks: 4 })} style={{ background: sel ? `${goalPctColor(100)}08` : t.surface, border: `1px solid ${sel ? goalPctColor(100) + "40" : t.border}`, borderRadius: 14, padding: 20, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}>
+            <button key={key} onClick={() => { const p = buildPlanFromPreset(key); if (p) onChange({ ...p, weeks: plan.weeks || 4 }); }} style={{ background: sel ? `${goalPctColor(100)}08` : t.surface, border: `1px solid ${sel ? goalPctColor(100) + "40" : t.border}`, borderRadius: 14, padding: 20, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                 <span style={{ fontSize: 16, fontWeight: 700, color: sel ? "#3DDC84" : t.text }}>{preset.name}</span>
                 {preset.daysPerWeek > 0 && <span style={{ fontSize: 10, fontFamily: "mono", color: t.textDim, padding: "2px 8px", background: t.surface2, borderRadius: 6 }}>{preset.daysPerWeek}&times;/wk</span>}
