@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "../context/theme.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { PATTERN_COLORS, MUSCLE_COLORS, getDayPattern, getDaySets, getDayVol, DAY_NAMES, MO_NAMES } from "../utils/helpers.js";
+import { loadWorkoutLogs, saveWorkoutLogs } from "../utils/storage.js";
 import { PatternBadge } from "./shared.jsx";
 
 function SetPill({ set, idx, logged, onLog, active }) {
@@ -62,9 +63,29 @@ function LogModal({ exercise, setData, idx, onConfirm, onCancel }) {
 
 export default function DayView({ day, onBack }) {
   const t = useTheme();
+  const dayKey = String(day.dayNum);
+
+  // Load persisted logs for this specific day
   const [sessionActive, setSessionActive] = useState(false);
-  const [logged, setLogged] = useState({});
+  const [logged, setLogged] = useState(() => {
+    const all = loadWorkoutLogs();
+    return all[dayKey] || {};
+  });
   const [modal, setModal] = useState(null);
+
+  // Persist whenever logged changes
+  useEffect(() => {
+    const all = loadWorkoutLogs();
+    if (Object.keys(logged).length > 0) {
+      all[dayKey] = logged;
+    } else {
+      delete all[dayKey];
+    }
+    saveWorkoutLogs(all);
+  }, [logged, dayKey]);
+
+  // Auto-detect if there are already logged sets (resume session)
+  const hasLogs = Object.keys(logged).length > 0;
 
   const pat = getDayPattern(day);
 
@@ -74,8 +95,9 @@ export default function DayView({ day, onBack }) {
   let actualVol = 0;
   Object.values(logged).forEach((l) => { actualVol += l.w * l.reps; });
 
-  const startSession = () => { setSessionActive(true); setLogged({}); };
+  const startSession = () => { setSessionActive(true); };
   const endSession = () => { setSessionActive(false); };
+  const clearLogs = () => { setLogged({}); setSessionActive(false); };
 
   const confirmLog = (w, r) => {
     const key = `${modal.exIdx}_${modal.setIdx}`;
@@ -96,15 +118,39 @@ export default function DayView({ day, onBack }) {
             {DAY_NAMES[day.date.getDay()]}, {MO_NAMES[day.date.getMonth()]} {day.date.getDate()} &middot; {day.exercises.length} exercises &middot; {totalSets} sets &middot; {getDayVol(day).toLocaleString()} lbs
           </div>
         </div>
-        <button onClick={sessionActive ? endSession : startSession} style={{
-          padding: "12px 28px", borderRadius: 12, border: "none",
-          background: sessionActive ? t.surface2 : "#4C9EFF",
-          color: sessionActive ? t.textMuted : "#fff",
-          fontSize: 14, fontWeight: 700, cursor: "pointer",
-        }}>{sessionActive ? "End Session" : "Start Workout"}</button>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {hasLogs && !sessionActive && (
+            <button onClick={clearLogs} style={{ padding: "10px 16px", borderRadius: 12, border: `1px solid ${t.borderLight}`, background: "transparent", color: t.textDim, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Clear Logs</button>
+          )}
+          <button onClick={sessionActive ? endSession : startSession} style={{
+            padding: "12px 28px", borderRadius: 12, border: "none",
+            background: sessionActive ? t.surface2 : "#4C9EFF",
+            color: sessionActive ? t.textMuted : "#fff",
+            fontSize: 14, fontWeight: 700, cursor: "pointer",
+          }}>{sessionActive ? "End Session" : hasLogs ? "Resume Workout" : "Start Workout"}</button>
+        </div>
       </div>
 
-      {sessionActive && (
+      {/* Progress bar when there are logs */}
+      {hasLogs && (
+        <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: "12px 18px", marginBottom: 16, display: "flex", alignItems: "center", gap: 14 }}>
+          {sessionActive && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#4C9EFF", animation: "pulse 2s infinite", flexShrink: 0 }} />}
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+              <span style={{ fontSize: 12, color: sessionActive ? "#4C9EFF" : t.textMuted, fontWeight: 500 }}>
+                {sessionActive ? "Session active" : "Session logged"} — {completedSets}/{totalSets} sets
+              </span>
+              <span style={{ fontSize: 12, fontFamily: "mono", fontWeight: 700, color: pct === 100 ? "#3DDC84" : "#4C9EFF" }}>{pct}%</span>
+            </div>
+            <div style={{ height: 4, borderRadius: 2, background: t.surface3, overflow: "hidden" }}>
+              <div style={{ height: "100%", borderRadius: 2, background: pct === 100 ? "#3DDC84" : "#4C9EFF", width: `${pct}%`, transition: "width 0.3s" }} />
+            </div>
+          </div>
+          {actualVol > 0 && <div style={{ textAlign: "right", flexShrink: 0 }}><div style={{ fontSize: 14, fontFamily: "mono", fontWeight: 700, color: t.text }}>{actualVol.toLocaleString()}</div><div style={{ fontSize: 9, color: t.textFaint, fontFamily: "mono" }}>LBS VOL</div></div>}
+        </div>
+      )}
+
+      {!hasLogs && sessionActive && (
         <div style={{ background: "rgba(76,158,255,0.06)", border: "1px solid rgba(76,158,255,0.2)", borderRadius: 12, padding: "12px 18px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#4C9EFF", animation: "pulse 2s infinite" }} />
           <span style={{ fontSize: 13, color: "#4C9EFF", fontWeight: 500 }}>Session active — tap sets to log</span>

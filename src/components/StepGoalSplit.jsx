@@ -27,10 +27,17 @@ export default function StepGoalSplit({ plan, onChange }) {
         })}
       </div>
       {plan.splitKey && (
-        <div style={{ marginTop: 24, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 20 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Mesocycle Length</div>
-          <div style={{ display: "flex", gap: 8 }}>
-            {[2, 3, 4, 5, 6].map(w => <button key={w} onClick={() => onChange({ ...plan, weeks: w })} style={{ padding: "10px 20px", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", border: `1px solid ${plan.weeks === w ? "#4C9EFF" : t.borderLight}`, background: plan.weeks === w ? "rgba(76,158,255,0.1)" : "transparent", color: plan.weeks === w ? "#4C9EFF" : t.textMuted }}>{w} weeks</button>)}
+        <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 20 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Mesocycle Length</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {[2, 3, 4, 5, 6].map(w => <button key={w} onClick={() => onChange({ ...plan, weeks: w })} style={{ padding: "10px 20px", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", border: `1px solid ${plan.weeks === w ? "#4C9EFF" : t.borderLight}`, background: plan.weeks === w ? "rgba(76,158,255,0.1)" : "transparent", color: plan.weeks === w ? "#4C9EFF" : t.textMuted }}>{w} weeks</button>)}
+            </div>
+          </div>
+          <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 20 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Start Date</div>
+            <input type="date" value={plan.startDate || ""} onChange={e => onChange({ ...plan, startDate: e.target.value })} style={{ padding: "10px 14px", borderRadius: 10, fontSize: 14, fontWeight: 600, border: `1px solid ${t.borderLight}`, background: t.surface2, color: t.text, fontFamily: "mono", outline: "none", cursor: "pointer" }} />
+            {!plan.startDate && <div style={{ fontSize: 11, color: t.textDim, marginTop: 8 }}>Defaults to next Monday if not set.</div>}
           </div>
         </div>
       )}
