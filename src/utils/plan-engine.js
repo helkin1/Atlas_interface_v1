@@ -2,11 +2,36 @@ import { EXERCISES, EXERCISE_DEFAULTS, getExDefault } from "../data/exercise-dat
 import { SPLIT_PRESETS } from "../data/split-presets.js";
 import { calcGoalPcts } from "./helpers.js";
 
+export function createPlanId() {
+  return `plan_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function clonePlan(plan) {
+  if (typeof structuredClone === "function") return structuredClone(plan);
+  return JSON.parse(JSON.stringify(plan));
+}
+
+export function ensurePlanId(plan) {
+  if (!plan) return plan;
+  return plan.planId ? plan : { ...plan, planId: createPlanId() };
+}
+
+function parseStartDate(startDate) {
+  if (!startDate) return null;
+  if (startDate instanceof Date) return startDate;
+  if (typeof startDate === "string") {
+    const m = startDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+  const parsed = new Date(startDate);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
 export function buildMonthFromPlan(plan) {
   const wt = plan.weekTemplate || [];
   const weeks = plan.weeks || 4;
   const progressRate = plan.progressRate || 2.5;
-  const startDate = plan.startDate ? new Date(plan.startDate) : new Date();
+  const startDate = parseStartDate(plan.startDate) || new Date();
   // Align to next Monday if today
   if (!plan.startDate) { const dayOff = (8 - startDate.getDay()) % 7 || 7; startDate.setDate(startDate.getDate() + dayOff); }
 
@@ -55,6 +80,7 @@ export function buildPlanFromPreset(key) {
   const trainingSequence = weekTemplate.filter(d => !d.isRest);
 
   return {
+    planId: createPlanId(),
     splitKey: key,
     splitName: preset.name,
     weekTemplate,

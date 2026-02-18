@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { themes, ThemeContext } from "./context/theme.js";
 import { PlanDataContext } from "./context/plan-data.js";
 import { MO_NAMES } from "./utils/helpers.js";
-import { buildMonthFromPlan, DEFAULT_PLAN } from "./utils/plan-engine.js";
+import { buildMonthFromPlan, DEFAULT_PLAN, clonePlan, ensurePlanId } from "./utils/plan-engine.js";
 import { loadPlan, savePlan, loadTheme, saveTheme, hasSavedPlan } from "./utils/storage.js";
 
 import MonthView from "./components/MonthView.jsx";
@@ -23,8 +23,8 @@ const BUILDER_STEPS = [{ key: "split", label: "Split" }, { key: "schedule", labe
 export default function App() {
   const [themeMode, setThemeMode] = useState(() => loadTheme("dark"));
   const [mode, setMode] = useState(() => hasSavedPlan() ? "dashboard" : "intro");
-  const [plan, setPlan] = useState(() => loadPlan(DEFAULT_PLAN));
-  const [monthData, setMonthData] = useState(() => buildMonthFromPlan(loadPlan(DEFAULT_PLAN)));
+  const [plan, setPlan] = useState(() => ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN))));
+  const [monthData, setMonthData] = useState(() => buildMonthFromPlan(ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN)))));
 
   // Dashboard state
   const [viewLevel, setViewLevel] = useState("month");
@@ -33,7 +33,7 @@ export default function App() {
 
   // Builder state
   const [builderStep, setBuilderStep] = useState(0);
-  const [builderPlan, _setBuilderPlan] = useState(DEFAULT_PLAN);
+  const [builderPlan, _setBuilderPlan] = useState(() => clonePlan(DEFAULT_PLAN));
 
   // Undo / redo history for builder
   const historyRef = useRef({ past: [], future: [] });
@@ -52,7 +52,7 @@ export default function App() {
   const redo = () => { if (!canRedo) return; const next = historyRef.current.future.pop(); historyRef.current.past.push(builderPlan); _setBuilderPlan(next); };
 
   useEffect(() => { saveTheme(themeMode); }, [themeMode]);
-  useEffect(() => { savePlan(plan); }, [plan]);
+  useEffect(() => { savePlan(ensurePlanId(plan)); }, [plan]);
 
   // Keyboard shortcut: Ctrl/Cmd+Z = undo, Ctrl/Cmd+Shift+Z = redo
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function App() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  });
+  }, [mode, undo, redo]);
 
   const t = themes[themeMode];
   const toggleTheme = () => setThemeMode(m => m === "dark" ? "light" : "dark");
@@ -79,14 +79,15 @@ export default function App() {
 
   const startBuilder = () => {
     historyRef.current = { past: [], future: [] };
-    _setBuilderPlan(DEFAULT_PLAN);
+    _setBuilderPlan(clonePlan(DEFAULT_PLAN));
     setBuilderStep(0);
     setMode("builder");
   };
 
   const activatePlan = () => {
-    const newMonth = buildMonthFromPlan(builderPlan);
-    setPlan(builderPlan);
+    const nextPlan = ensurePlanId(clonePlan(builderPlan));
+    const newMonth = buildMonthFromPlan(nextPlan);
+    setPlan(nextPlan);
     setMonthData(newMonth);
     setMode("dashboard");
     goMonth();
@@ -94,7 +95,7 @@ export default function App() {
 
   const editPlan = () => {
     historyRef.current = { past: [], future: [] };
-    _setBuilderPlan({ ...plan });
+    _setBuilderPlan(clonePlan(plan));
     setBuilderStep(0);
     setMode("builder");
   };
@@ -161,7 +162,7 @@ export default function App() {
               <div>
                 {viewLevel === "month" && <MonthView onWeek={goWeek} onDay={goDay} />}
                 {viewLevel === "week" && curWeek && <WeekView week={curWeek} onDay={(di) => goDay(weekIdx, di)} onBack={goMonth} />}
-                {viewLevel === "day" && curDay && !curDay.isRest && <DayView day={curDay} onBack={backToWeek} />}
+                {viewLevel === "day" && curDay && !curDay.isRest && <DayView day={curDay} planId={plan.planId} onBack={backToWeek} />}
                 {viewLevel === "day" && curDay && curDay.isRest && (
                   <div>
                     <button onClick={backToWeek} style={{ fontSize: 12, color: "#4C9EFF", background: "none", border: "none", cursor: "pointer", marginBottom: 16 }}>&larr; Back to Week</button>

@@ -60,6 +60,21 @@ export function saveWorkoutLogs(logs) {
   }
 }
 
+
+export function getWorkoutLogKey(planId, dayNum) {
+  const pid = planId || "legacy";
+  return `${pid}:${dayNum}`;
+}
+
+export function migrateLegacyWorkoutLog(dayNum, planId, logs) {
+  const legacyKey = String(dayNum);
+  const scopedKey = getWorkoutLogKey(planId, dayNum);
+  if (!logs[scopedKey] && logs[legacyKey]) {
+    return { ...logs, [scopedKey]: logs[legacyKey] };
+  }
+  return logs;
+}
+
 /* ── Theme ────────────────────────────────────────────────────── */
 
 export function loadTheme(fallback) {

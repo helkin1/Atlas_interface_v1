@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useTheme } from "../context/theme.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { PATTERN_COLORS, MUSCLE_COLORS, getDayPattern, getDaySets, getDayVol, DAY_NAMES, MO_NAMES } from "../utils/helpers.js";
-import { loadWorkoutLogs, saveWorkoutLogs } from "../utils/storage.js";
+import { loadWorkoutLogs, saveWorkoutLogs, getWorkoutLogKey, migrateLegacyWorkoutLog } from "../utils/storage.js";
 import { PatternBadge } from "./shared.jsx";
 
 function SetPill({ set, idx, logged, onLog, active }) {
@@ -61,28 +61,36 @@ function LogModal({ exercise, setData, idx, onConfirm, onCancel }) {
   );
 }
 
-export default function DayView({ day, onBack }) {
+export default function DayView({ day, planId, onBack }) {
   const t = useTheme();
-  const dayKey = String(day.dayNum);
+  const dayKey = getWorkoutLogKey(planId, day.dayNum);
 
   // Load persisted logs for this specific day
   const [sessionActive, setSessionActive] = useState(false);
   const [logged, setLogged] = useState(() => {
-    const all = loadWorkoutLogs();
+    const all = migrateLegacyWorkoutLog(day.dayNum, planId, loadWorkoutLogs());
     return all[dayKey] || {};
   });
   const [modal, setModal] = useState(null);
 
+  useEffect(() => {
+    const all = migrateLegacyWorkoutLog(day.dayNum, planId, loadWorkoutLogs());
+    setLogged(all[dayKey] || {});
+    setSessionActive(false);
+    setModal(null);
+  }, [dayKey, day.dayNum, planId]);
+
   // Persist whenever logged changes
   useEffect(() => {
-    const all = loadWorkoutLogs();
+    const migrated = migrateLegacyWorkoutLog(day.dayNum, planId, loadWorkoutLogs());
+    const all = { ...migrated };
     if (Object.keys(logged).length > 0) {
       all[dayKey] = logged;
     } else {
       delete all[dayKey];
     }
     saveWorkoutLogs(all);
-  }, [logged, dayKey]);
+  }, [logged, dayKey, day.dayNum, planId]);
 
   // Auto-detect if there are already logged sets (resume session)
   const hasLogs = Object.keys(logged).length > 0;
