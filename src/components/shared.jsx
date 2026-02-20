@@ -81,6 +81,50 @@ export function MuscleGoalBar({ name, eff, target, compact }) {
   );
 }
 
+// ── AlertsPanel ──────────────────────────────────────────────
+// Displays beginner-friendly science engine alerts.
+// severity: "critical" | "warning" | "info"
+const ALERT_STYLES = {
+  critical: { color: "#EF4444", bg: "rgba(239,68,68,0.07)", border: "rgba(239,68,68,0.18)", dot: "#EF4444" },
+  warning:  { color: "#FBBF24", bg: "rgba(251,191,36,0.07)", border: "rgba(251,191,36,0.18)", dot: "#FBBF24" },
+  info:     { color: "#4C9EFF", bg: "rgba(76,158,255,0.07)", border: "rgba(76,158,255,0.18)", dot: "#4C9EFF" },
+};
+
+export function AlertsPanel({ alerts, maxVisible = 5 }) {
+  const t = useTheme();
+  const visible = alerts ? alerts.slice(0, maxVisible) : [];
+  const overflow = alerts ? Math.max(0, alerts.length - maxVisible) : 0;
+
+  if (!alerts || alerts.length === 0) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 10, background: "rgba(61,220,132,0.07)", border: "1px solid rgba(61,220,132,0.2)" }}>
+        <span style={{ fontSize: 14 }}>✓</span>
+        <span style={{ fontSize: 12, color: "#3DDC84", fontWeight: 600 }}>Plan looks balanced</span>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      {visible.map(alert => {
+        const s = ALERT_STYLES[alert.severity] || ALERT_STYLES.info;
+        return (
+          <div key={alert.id} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 10px", borderRadius: 10, background: s.bg, border: `1px solid ${s.border}` }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: s.dot, marginTop: 5, flexShrink: 0 }} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: s.color, lineHeight: 1.3, marginBottom: 2 }}>{alert.title}</div>
+              <div style={{ fontSize: 10, color: t.textDim, lineHeight: 1.4 }}>{alert.message}</div>
+            </div>
+          </div>
+        );
+      })}
+      {overflow > 0 && (
+        <div style={{ fontSize: 10, color: t.textFaint, textAlign: "center", paddingTop: 2 }}>+{overflow} more</div>
+      )}
+    </div>
+  );
+}
+
 export function MuscleDiagram({ muscleVol, size = 160 }) {
   const t = useTheme();
   const goals = calcGoalPcts(muscleVol);
