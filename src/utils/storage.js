@@ -11,6 +11,7 @@ const PREFIX = "atlas_";
 const KEYS = {
   plan: `${PREFIX}plan`,
   logs: `${PREFIX}logs`,
+  sessions: `${PREFIX}sessions`,
   theme: `${PREFIX}theme`,
 };
 
@@ -73,6 +74,26 @@ export function migrateLegacyWorkoutLog(dayNum, planId, logs) {
     return { ...logs, [scopedKey]: logs[legacyKey] };
   }
   return logs;
+}
+
+/* ── Session Metadata ─────────────────────────────────────────── */
+// Stores per-session timing: { "{planId}:{dayNum}": { sessionId, startTime, endTime } }
+
+export function loadSessionMeta() {
+  try {
+    const raw = localStorage.getItem(KEYS.sessions);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveSessionMeta(meta) {
+  try {
+    localStorage.setItem(KEYS.sessions, JSON.stringify(meta));
+  } catch {
+    // Silently fail.
+  }
 }
 
 /* ── Theme ────────────────────────────────────────────────────── */
