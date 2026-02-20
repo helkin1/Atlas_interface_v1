@@ -2,9 +2,10 @@ import { useTheme } from "../context/theme.js";
 import { usePlanData } from "../context/plan-data.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { PATTERN_COLORS, calcMuscleVol, weekMuscleVol, calcGoalPcts, overallGoalPct, goalPctColor, getDaySets, getWeekSets } from "../utils/helpers.js";
-import { MiniBar, GoalRing, MuscleGoalBar, MuscleDiagram } from "./shared.jsx";
+import { analyzePlan } from "../utils/science-engine.js";
+import { MiniBar, GoalRing, MuscleGoalBar, MuscleDiagram, AlertsPanel } from "./shared.jsx";
 
-export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay }) {
+export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
   const t = useTheme();
   const MONTH = usePlanData();
 
@@ -119,6 +120,10 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay }) {
   const overall = overallGoalPct(goalPcts);
   const sortedGoals = Object.entries(goalPcts).sort((a, b) => b[1].pct - a[1].pct);
 
+  // Science engine: run on canonical plan weekTemplate when available
+  const scienceReport = plan ? analyzePlan(plan.weekTemplate || []) : null;
+  const planAlerts = scienceReport ? scienceReport.alerts : [];
+
   return (
     <div>
       <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 16 }}>Mesocycle Overview</div>
@@ -137,6 +142,11 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay }) {
             </div>
           </div>
         </div>
+      </div>
+      {/* Plan alerts from science engine */}
+      <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Plan Alerts</div>
+        <AlertsPanel alerts={planAlerts} maxVisible={4} />
       </div>
       <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
         <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Pattern Split</div>
