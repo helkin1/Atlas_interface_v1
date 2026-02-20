@@ -12,6 +12,7 @@ const KEYS = {
   plan: `${PREFIX}plan`,
   logs: `${PREFIX}logs`,
   theme: `${PREFIX}theme`,
+  sessions: `${PREFIX}sessions`,
 };
 
 /* ── Plan ─────────────────────────────────────────────────────── */
@@ -73,6 +74,33 @@ export function migrateLegacyWorkoutLog(dayNum, planId, logs) {
     return { ...logs, [scopedKey]: logs[legacyKey] };
   }
   return logs;
+}
+
+/* ── Session Metadata ─────────────────────────────────────────── */
+
+export function loadSessionMeta(dayKey) {
+  try {
+    const raw = localStorage.getItem(KEYS.sessions);
+    const all = raw ? JSON.parse(raw) : {};
+    return all[dayKey] || null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveSessionMeta(dayKey, meta) {
+  try {
+    const raw = localStorage.getItem(KEYS.sessions);
+    const all = raw ? JSON.parse(raw) : {};
+    if (meta === null) {
+      delete all[dayKey];
+    } else {
+      all[dayKey] = meta;
+    }
+    localStorage.setItem(KEYS.sessions, JSON.stringify(all));
+  } catch {
+    // Silently fail.
+  }
 }
 
 /* ── Theme ────────────────────────────────────────────────────── */
