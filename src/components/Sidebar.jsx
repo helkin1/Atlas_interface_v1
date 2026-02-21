@@ -1,7 +1,7 @@
 import { useTheme } from "../context/theme.js";
 import { usePlanData } from "../context/plan-data.js";
 import { EXERCISES } from "../data/exercise-data.js";
-import { PATTERN_COLORS, calcMuscleVol, weekMuscleVol, calcGoalPcts, overallGoalPct, goalPctColor, getDaySets, getWeekSets } from "../utils/helpers.js";
+import { calcMuscleVol, weekMuscleVol, calcGoalPcts, overallGoalPct, goalPctColor, getDaySets, getWeekSets } from "../utils/helpers.js";
 import { analyzePlan } from "../utils/science-engine.js";
 import { MiniBar, GoalRing, MuscleGoalBar, MuscleDiagram, AlertsPanel } from "./shared.jsx";
 
@@ -103,10 +103,6 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
   const totalSets = MONTH.reduce((s, w) => s + getWeekSets(w), 0);
   const trainDays = MONTH.reduce((s, w) => s + w.days.filter((d) => !d.isRest).length, 0);
 
-  const patterns = { push: 0, pull: 0, legs: 0 };
-  MONTH.forEach((w) => w.days.forEach((d) => d.exercises.forEach((e) => { const ex = EXERCISES[e.exercise_id]; if (ex && patterns[ex.pattern] !== undefined) patterns[ex.pattern] += e.sets.length; })));
-  const patTotal = patterns.push + patterns.pull + patterns.legs;
-
   const wkSets = MONTH.map((w) => getWeekSets(w));
   const maxWS = Math.max(...wkSets);
 
@@ -119,6 +115,23 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
   const goalPcts = calcGoalPcts(avgWeekMusc);
   const overall = overallGoalPct(goalPcts);
   const sortedGoals = Object.entries(goalPcts).sort((a, b) => b[1].pct - a[1].pct);
+
+  // Volume balance: Upper / Lower / Core from avg weekly effective sets
+  const BODY_REGION = {
+    Chest: "upper", "Upper Chest": "upper",
+    "Front Delts": "upper", "Side Delts": "upper", "Rear Delts": "upper",
+    Triceps: "upper", Biceps: "upper", Brachialis: "upper",
+    Lats: "upper", "Upper Back": "upper", Traps: "upper",
+    "Rotator Cuff": "upper", Forearms: "upper",
+    Core: "core", "Lower Back": "core",
+    Quads: "lower", Hamstrings: "lower", Glutes: "lower", Calves: "lower",
+  };
+  const regionVol = { upper: 0, lower: 0, core: 0 };
+  Object.entries(avgWeekMusc).forEach(([m, v]) => {
+    const r = BODY_REGION[m];
+    if (r) regionVol[r] += v;
+  });
+  const regionTotal = regionVol.upper + regionVol.lower + regionVol.core || 1;
 
   // Science engine: run on canonical plan weekTemplate when available
   const scienceReport = plan ? analyzePlan(plan.weekTemplate || []) : null;
@@ -149,23 +162,28 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
         <AlertsPanel alerts={planAlerts} maxVisible={4} />
       </div>
       <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Pattern Split</div>
+        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Volume Balance</div>
         <div style={{ display: "flex", gap: 8 }}>
-          {Object.entries(patterns).map(([p, s]) => {
-            const pct = Math.round((s / patTotal) * 100);
-            const pc = PATTERN_COLORS[p];
+          {[
+            { key: "upper", label: "Upper", color: "#4C9EFF" },
+            { key: "lower", label: "Lower", color: "#A78BFA" },
+            { key: "core",  label: "Core",  color: "#FBBF24" },
+          ].map(({ key, label, color }) => {
+            const v = regionVol[key];
+            const pct = Math.round((v / regionTotal) * 100);
             return (
-              <div key={p} style={{ flex: 1, textAlign: "center" }}>
-                <div style={{ fontSize: 22, fontFamily: "mono", fontWeight: 700, color: pc.text }}>{s}</div>
-                <div style={{ fontSize: 10, color: t.textDim }}>{p}</div>
+              <div key={key} style={{ flex: 1, textAlign: "center" }}>
+                <div style={{ fontSize: 22, fontFamily: "mono", fontWeight: 700, color }}>{Math.round(v)}</div>
+                <div style={{ fontSize: 10, color: t.textDim }}>{label}</div>
                 <div style={{ height: 4, background: t.border, borderRadius: 2, marginTop: 8, overflow: "hidden" }}>
-                  <div style={{ width: `${pct}%`, height: "100%", background: pc.text, borderRadius: 2 }} />
+                  <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 2 }} />
                 </div>
                 <div style={{ fontSize: 10, fontFamily: "mono", color: t.textFaint, marginTop: 4 }}>{pct}%</div>
               </div>
             );
           })}
         </div>
+        <div style={{ fontSize: 9, color: t.textFaint, marginTop: 10, textAlign: "center", fontFamily: "mono" }}>avg weekly effective sets per region</div>
       </div>
       <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
         <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Weekly Sets</div>
