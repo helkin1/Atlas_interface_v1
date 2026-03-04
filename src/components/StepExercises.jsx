@@ -18,19 +18,7 @@ export default function StepExercises({ plan, onChange }) {
   const t = useTheme();
   const wt = plan.weekTemplate || [];
   const seq = plan.trainingSequence || wt.filter(d => !d.isRest);
-  const cycleLen = plan.cycleLength || seq.length;
 
-  // Week groups from training sequence
-  const weekGroups = useMemo(() => {
-    if (!seq.length || !cycleLen) return [];
-    const groups = [];
-    for (let i = 0; i < seq.length; i += cycleLen) {
-      groups.push({ label: `Week ${String.fromCharCode(65 + groups.length)}`, days: seq.slice(i, i + cycleLen), startIdx: i });
-    }
-    return groups;
-  }, [seq, cycleLen]);
-
-  const [selectedWeekGroup, setSelectedWeekGroup] = useState(0);
   const [selectedSeqIdx, setSelectedSeqIdx] = useState(0);
   const [search, setSearch] = useState("");
   const [filterMuscle, setFilterMuscle] = useState("all");
@@ -71,29 +59,14 @@ export default function StepExercises({ plan, onChange }) {
   return (
     <div>
       <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Build Your Workouts</h2>
-      <p style={{ fontSize: 13, color: t.textDim, marginBottom: 20 }}>Select a week and training day, then add or reorder exercises.</p>
+      <p style={{ fontSize: 13, color: t.textDim, marginBottom: 20 }}>Select a training day, then add or reorder exercises.</p>
 
-      {/* ── Week group selector ── */}
-      {weekGroups.length > 1 && (
-        <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-          {weekGroups.map((wg, gi) => {
-            const sel = selectedWeekGroup === gi;
-            return (
-              <button key={gi} onClick={() => { setSelectedWeekGroup(gi); setSelectedSeqIdx(wg.startIdx); setExpandedIdx(null); }} style={{ padding: "8px 20px", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", border: `1px solid ${sel ? "#4C9EFF" : t.border}`, background: sel ? "rgba(76,158,255,0.1)" : t.surface, color: sel ? "#4C9EFF" : t.textMuted }}>
-                {wg.label}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ── Day selector within the week group ── */}
+      {/* ── Day selector — all training sessions flat ── */}
       <div style={{ display: "flex", gap: 6, marginBottom: 20, flexWrap: "wrap" }}>
-        {(weekGroups[selectedWeekGroup]?.days || []).map((day, di) => {
-          const absSeqIdx = (weekGroups[selectedWeekGroup]?.startIdx || 0) + di;
-          const sel = selectedSeqIdx === absSeqIdx;
+        {seq.map((day, seqIdx) => {
+          const sel = selectedSeqIdx === seqIdx;
           return (
-            <button key={di} onClick={() => { setSelectedSeqIdx(absSeqIdx); setExpandedIdx(null); }} style={{ padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: "pointer", border: `1px solid ${sel ? "#4C9EFF" : t.borderLight}`, background: sel ? "rgba(76,158,255,0.1)" : "transparent", color: sel ? "#4C9EFF" : t.textMuted }}>
+            <button key={seqIdx} onClick={() => { setSelectedSeqIdx(seqIdx); setExpandedIdx(null); }} style={{ padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: "pointer", border: `1px solid ${sel ? "#4C9EFF" : t.borderLight}`, background: sel ? "rgba(76,158,255,0.1)" : "transparent", color: sel ? "#4C9EFF" : t.textMuted }}>
               {day.label}{day.exercises.length > 0 ? ` (${day.exercises.length})` : ""}
             </button>
           );

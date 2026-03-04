@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTheme } from "../context/theme.js";
 import { SPLIT_PRESETS } from "../data/split-presets.js";
 import { buildPlanFromPreset } from "../utils/plan-engine.js";
@@ -5,10 +6,12 @@ import { goalPctColor } from "../utils/helpers.js";
 
 export default function StepGoalSplit({ plan, onChange }) {
   const t = useTheme();
+  const [showWeekPicker, setShowWeekPicker] = useState(false);
+
   return (
     <div>
-      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Choose Your Split</h2>
-      <p style={{ fontSize: 13, color: t.textDim, marginBottom: 24 }}>Select a training split to start with. Customize everything in the next steps.</p>
+      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Choose Your Plan</h2>
+      <p style={{ fontSize: 13, color: t.textDim, marginBottom: 24 }}>Select a training plan to start with. Customize everything in the next steps.</p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
         {Object.entries(SPLIT_PRESETS).map(([key, preset]) => {
           const sel = plan.splitKey === key;
@@ -26,14 +29,37 @@ export default function StepGoalSplit({ plan, onChange }) {
           );
         })}
       </div>
+
       {plan.splitKey && (
         <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          {/* Cycle length — 4 weeks default, expandable */}
           <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 20 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Mesocycle Length</div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {[2, 3, 4, 5, 6].map(w => <button key={w} onClick={() => onChange({ ...plan, weeks: w })} style={{ padding: "10px 20px", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", border: `1px solid ${plan.weeks === w ? "#4C9EFF" : t.borderLight}`, background: plan.weeks === w ? "rgba(76,158,255,0.1)" : "transparent", color: plan.weeks === w ? "#4C9EFF" : t.textMuted }}>{w} weeks</button>)}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: showWeekPicker ? 12 : 0 }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>
+                  {plan.weeks || 4}-week cycle
+                </div>
+                <div style={{ fontSize: 11, color: t.textDim, marginTop: 2 }}>Mesocycle length</div>
+              </div>
+              <button
+                onClick={() => setShowWeekPicker(v => !v)}
+                style={{ fontSize: 11, padding: "5px 12px", borderRadius: 8, border: `1px solid ${t.borderLight}`, background: "transparent", color: t.textMuted, cursor: "pointer", whiteSpace: "nowrap" }}
+              >
+                {showWeekPicker ? "Done" : "Customize"}
+              </button>
             </div>
+            {showWeekPicker && (
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {[2, 3, 4, 5, 6].map(w => (
+                  <button key={w} onClick={() => onChange({ ...plan, weeks: w })} style={{ padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", border: `1px solid ${plan.weeks === w ? "#4C9EFF" : t.borderLight}`, background: plan.weeks === w ? "rgba(76,158,255,0.1)" : "transparent", color: plan.weeks === w ? "#4C9EFF" : t.textMuted }}>
+                    {w}w
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* Start Date */}
           <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 20 }}>
             <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Start Date</div>
             <input type="date" value={plan.startDate || ""} onChange={e => onChange({ ...plan, startDate: e.target.value })} style={{ padding: "10px 14px", borderRadius: 10, fontSize: 14, fontWeight: 600, border: `1px solid ${t.borderLight}`, background: t.surface2, color: t.text, fontFamily: "mono", outline: "none", cursor: "pointer" }} />

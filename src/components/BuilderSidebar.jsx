@@ -2,16 +2,34 @@ import { useTheme } from "../context/theme.js";
 import { analyzePlan } from "../utils/science-engine.js";
 import { GoalRing, MuscleGoalBar, MuscleDiagram, AlertsPanel } from "./shared.jsx";
 
+const BODY_REGION = {
+  Chest: "upper", "Upper Chest": "upper",
+  "Front Delts": "upper", "Side Delts": "upper", "Rear Delts": "upper",
+  Triceps: "upper", Biceps: "upper", Brachialis: "upper",
+  Lats: "upper", "Upper Back": "upper", Traps: "upper",
+  "Rotator Cuff": "upper", Forearms: "upper",
+  Core: "core", "Lower Back": "core",
+  Quads: "lower", Hamstrings: "lower", Glutes: "lower", Calves: "lower",
+};
+
 export default function BuilderSidebar({ plan }) {
   const t = useTheme();
   const wt = plan.weekTemplate || [];
 
   const report = analyzePlan(wt);
-  const { effectiveSets, goalPcts, overallScore, patternBalance, alerts } = report;
+  const { effectiveSets, goalPcts, overallScore, alerts } = report;
 
   const sorted = Object.entries(goalPcts).sort((a, b) => b[1].pct - a[1].pct);
   const trainDays = wt.filter(d => !d.isRest && d.exercises.length > 0).length;
   const totalExercises = wt.reduce((s, d) => s + (d.isRest ? 0 : d.exercises.length), 0);
+
+  // Volume balance: Upper / Lower / Core
+  const regionVol = { upper: 0, lower: 0, core: 0 };
+  Object.entries(effectiveSets).forEach(([m, v]) => {
+    const r = BODY_REGION[m];
+    if (r) regionVol[r] += v;
+  });
+  const regionTotal = regionVol.upper + regionVol.lower + regionVol.core || 1;
 
   return (
     <div>
@@ -35,18 +53,17 @@ export default function BuilderSidebar({ plan }) {
         </div>
       </div>
 
-      {/* Push / Pull / Legs balance */}
+      {/* Volume Balance: Upper / Lower / Core */}
       <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 10 }}>Pattern Balance</div>
+        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 10 }}>Volume Balance</div>
         <div style={{ display: "flex", gap: 6 }}>
-          {[["push", "#3DDC84"], ["pull", "#A78BFA"], ["legs", "#4C9EFF"]].map(([p, color]) => {
-            const s = patternBalance.sets[p] || 0;
-            const total = patternBalance.sets.push + patternBalance.sets.pull + patternBalance.sets.legs;
-            const pct = total > 0 ? Math.round((s / total) * 100) : 0;
+          {[["upper", "#4C9EFF", "Upper"], ["lower", "#A78BFA", "Lower"], ["core", "#FBBF24", "Core"]].map(([key, color, label]) => {
+            const v = regionVol[key];
+            const pct = Math.round((v / regionTotal) * 100);
             return (
-              <div key={p} style={{ flex: 1, textAlign: "center" }}>
-                <div style={{ fontSize: 18, fontFamily: "mono", fontWeight: 700, color }}>{s}</div>
-                <div style={{ fontSize: 9, color: t.textDim, textTransform: "capitalize" }}>{p}</div>
+              <div key={key} style={{ flex: 1, textAlign: "center" }}>
+                <div style={{ fontSize: 18, fontFamily: "mono", fontWeight: 700, color }}>{Math.round(v)}</div>
+                <div style={{ fontSize: 9, color: t.textDim }}>{label}</div>
                 <div style={{ height: 4, background: t.border, borderRadius: 2, marginTop: 6, overflow: "hidden" }}>
                   <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 2, transition: "width 0.3s" }} />
                 </div>
@@ -55,24 +72,18 @@ export default function BuilderSidebar({ plan }) {
             );
           })}
         </div>
-        {patternBalance.status !== "ok" && (
-          <div style={{ marginTop: 8, fontSize: 10, textAlign: "center", fontWeight: 600,
-            color: patternBalance.status === "critical" ? "#EF4444" : patternBalance.status === "warning" ? "#FBBF24" : "#4C9EFF" }}>
-            {patternBalance.label.charAt(0).toUpperCase() + patternBalance.label.slice(1)}
-          </div>
-        )}
       </div>
 
-      {/* Alerts */}
+      {/* Weekly Volume (vs Target) */}
       <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Plan Alerts</div>
-        <AlertsPanel alerts={alerts} maxVisible={4} />
-      </div>
-
-      {/* % of Goal bars */}
-      <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16 }}>
         <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Weekly Volume (vs Target)</div>
         {sorted.slice(0, 14).map(([m, data]) => <MuscleGoalBar key={m} name={m} eff={data.eff} target={data.target} compact />)}
+      </div>
+
+      {/* Plan Alerts — below weekly volume */}
+      <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Plan Alerts</div>
+        <AlertsPanel alerts={alerts} maxVisible={4} />
       </div>
     </div>
   );

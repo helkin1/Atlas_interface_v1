@@ -18,7 +18,7 @@ import StepExercises from "./components/StepExercises.jsx";
 import StepReview from "./components/StepReview.jsx";
 import BuilderSidebar from "./components/BuilderSidebar.jsx";
 
-const BUILDER_STEPS = [{ key: "split", label: "Split" }, { key: "schedule", label: "Schedule" }, { key: "exercises", label: "Exercises" }, { key: "review", label: "Review" }];
+const BUILDER_STEPS = [{ key: "split", label: "Plan" }, { key: "schedule", label: "Schedule" }, { key: "exercises", label: "Exercises" }, { key: "review", label: "Review" }];
 
 export default function App() {
   const [themeMode, setThemeMode] = useState(() => loadTheme("dark"));
