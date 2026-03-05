@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { useTheme } from "../context/theme.js";
 import { SPLIT_PRESETS } from "../data/split-presets.js";
-import { buildPlanFromPreset } from "../utils/plan-engine.js";
+import { PLAN_TEMPLATES } from "../data/plan-templates.js";
+import { buildPlanFromPreset, buildPlanFromTemplate } from "../utils/plan-engine.js";
 import { goalPctColor } from "../utils/helpers.js";
+
+const DIFFICULTY_COLORS = { beginner: "#3DDC84", intermediate: "#FBBF24", advanced: "#EF4444" };
 
 export default function StepGoalSplit({ plan, onChange }) {
   const t = useTheme();
   const [showWeekPicker, setShowWeekPicker] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   return (
     <div>
@@ -28,6 +32,46 @@ export default function StepGoalSplit({ plan, onChange }) {
             </button>
           );
         })}
+      </div>
+
+      {/* Popular Programs Section */}
+      <div style={{ marginTop: 32 }}>
+        <button
+          onClick={() => setShowTemplates(v => !v)}
+          style={{
+            display: "flex", alignItems: "center", gap: 8, width: "100%",
+            background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: showTemplates ? 16 : 0,
+          }}
+        >
+          <div style={{ flex: 1, height: 1, background: t.border }} />
+          <span style={{ fontSize: 11, fontFamily: "mono", color: t.textDim, whiteSpace: "nowrap" }}>
+            {showTemplates ? "\u25BC" : "\u25B6"} Popular Programs
+          </span>
+          <div style={{ flex: 1, height: 1, background: t.border }} />
+        </button>
+
+        {showTemplates && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
+            {PLAN_TEMPLATES.map(tmpl => {
+              const sel = plan.splitKey === tmpl.key;
+              const diffColor = DIFFICULTY_COLORS[tmpl.difficulty] || t.textDim;
+              return (
+                <button key={tmpl.key} onClick={() => { const p = buildPlanFromTemplate(tmpl); if (p) onChange({ ...p, weeks: plan.weeks || 4 }); }} style={{ background: sel ? `${goalPctColor(100)}08` : t.surface, border: `1px solid ${sel ? goalPctColor(100) + "40" : t.border}`, borderRadius: 14, padding: 20, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: sel ? "#3DDC84" : t.text }}>{tmpl.name}</span>
+                    <span style={{ fontSize: 10, fontFamily: "mono", color: t.textDim, padding: "2px 8px", background: t.surface2, borderRadius: 6 }}>{tmpl.daysPerWeek}&times;/wk</span>
+                  </div>
+                  <div style={{ fontSize: 10, color: t.textDim, marginBottom: 8 }}>by {tmpl.author}</div>
+                  <p style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.5, marginBottom: 10 }}>{tmpl.description}</p>
+                  <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 6, background: `${diffColor}15`, color: diffColor }}>{tmpl.difficulty}</span>
+                    {tmpl.tags.map(tag => <span key={tag} style={{ fontSize: 9, padding: "2px 6px", borderRadius: 6, background: `${t.textFaint}20`, color: t.textDim }}>{tag}</span>)}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {plan.splitKey && (

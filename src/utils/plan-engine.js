@@ -91,6 +91,27 @@ export function buildPlanFromPreset(key) {
   };
 }
 
+/* ── Build a plan object from a template object ────────────── */
+
+export function buildPlanFromTemplate(template) {
+  const weekTemplate = template.weekTemplate.map(d => ({
+    ...d,
+    isRest: d.isRest || (!d.exercises.length && d.label === "Rest"),
+    exercises: d.exercises.map(exId => getExDefault(exId)),
+  }));
+  const trainingSequence = weekTemplate.filter(d => !d.isRest);
+  return {
+    planId: createPlanId(),
+    splitKey: template.key,
+    splitName: template.name,
+    weekTemplate,
+    trainingSequence,
+    cycleLength: trainingSequence.length,
+    weeks: 4,
+    progressRate: 2.5,
+  };
+}
+
 export const DEFAULT_PLAN = buildPlanFromPreset("ppl");
 
 /* ── Redistribute training sequence across training slots ── */
