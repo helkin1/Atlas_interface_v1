@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "../context/theme.js";
 
-export default function SettingsMenu({ onEditPlan, onSignOut }) {
+export default function SettingsMenu({ onEditPlan, onSignOut, onAIInsights }) {
   const t = useTheme();
   const [open, setOpen] = useState(false);
   return (
@@ -25,6 +25,15 @@ export default function SettingsMenu({ onEditPlan, onSignOut }) {
             }}>
               <span>{"\uD83D\uDCDD"}</span> Edit Plan
             </button>
+            {onAIInsights && (
+              <button onClick={() => { setOpen(false); onAIInsights(); }} style={{
+                display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px",
+                background: "transparent", border: "none", borderRadius: 8, cursor: "pointer",
+                color: "#A78BFA", fontSize: 12, textAlign: "left",
+              }}>
+                <span>{"\u2728"}</span> AI Insights
+              </button>
+            )}
             {onSignOut && (
               <button onClick={() => { setOpen(false); onSignOut(); }} style={{
                 display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px",

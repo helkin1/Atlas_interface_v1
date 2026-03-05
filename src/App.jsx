@@ -21,11 +21,13 @@ import StepExercises from "./components/StepExercises.jsx";
 import StepReview from "./components/StepReview.jsx";
 import BuilderSidebar from "./components/BuilderSidebar.jsx";
 import ProgressView from "./components/ProgressView.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import AIInsights from "./components/AIInsights.jsx";
 
 const BUILDER_STEPS = [{ key: "split", label: "Plan" }, { key: "schedule", label: "Schedule" }, { key: "exercises", label: "Exercises" }, { key: "review", label: "Review" }];
 
 /* ── Dashboard Layout (header + sidebar + content via Outlet) ── */
-function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan, onSignOut }) {
+function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan, onSignOut, onAIInsights }) {
   const t = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -82,16 +84,16 @@ function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan, 
           )}
 
           <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
-          <SettingsMenu onEditPlan={onEditPlan} onSignOut={onSignOut} />
+          <SettingsMenu onEditPlan={onEditPlan} onSignOut={onSignOut} onAIInsights={onAIInsights} />
         </div>
       </div>
 
       {/* Content area */}
       {isProgress ? (
-        <Outlet />
+        <ErrorBoundary><Outlet /></ErrorBoundary>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 28 }}>
-          <div><Outlet /></div>
+          <div><ErrorBoundary><Outlet /></ErrorBoundary></div>
           <div style={{ position: "sticky", top: 20, alignSelf: "start", maxHeight: "calc(100vh - 60px)", overflowY: "auto" }}>
             <Sidebar weekIdx={weekIdx} viewLevel={viewLevel} curWeek={curWeek} curDay={curDay} plan={plan} />
           </div>
@@ -258,8 +260,11 @@ export default function App() {
 
   const canNext = builderStep === 0 ? !!builderPlan.splitKey : builderStep === 1 ? builderPlan.weekTemplate.some(d => !d.isRest) : true;
 
+  // AI Insights panel
+  const [showAI, setShowAI] = useState(false);
+
   // Shared dashboard layout props
-  const dashLayoutProps = { plan, monthData, themeMode, toggleTheme, onEditPlan: editPlan, onSignOut: handleSignOut };
+  const dashLayoutProps = { plan, monthData, themeMode, toggleTheme, onEditPlan: editPlan, onSignOut: handleSignOut, onAIInsights: () => setShowAI(true) };
 
   // Show nothing while checking initial auth state
   if (!authReady) {
@@ -270,7 +275,11 @@ export default function App() {
           * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
           body { background: ${t.bg}; transition: background 0.3s; }
         `}</style>
-        <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: t.textDim, fontSize: 14, fontFamily: "'Outfit', sans-serif" }}>Loading...</div>
+        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+          <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, color: t.text, fontFamily: "'Outfit', sans-serif" }}>Atlas</div>
+          <div style={{ width: 32, height: 32, border: `2px solid ${t.borderLight}`, borderTopColor: "#4C9EFF", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
       </ThemeContext.Provider>
     );
   }
@@ -327,6 +336,7 @@ export default function App() {
 
         {/* Builder */}
         <Route path="/builder" element={
+          <ErrorBoundary>
           <div style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 24px", color: t.text, transition: "color 0.3s" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
               <div>
@@ -367,11 +377,14 @@ export default function App() {
               {builderStep >= 1 && <div style={{ position: "sticky", top: 20, alignSelf: "start", maxHeight: "calc(100vh - 60px)", overflowY: "auto" }}><BuilderSidebar plan={builderPlan} /></div>}
             </div>
           </div>
+          </ErrorBoundary>
         } />
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      {showAI && <AIInsights plan={plan} onClose={() => setShowAI(false)} />}
 
       </PlanDataContext.Provider>
     </ThemeContext.Provider>
