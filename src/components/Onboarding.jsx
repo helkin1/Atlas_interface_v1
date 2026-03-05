@@ -95,6 +95,7 @@ function inputStyle(t) {
 
 function StepAboutYou({ profile, onChange, t }) {
   const isMetric = profile.unitPreference === "metric";
+  const [weightWarning, setWeightWarning] = useState(null);
 
   // Height: in imperial, split into ft + in
   const totalInches = profile.heightCm ? profile.heightCm / 2.54 : null;
@@ -115,7 +116,19 @@ function StepAboutYou({ profile, onChange, t }) {
 
   const setWeight = (val) => {
     const num = parseFloat(val);
-    if (isNaN(num) || val === "") { onChange({ ...profile, weightKg: null }); return; }
+    if (isNaN(num) || val === "") {
+      onChange({ ...profile, weightKg: null });
+      setWeightWarning(null);
+      return;
+    }
+    // Check for unusual values
+    if (num > 500) {
+      setWeightWarning("are you sure? that seems like a lot");
+    } else if (num < 50) {
+      setWeightWarning("are you sure? that's awfully light");
+    } else {
+      setWeightWarning(null);
+    }
     // Store with enough precision to avoid round-trip issues
     onChange({ ...profile, weightKg: isMetric ? num : parseFloat((num / 2.205).toFixed(2)) });
   };
@@ -235,6 +248,11 @@ function StepAboutYou({ profile, onChange, t }) {
             placeholder={isMetric ? "75" : "165"}
             style={inputStyle(t)}
           />
+          {weightWarning && (
+            <div style={{ fontSize: 11, color: "#FF8A50", marginTop: 6, fontStyle: "italic" }}>
+              {weightWarning}
+            </div>
+          )}
         </div>
       </div>
     </div>
