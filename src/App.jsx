@@ -18,6 +18,7 @@ import StepSchedule from "./components/StepSchedule.jsx";
 import StepExercises from "./components/StepExercises.jsx";
 import StepReview from "./components/StepReview.jsx";
 import BuilderSidebar from "./components/BuilderSidebar.jsx";
+import ProgressView from "./components/ProgressView.jsx";
 
 const BUILDER_STEPS = [{ key: "split", label: "Plan" }, { key: "schedule", label: "Schedule" }, { key: "exercises", label: "Exercises" }, { key: "review", label: "Review" }];
 
@@ -139,16 +140,6 @@ function DayRoute({ monthData, plan }) {
   return <DayView day={day} planId={plan.planId} onBack={() => navigate(`/dashboard/week/${wi}`)} />;
 }
 
-function ProgressPlaceholder() {
-  const t = useTheme();
-  return (
-    <div style={{ textAlign: "center", padding: 60 }}>
-      <div style={{ fontSize: 48, marginBottom: 16 }}>📊</div>
-      <div style={{ fontSize: 22, fontWeight: 700, color: t.text, marginBottom: 8 }}>Progress & History</div>
-      <div style={{ fontSize: 14, color: t.textDim }}>Coming soon — workout history, exercise charts, PR tracking, and volume trends.</div>
-    </div>
-  );
-}
 
 /* ── Main App ─────────────────────────────────────────────────── */
 export default function App() {
@@ -267,7 +258,7 @@ export default function App() {
 
         {/* Progress — reuses dashboard layout */}
         <Route path="/progress" element={<DashboardLayout {...dashLayoutProps} />}>
-          <Route index element={<ProgressPlaceholder />} />
+          <Route index element={<ProgressView plan={plan} monthData={monthData} />} />
         </Route>
 
         {/* Builder */}
