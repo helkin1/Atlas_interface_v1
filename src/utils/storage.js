@@ -15,6 +15,7 @@ const KEYS = {
   logs: `${PREFIX}logs`,
   theme: `${PREFIX}theme`,
   sessions: `${PREFIX}sessions`,
+  profile: `${PREFIX}profile`,
 };
 
 /* ── Helpers ──────────────────────────────────────────────────── */
@@ -134,6 +135,54 @@ export function saveSessionMeta(dayKey, meta) {
   cloudUpsert("session_meta", { data: all });
 }
 
+/* ── Profile ─────────────────────────────────────────────────── */
+
+export const DEFAULT_PROFILE = {
+  displayName: "",
+  age: null,
+  sex: null,
+  heightCm: null,
+  weightKg: null,
+  unitPreference: "imperial",
+  experienceLevel: null,
+  primaryGoal: null,
+  secondaryGoals: [],
+  trainingDaysPerWeek: null,
+  sessionDuration: null,
+  equipment: [],
+  injuries: [],
+  focusMuscles: [],
+  onboardingCompleted: false,
+};
+
+export function loadProfile() {
+  try {
+    const raw = localStorage.getItem(KEYS.profile);
+    return raw ? { ...DEFAULT_PROFILE, ...JSON.parse(raw) } : { ...DEFAULT_PROFILE };
+  } catch {
+    return { ...DEFAULT_PROFILE };
+  }
+}
+
+export function saveProfile(profile) {
+  try {
+    localStorage.setItem(KEYS.profile, JSON.stringify(profile));
+  } catch {
+    // Silently fail.
+  }
+  cloudUpsert("profiles", { profile_data: profile }, "id");
+}
+
+export function isOnboardingComplete() {
+  try {
+    const raw = localStorage.getItem(KEYS.profile);
+    if (!raw) return false;
+    return JSON.parse(raw).onboardingCompleted === true;
+  } catch {
+    return false;
+  }
+}
+
 /* ── Theme ────────────────────────────────────────────────────── */
 
 export function loadTheme(fallback) {
@@ -170,7 +219,7 @@ export function saveTheme(mode) {
 export async function pullFromCloud(userId) {
   if (!supabase) return null;
   const results = await Promise.allSettled([
-    supabase.from("profiles").select("theme").eq("id", userId).single(),
+    supabase.from("profiles").select("theme, profile_data").eq("id", userId).single(),
     supabase.from("plans").select("data").eq("user_id", userId).single(),
     supabase.from("workout_logs").select("data").eq("user_id", userId).single(),
     supabase.from("session_meta").select("data").eq("user_id", userId).single(),
@@ -183,6 +232,11 @@ export async function pullFromCloud(userId) {
     cloudTheme = results[0].value.data.theme;
     if (cloudTheme) {
       try { localStorage.setItem(KEYS.theme, cloudTheme); } catch {}
+    }
+    // Profile data
+    const profileData = results[0].value.data.profile_data;
+    if (profileData) {
+      try { localStorage.setItem(KEYS.profile, JSON.stringify(profileData)); } catch {}
     }
   }
 
@@ -212,11 +266,12 @@ export async function pushToCloud(userId) {
   const plan = loadPlan(null);
   const logs = loadWorkoutLogs();
   const theme = loadTheme("dark");
+  const profile = loadProfile();
   let sessions = {};
   try { const raw = localStorage.getItem(KEYS.sessions); sessions = raw ? JSON.parse(raw) : {}; } catch {}
 
   await Promise.allSettled([
-    supabase.from("profiles").upsert({ id: userId, theme }),
+    supabase.from("profiles").upsert({ id: userId, theme, profile_data: profile }),
     plan ? supabase.from("plans").upsert({ user_id: userId, data: plan, updated_at: new Date().toISOString() }) : Promise.resolve(),
     Object.keys(logs).length > 0 ? supabase.from("workout_logs").upsert({ user_id: userId, data: logs, updated_at: new Date().toISOString() }) : Promise.resolve(),
     Object.keys(sessions).length > 0 ? supabase.from("session_meta").upsert({ user_id: userId, data: sessions, updated_at: new Date().toISOString() }) : Promise.resolve(),

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTheme } from "../context/theme.js";
-import { loadWorkoutLogs, loadPlan } from "../utils/storage.js";
+import { loadWorkoutLogs, loadPlan, loadProfile } from "../utils/storage.js";
 
 const MODES = [
   { key: "analyze", label: "Quick Analysis", desc: "Overall plan assessment" },
@@ -23,10 +23,11 @@ export default function AIInsights({ plan, onClose }) {
     try {
       const logs = loadWorkoutLogs();
       const currentPlan = plan || loadPlan(null);
+      const profile = loadProfile();
       const res = await fetch("/api/ai-suggest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, plan: currentPlan, logs }),
+        body: JSON.stringify({ type, plan: currentPlan, logs, profile }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));

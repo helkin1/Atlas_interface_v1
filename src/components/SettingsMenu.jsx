@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "../context/theme.js";
 
-export default function SettingsMenu({ onEditPlan, onSignOut, onAIInsights }) {
+export default function SettingsMenu({ onEditPlan, onSignOut, onAIInsights, onProfile }) {
   const t = useTheme();
   const [open, setOpen] = useState(false);
   return (
@@ -18,6 +18,15 @@ export default function SettingsMenu({ onEditPlan, onSignOut, onAIInsights }) {
             position: "absolute", right: 0, top: 38, background: t.surface, border: `1px solid ${t.border}`,
             borderRadius: 10, padding: 4, minWidth: 160, zIndex: 100, boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
           }}>
+            {onProfile && (
+              <button onClick={() => { setOpen(false); onProfile(); }} style={{
+                display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px",
+                background: "transparent", border: "none", borderRadius: 8, cursor: "pointer",
+                color: t.text, fontSize: 12, textAlign: "left",
+              }}>
+                <span>{"\uD83D\uDC64"}</span> Profile
+              </button>
+            )}
             <button onClick={() => { setOpen(false); onEditPlan(); }} style={{
               display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px",
               background: "transparent", border: "none", borderRadius: 8, cursor: "pointer",
