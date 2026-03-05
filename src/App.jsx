@@ -4,7 +4,8 @@ import { themes, ThemeContext, useTheme } from "./context/theme.js";
 import { PlanDataContext } from "./context/plan-data.js";
 import { MO_NAMES } from "./utils/helpers.js";
 import { buildMonthFromPlan, DEFAULT_PLAN, clonePlan, ensurePlanId } from "./utils/plan-engine.js";
-import { loadPlan, savePlan, loadTheme, saveTheme, hasSavedPlan } from "./utils/storage.js";
+import { loadPlan, savePlan, loadTheme, saveTheme, hasSavedPlan, pullFromCloud, pushToCloud } from "./utils/storage.js";
+import { onAuthStateChange, signOut } from "./lib/supabase.js";
 
 import MonthView from "./components/MonthView.jsx";
 import WeekView from "./components/WeekView.jsx";
@@ -13,6 +14,7 @@ import Sidebar from "./components/Sidebar.jsx";
 import ThemeToggle from "./components/ThemeToggle.jsx";
 import SettingsMenu from "./components/SettingsMenu.jsx";
 import IntroScreen from "./components/IntroScreen.jsx";
+import AuthScreen from "./components/AuthScreen.jsx";
 import StepGoalSplit from "./components/StepGoalSplit.jsx";
 import StepSchedule from "./components/StepSchedule.jsx";
 import StepExercises from "./components/StepExercises.jsx";
@@ -23,7 +25,7 @@ import ProgressView from "./components/ProgressView.jsx";
 const BUILDER_STEPS = [{ key: "split", label: "Plan" }, { key: "schedule", label: "Schedule" }, { key: "exercises", label: "Exercises" }, { key: "review", label: "Review" }];
 
 /* ── Dashboard Layout (header + sidebar + content via Outlet) ── */
-function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan }) {
+function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan, onSignOut }) {
   const t = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -80,7 +82,7 @@ function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan }
           )}
 
           <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
-          <SettingsMenu onEditPlan={onEditPlan} />
+          <SettingsMenu onEditPlan={onEditPlan} onSignOut={onSignOut} />
         </div>
       </div>
 
@@ -143,10 +145,44 @@ function DayRoute({ monthData, plan }) {
 
 /* ── Main App ─────────────────────────────────────────────────── */
 export default function App() {
+  const [authUser, setAuthUser] = useState(undefined); // undefined = loading, null = logged out, object = logged in
+  const [authReady, setAuthReady] = useState(false);
   const [themeMode, setThemeMode] = useState(() => loadTheme("dark"));
   const [plan, setPlan] = useState(() => ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN))));
   const [monthData, setMonthData] = useState(() => buildMonthFromPlan(ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN)))));
   const navigate = useNavigate();
+
+  // Listen for auth state changes
+  useEffect(() => {
+    const { data: { subscription } } = onAuthStateChange(async (event, session) => {
+      const user = session?.user ?? null;
+      setAuthUser(user);
+
+      if (event === "SIGNED_IN" && user) {
+        // Pull cloud data, then refresh local state
+        const cloudTheme = await pullFromCloud(user.id);
+        if (cloudTheme) setThemeMode(cloudTheme);
+
+        // If user had local data before signing up, push it to cloud
+        if (hasSavedPlan()) {
+          await pushToCloud(user.id);
+        }
+
+        // Refresh plan/monthData from (now-populated) localStorage
+        const freshPlan = ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN)));
+        setPlan(freshPlan);
+        setMonthData(buildMonthFromPlan(freshPlan));
+      }
+
+      setAuthReady(true);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   // Builder state
   const [builderStep, setBuilderStep] = useState(0);
@@ -223,7 +259,35 @@ export default function App() {
   const canNext = builderStep === 0 ? !!builderPlan.splitKey : builderStep === 1 ? builderPlan.weekTemplate.some(d => !d.isRest) : true;
 
   // Shared dashboard layout props
-  const dashLayoutProps = { plan, monthData, themeMode, toggleTheme, onEditPlan: editPlan };
+  const dashLayoutProps = { plan, monthData, themeMode, toggleTheme, onEditPlan: editPlan, onSignOut: handleSignOut };
+
+  // Show nothing while checking initial auth state
+  if (!authReady) {
+    return (
+      <ThemeContext.Provider value={t}>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+          * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+          body { background: ${t.bg}; transition: background 0.3s; }
+        `}</style>
+        <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: t.textDim, fontSize: 14, fontFamily: "'Outfit', sans-serif" }}>Loading...</div>
+      </ThemeContext.Provider>
+    );
+  }
+
+  // Not logged in → show auth screen
+  if (!authUser) {
+    return (
+      <ThemeContext.Provider value={t}>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+          * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+          body { background: ${t.bg}; transition: background 0.3s; }
+        `}</style>
+        <AuthScreen themeMode={themeMode} onToggleTheme={toggleTheme} />
+      </ThemeContext.Provider>
+    );
+  }
 
   return (
     <ThemeContext.Provider value={t}>

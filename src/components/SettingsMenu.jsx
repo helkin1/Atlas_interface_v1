@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "../context/theme.js";
 
-export default function SettingsMenu({ onEditPlan }) {
+export default function SettingsMenu({ onEditPlan, onSignOut }) {
   const t = useTheme();
   const [open, setOpen] = useState(false);
   return (
@@ -25,6 +25,16 @@ export default function SettingsMenu({ onEditPlan }) {
             }}>
               <span>{"\uD83D\uDCDD"}</span> Edit Plan
             </button>
+            {onSignOut && (
+              <button onClick={() => { setOpen(false); onSignOut(); }} style={{
+                display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px",
+                background: "transparent", border: "none", borderRadius: 8, cursor: "pointer",
+                color: "#EF4444", fontSize: 12, textAlign: "left",
+                borderTop: `1px solid ${t.border}`, marginTop: 2, paddingTop: 10,
+              }}>
+                <span>{"\u{1F6AA}"}</span> Sign Out
+              </button>
+            )}
           </div>
         </>
       )}
