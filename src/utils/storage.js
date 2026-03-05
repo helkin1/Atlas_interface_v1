@@ -7,6 +7,7 @@
  */
 
 import { supabase } from "../lib/supabase.js";
+import { buildPlanFromPreset } from "./plan-engine.js";
 
 const PREFIX = "atlas_";
 
@@ -35,6 +36,7 @@ function getUserId() {
 
 /** Fire-and-forget Supabase upsert. Errors are silently swallowed. */
 function cloudUpsert(table, data, keyCol = "user_id") {
+  if (isDemoMode()) return; // Skip cloud sync in demo mode
   const uid = getUserId();
   if (!uid) return;
   supabase
@@ -200,6 +202,7 @@ export function saveTheme(mode) {
     // Silently fail.
   }
   // Sync theme to profiles table
+  if (isDemoMode()) return;
   const uid = getUserId();
   if (uid && supabase) {
     supabase
@@ -208,6 +211,51 @@ export function saveTheme(mode) {
       .eq("id", uid)
       .then(({ error }) => { if (error) console.warn("[atlas] cloud sync theme:", error.message); });
   }
+}
+
+/* ── Demo Mode ───────────────────────────────────────────────── */
+
+const DEMO_KEY = `${PREFIX}demo`;
+
+export function isDemoMode() {
+  try { return localStorage.getItem(DEMO_KEY) === "true"; } catch { return false; }
+}
+
+export function exitDemoMode() {
+  // Clear all atlas data seeded by demo
+  Object.values(KEYS).forEach(k => { try { localStorage.removeItem(k); } catch {} });
+  try { localStorage.removeItem(DEMO_KEY); } catch {}
+}
+
+export function seedDemoData() {
+  // Mark demo mode
+  try { localStorage.setItem(DEMO_KEY, "true"); } catch {}
+
+  // Seed a completed profile
+  const demoProfile = {
+    displayName: "Alex",
+    age: 28,
+    sex: "male",
+    heightCm: 178,
+    weightKg: 80,
+    unitPreference: "imperial",
+    experienceLevel: "intermediate",
+    primaryGoal: "hypertrophy",
+    secondaryGoals: ["strength"],
+    trainingDaysPerWeek: 4,
+    sessionDuration: "60min",
+    equipment: ["barbell", "dumbbell", "cable", "machine"],
+    injuries: [],
+    focusMuscles: ["chest", "back"],
+    onboardingCompleted: true,
+  };
+  try { localStorage.setItem(KEYS.profile, JSON.stringify(demoProfile)); } catch {}
+
+  // Seed an Upper/Lower plan (already built with exercises)
+  const demoPlan = buildPlanFromPreset("upper_lower");
+  try { localStorage.setItem(KEYS.plan, JSON.stringify(demoPlan)); } catch {}
+
+  return { profile: demoProfile, plan: demoPlan };
 }
 
 /* ── Cloud Sync (called on login) ─────────────────────────────── */

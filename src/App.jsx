@@ -4,7 +4,7 @@ import { themes, ThemeContext, useTheme } from "./context/theme.js";
 import { PlanDataContext } from "./context/plan-data.js";
 import { MO_NAMES } from "./utils/helpers.js";
 import { buildMonthFromPlan, DEFAULT_PLAN, clonePlan, ensurePlanId } from "./utils/plan-engine.js";
-import { loadPlan, savePlan, loadTheme, saveTheme, hasSavedPlan, pullFromCloud, pushToCloud, loadProfile, saveProfile, isOnboardingComplete } from "./utils/storage.js";
+import { loadPlan, savePlan, loadTheme, saveTheme, hasSavedPlan, pullFromCloud, pushToCloud, loadProfile, saveProfile, isOnboardingComplete, seedDemoData, isDemoMode, exitDemoMode } from "./utils/storage.js";
 import { onAuthStateChange, signOut } from "./lib/supabase.js";
 
 import MonthView from "./components/MonthView.jsx";
@@ -156,6 +156,7 @@ function DayRoute({ monthData, plan }) {
 export default function App() {
   const [authUser, setAuthUser] = useState(undefined); // undefined = loading, null = logged out, object = logged in
   const [authReady, setAuthReady] = useState(false);
+  const [demoMode, setDemoMode] = useState(() => isDemoMode());
   const [themeMode, setThemeMode] = useState(() => loadTheme("dark"));
   const [plan, setPlan] = useState(() => ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN))));
   const [monthData, setMonthData] = useState(() => buildMonthFromPlan(ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN)))));
@@ -163,7 +164,18 @@ export default function App() {
 
   // Listen for auth state changes
   useEffect(() => {
+    // If already in demo mode (page refresh), restore demo state
+    if (isDemoMode()) {
+      setAuthUser({ id: "demo", email: "demo@atlas.app" });
+      const freshPlan = ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN)));
+      setPlan(freshPlan);
+      setMonthData(buildMonthFromPlan(freshPlan));
+      setUserProfile(loadProfile());
+      setAuthReady(true);
+    }
+
     const { data: { subscription } } = onAuthStateChange(async (event, session) => {
+      if (isDemoMode()) return; // Don't override demo state with null auth
       const user = session?.user ?? null;
       setAuthUser(user);
 
@@ -190,8 +202,27 @@ export default function App() {
   }, []);
 
   const handleSignOut = async () => {
+    if (demoMode) {
+      exitDemoMode();
+      setDemoMode(false);
+      setAuthUser(null);
+      navigate("/");
+      return;
+    }
     await signOut();
     navigate("/");
+  };
+
+  const handleDemoMode = () => {
+    const { profile, plan } = seedDemoData();
+    setDemoMode(true);
+    setAuthUser({ id: "demo", email: "demo@atlas.app" }); // fake user object
+    setUserProfile(profile);
+    const freshPlan = ensurePlanId(plan);
+    setPlan(freshPlan);
+    setMonthData(buildMonthFromPlan(freshPlan));
+    setAuthReady(true);
+    navigate("/dashboard");
   };
 
   // Builder state
@@ -323,7 +354,7 @@ export default function App() {
           * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
           body { background: ${t.bg}; transition: background 0.3s; }
         `}</style>
-        <AuthScreen themeMode={themeMode} onToggleTheme={toggleTheme} />
+        <AuthScreen themeMode={themeMode} onToggleTheme={toggleTheme} onDemoMode={handleDemoMode} />
       </ThemeContext.Provider>
     );
   }
@@ -344,6 +375,15 @@ export default function App() {
         input[type=number] { -moz-appearance: textfield; }
       `}</style>
 
+      {demoMode && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center", gap: 12, padding: "8px 16px", background: "rgba(76,158,255,0.15)", backdropFilter: "blur(8px)", borderBottom: `1px solid rgba(76,158,255,0.25)` }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "#4C9EFF", fontFamily: "'Outfit', sans-serif" }}>Demo Mode</span>
+          <span style={{ fontSize: 11, color: t.textMuted }}>Exploring with sample data</span>
+          <button onClick={handleSignOut} style={{ fontSize: 11, padding: "3px 12px", borderRadius: 6, border: "1px solid rgba(76,158,255,0.3)", background: "transparent", color: "#4C9EFF", cursor: "pointer", fontFamily: "'Outfit', sans-serif", fontWeight: 600 }}>Exit Demo</button>
+        </div>
+      )}
+
+      <div style={demoMode ? { paddingTop: 40 } : undefined}>
       <Routes>
         {/* Root — onboarding check → dashboard or intro */}
         <Route path="/" element={
@@ -427,6 +467,7 @@ export default function App() {
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </div>
 
       {showAI && <AIInsights plan={plan} onClose={() => setShowAI(false)} />}
 

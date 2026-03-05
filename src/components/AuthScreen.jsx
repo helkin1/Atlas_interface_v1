@@ -3,7 +3,7 @@ import { useTheme } from "../context/theme.js";
 import { signIn, signUp } from "../lib/supabase.js";
 import ThemeToggle from "./ThemeToggle.jsx";
 
-export default function AuthScreen({ themeMode, onToggleTheme }) {
+export default function AuthScreen({ themeMode, onToggleTheme, onDemoMode }) {
   const t = useTheme();
   const [mode, setMode] = useState("login"); // "login" | "signup"
   const [email, setEmail] = useState("");
@@ -126,6 +126,36 @@ export default function AuthScreen({ themeMode, onToggleTheme }) {
             {mode === "login" ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
           </button>
         </div>
+
+        {/* Divider */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "8px 0" }}>
+          <div style={{ flex: 1, height: 1, background: t.borderLight }} />
+          <span style={{ fontSize: 11, color: t.textFaint, textTransform: "uppercase", letterSpacing: 1 }}>or</span>
+          <div style={{ flex: 1, height: 1, background: t.borderLight }} />
+        </div>
+
+        {/* Demo button */}
+        <button
+          type="button"
+          onClick={onDemoMode}
+          style={{
+            padding: "12px 0",
+            borderRadius: 12,
+            border: `1px solid ${t.borderLight}`,
+            background: "transparent",
+            color: t.textMuted,
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: "pointer",
+            fontFamily: "'Outfit', sans-serif",
+            transition: "all 0.2s",
+          }}
+        >
+          Try Demo
+        </button>
+        <p style={{ textAlign: "center", fontSize: 11, color: t.textFaint, marginTop: -4 }}>
+          Explore Atlas with sample data — no account needed
+        </p>
       </form>
     </div>
   );
