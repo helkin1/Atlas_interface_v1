@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { themes, ThemeContext } from "./context/theme.js";
+import { Routes, Route, useNavigate, useParams, useLocation, Navigate, Outlet } from "react-router-dom";
+import { themes, ThemeContext, useTheme } from "./context/theme.js";
 import { PlanDataContext } from "./context/plan-data.js";
 import { MO_NAMES } from "./utils/helpers.js";
 import { buildMonthFromPlan, DEFAULT_PLAN, clonePlan, ensurePlanId } from "./utils/plan-engine.js";
@@ -20,16 +21,141 @@ import BuilderSidebar from "./components/BuilderSidebar.jsx";
 
 const BUILDER_STEPS = [{ key: "split", label: "Plan" }, { key: "schedule", label: "Schedule" }, { key: "exercises", label: "Exercises" }, { key: "review", label: "Review" }];
 
+/* ── Dashboard Layout (header + sidebar + content via Outlet) ── */
+function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan }) {
+  const t = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Derive viewLevel, weekIdx, dayIdx from URL
+  const pathParts = location.pathname.replace(/^\/dashboard\/?/, "").split("/").filter(Boolean);
+  let viewLevel = "month", weekIdx = null, dayIdx = null;
+  if (pathParts[0] === "week" && pathParts[1] != null) {
+    weekIdx = parseInt(pathParts[1], 10);
+    if (pathParts[2] === "day" && pathParts[3] != null) {
+      dayIdx = parseInt(pathParts[3], 10);
+      viewLevel = "day";
+    } else {
+      viewLevel = "week";
+    }
+  }
+
+  const curWeek = weekIdx !== null ? monthData[weekIdx] : null;
+  const curDay = curWeek && dayIdx !== null ? curWeek.days[dayIdx] : null;
+
+  const firstDate = monthData[0]?.days[0]?.date;
+  const lastDate = monthData[monthData.length - 1]?.days[6]?.date;
+  const dateRange = firstDate && lastDate ? `${MO_NAMES[firstDate.getMonth()]} ${firstDate.getDate()} \u2013 ${MO_NAMES[lastDate.getMonth()]} ${lastDate.getDate()}` : "";
+
+  const isProgress = location.pathname.startsWith("/progress");
+
+  return (
+    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 24px", color: t.text, transition: "color 0.3s" }}>
+      {/* HEADER */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
+        <div>
+          <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 3, color: t.textFaint, fontFamily: "mono", marginBottom: 6 }}>Active Plan &middot; {plan.weeks}-Week Mesocycle</div>
+          <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: -0.5, color: t.text }}>{plan.splitName}</h1>
+          <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(76,158,255,0.1)", color: "#4C9EFF" }}>hypertrophy</span>
+            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(61,220,132,0.1)", color: "#3DDC84" }}>{dateRange}</span>
+            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(167,139,250,0.1)", color: "#A78BFA" }}>progressive overload</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {/* Tab navigation */}
+          <div style={{ display: "flex", gap: 2, background: t.surface2, borderRadius: 8, padding: 2 }}>
+            <button onClick={() => navigate("/dashboard")} style={{ fontSize: 11, fontFamily: "mono", padding: "5px 14px", borderRadius: 6, border: "none", cursor: "pointer", background: !isProgress ? "rgba(76,158,255,0.12)" : "transparent", color: !isProgress ? "#4C9EFF" : t.textDim, fontWeight: !isProgress ? 600 : 400 }}>Dashboard</button>
+            <button onClick={() => navigate("/progress")} style={{ fontSize: 11, fontFamily: "mono", padding: "5px 14px", borderRadius: 6, border: "none", cursor: "pointer", background: isProgress ? "rgba(76,158,255,0.12)" : "transparent", color: isProgress ? "#4C9EFF" : t.textDim, fontWeight: isProgress ? 600 : 400 }}>Progress</button>
+          </div>
+
+          {/* Breadcrumb */}
+          {!isProgress && (
+            <div style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 12, fontFamily: "mono" }}>
+              <button onClick={() => navigate("/dashboard")} style={{ color: viewLevel === "month" ? t.text : "#4C9EFF", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", textDecoration: viewLevel === "month" ? "none" : "underline", textUnderlineOffset: 3 }}>Month</button>
+              {viewLevel !== "month" && curWeek && <><span style={{ color: t.textFaint }}>/</span><button onClick={() => navigate(`/dashboard/week/${weekIdx}`)} style={{ color: viewLevel === "week" ? t.text : "#4C9EFF", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", textDecoration: viewLevel === "week" ? "none" : "underline", textUnderlineOffset: 3 }}>{curWeek.label}</button></>}
+              {viewLevel === "day" && curDay && <><span style={{ color: t.textFaint }}>/</span><span style={{ color: t.text }}>{curDay.label}</span></>}
+            </div>
+          )}
+
+          <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
+          <SettingsMenu onEditPlan={onEditPlan} />
+        </div>
+      </div>
+
+      {/* Content area */}
+      {isProgress ? (
+        <Outlet />
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 28 }}>
+          <div><Outlet /></div>
+          <div style={{ position: "sticky", top: 20, alignSelf: "start", maxHeight: "calc(100vh - 60px)", overflowY: "auto" }}>
+            <Sidebar weekIdx={weekIdx} viewLevel={viewLevel} curWeek={curWeek} curDay={curDay} plan={plan} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Route components ─────────────────────────────────────────── */
+
+function MonthRoute() {
+  const navigate = useNavigate();
+  return <MonthView onWeek={(wi) => navigate(`/dashboard/week/${wi}`)} onDay={(wi, di) => navigate(`/dashboard/week/${wi}/day/${di}`)} />;
+}
+
+function WeekRoute({ monthData }) {
+  const { weekIdx } = useParams();
+  const navigate = useNavigate();
+  const wi = parseInt(weekIdx, 10);
+  const week = monthData[wi];
+  if (!week) return <Navigate to="/dashboard" replace />;
+  return <WeekView week={week} onDay={(di) => navigate(`/dashboard/week/${wi}/day/${di}`)} onBack={() => navigate("/dashboard")} />;
+}
+
+function DayRoute({ monthData, plan }) {
+  const t = useTheme();
+  const { weekIdx, dayIdx } = useParams();
+  const navigate = useNavigate();
+  const wi = parseInt(weekIdx, 10);
+  const di = parseInt(dayIdx, 10);
+  const week = monthData[wi];
+  const day = week?.days[di];
+  if (!day) return <Navigate to="/dashboard" replace />;
+
+  if (day.isRest) {
+    return (
+      <div>
+        <button onClick={() => navigate(`/dashboard/week/${wi}`)} style={{ fontSize: 12, color: "#4C9EFF", background: "none", border: "none", cursor: "pointer", marginBottom: 16 }}>&larr; Back to Week</button>
+        <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 16, padding: 60, textAlign: "center" }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>😴</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: t.text }}>Rest Day</div>
+          <div style={{ fontSize: 14, color: t.textDim, marginTop: 8 }}>Recovery is part of the plan.</div>
+        </div>
+      </div>
+    );
+  }
+  return <DayView day={day} planId={plan.planId} onBack={() => navigate(`/dashboard/week/${wi}`)} />;
+}
+
+function ProgressPlaceholder() {
+  const t = useTheme();
+  return (
+    <div style={{ textAlign: "center", padding: 60 }}>
+      <div style={{ fontSize: 48, marginBottom: 16 }}>📊</div>
+      <div style={{ fontSize: 22, fontWeight: 700, color: t.text, marginBottom: 8 }}>Progress & History</div>
+      <div style={{ fontSize: 14, color: t.textDim }}>Coming soon — workout history, exercise charts, PR tracking, and volume trends.</div>
+    </div>
+  );
+}
+
+/* ── Main App ─────────────────────────────────────────────────── */
 export default function App() {
   const [themeMode, setThemeMode] = useState(() => loadTheme("dark"));
-  const [mode, setMode] = useState(() => hasSavedPlan() ? "dashboard" : "intro");
   const [plan, setPlan] = useState(() => ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN))));
   const [monthData, setMonthData] = useState(() => buildMonthFromPlan(ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN)))));
-
-  // Dashboard state
-  const [viewLevel, setViewLevel] = useState("month");
-  const [weekIdx, setWeekIdx] = useState(null);
-  const [dayIdx, setDayIdx] = useState(null);
+  const navigate = useNavigate();
 
   // Builder state
   const [builderStep, setBuilderStep] = useState(0);
@@ -51,12 +177,15 @@ export default function App() {
   const undo = () => { if (!canUndo) return; const prev = historyRef.current.past.pop(); historyRef.current.future.push(builderPlan); _setBuilderPlan(prev); };
   const redo = () => { if (!canRedo) return; const next = historyRef.current.future.pop(); historyRef.current.past.push(builderPlan); _setBuilderPlan(next); };
 
+  const location = useLocation();
+  const isBuilder = location.pathname.startsWith("/builder");
+
   useEffect(() => { saveTheme(themeMode); }, [themeMode]);
   useEffect(() => { savePlan(ensurePlanId(plan)); }, [plan]);
 
-  // Keyboard shortcut: Ctrl/Cmd+Z = undo, Ctrl/Cmd+Shift+Z = redo
+  // Keyboard shortcut: Ctrl/Cmd+Z = undo, Ctrl/Cmd+Shift+Z = redo (builder only)
   useEffect(() => {
-    if (mode !== "builder") return;
+    if (!isBuilder) return;
     const handler = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "z") {
         e.preventDefault();
@@ -65,23 +194,16 @@ export default function App() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [mode, undo, redo]);
+  }, [isBuilder, undo, redo]);
 
   const t = themes[themeMode];
   const toggleTheme = () => setThemeMode(m => m === "dark" ? "light" : "dark");
-  const goMonth = () => { setViewLevel("month"); setWeekIdx(null); setDayIdx(null); };
-  const goWeek = (wi) => { setWeekIdx(wi); setDayIdx(null); setViewLevel("week"); };
-  const goDay = (wi, di) => { setWeekIdx(wi); setDayIdx(di); setViewLevel("day"); };
-  const backToWeek = () => { setViewLevel("week"); setDayIdx(null); };
-
-  const curWeek = weekIdx !== null ? monthData[weekIdx] : null;
-  const curDay = curWeek && dayIdx !== null ? curWeek.days[dayIdx] : null;
 
   const startBuilder = () => {
     historyRef.current = { past: [], future: [] };
     _setBuilderPlan(clonePlan(DEFAULT_PLAN));
     setBuilderStep(0);
-    setMode("builder");
+    navigate("/builder");
   };
 
   const activatePlan = () => {
@@ -89,30 +211,28 @@ export default function App() {
     const newMonth = buildMonthFromPlan(nextPlan);
     setPlan(nextPlan);
     setMonthData(newMonth);
-    setMode("dashboard");
-    goMonth();
+    navigate("/dashboard");
   };
 
   const editPlan = () => {
     historyRef.current = { past: [], future: [] };
     _setBuilderPlan(clonePlan(plan));
     setBuilderStep(0);
-    setMode("builder");
+    navigate("/builder");
   };
 
   const cancelBuilder = () => {
     if (builderStep > 0) {
       setBuilderStep(builderStep - 1);
     } else {
-      setMode(hasSavedPlan() ? "dashboard" : "intro");
+      navigate(hasSavedPlan() ? "/dashboard" : "/");
     }
   };
 
   const canNext = builderStep === 0 ? !!builderPlan.splitKey : builderStep === 1 ? builderPlan.weekTemplate.some(d => !d.isRest) : true;
 
-  const firstDate = monthData[0]?.days[0]?.date;
-  const lastDate = monthData[monthData.length - 1]?.days[6]?.date;
-  const dateRange = firstDate && lastDate ? `${MO_NAMES[firstDate.getMonth()]} ${firstDate.getDate()} \u2013 ${MO_NAMES[lastDate.getMonth()]} ${lastDate.getDate()}` : "";
+  // Shared dashboard layout props
+  const dashLayoutProps = { plan, monthData, themeMode, toggleTheme, onEditPlan: editPlan };
 
   return (
     <ThemeContext.Provider value={t}>
@@ -130,58 +250,29 @@ export default function App() {
         input[type=number] { -moz-appearance: textfield; }
       `}</style>
 
-      {mode === "intro" ? (
-        <IntroScreen onStart={startBuilder} themeMode={themeMode} onToggleTheme={toggleTheme} />
-      ) : (
-      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 24px", color: t.text, transition: "color 0.3s" }}>
+      <Routes>
+        {/* Intro — redirect to dashboard if plan exists */}
+        <Route path="/" element={
+          hasSavedPlan()
+            ? <Navigate to="/dashboard" replace />
+            : <IntroScreen onStart={startBuilder} themeMode={themeMode} onToggleTheme={toggleTheme} />
+        } />
 
-        {mode === "dashboard" ? (
-          <>
-            {/* DASHBOARD HEADER */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
-              <div>
-                <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 3, color: t.textFaint, fontFamily: "mono", marginBottom: 6 }}>Active Plan &middot; {plan.weeks}-Week Mesocycle</div>
-                <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: -0.5, color: t.text }}>{plan.splitName}</h1>
-                <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(76,158,255,0.1)", color: "#4C9EFF" }}>hypertrophy</span>
-                  <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(61,220,132,0.1)", color: "#3DDC84" }}>{dateRange}</span>
-                  <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(167,139,250,0.1)", color: "#A78BFA" }}>progressive overload</span>
-                </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 12, fontFamily: "mono" }}>
-                  <button onClick={goMonth} style={{ color: viewLevel === "month" ? t.text : "#4C9EFF", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", textDecoration: viewLevel === "month" ? "none" : "underline", textUnderlineOffset: 3 }}>Month</button>
-                  {viewLevel !== "month" && curWeek && <><span style={{ color: t.textFaint }}>/</span><button onClick={() => { setViewLevel("week"); setDayIdx(null); }} style={{ color: viewLevel === "week" ? t.text : "#4C9EFF", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", textDecoration: viewLevel === "week" ? "none" : "underline", textUnderlineOffset: 3 }}>{curWeek.label}</button></>}
-                  {viewLevel === "day" && curDay && <><span style={{ color: t.textFaint }}>/</span><span style={{ color: t.text }}>{curDay.label}</span></>}
-                </div>
-                <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
-                <SettingsMenu onEditPlan={editPlan} />
-              </div>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 28 }}>
-              <div>
-                {viewLevel === "month" && <MonthView onWeek={goWeek} onDay={goDay} />}
-                {viewLevel === "week" && curWeek && <WeekView week={curWeek} onDay={(di) => goDay(weekIdx, di)} onBack={goMonth} />}
-                {viewLevel === "day" && curDay && !curDay.isRest && <DayView day={curDay} planId={plan.planId} onBack={backToWeek} />}
-                {viewLevel === "day" && curDay && curDay.isRest && (
-                  <div>
-                    <button onClick={backToWeek} style={{ fontSize: 12, color: "#4C9EFF", background: "none", border: "none", cursor: "pointer", marginBottom: 16 }}>&larr; Back to Week</button>
-                    <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 16, padding: 60, textAlign: "center" }}>
-                      <div style={{ fontSize: 48, marginBottom: 12 }}>😴</div>
-                      <div style={{ fontSize: 22, fontWeight: 700, color: t.text }}>Rest Day</div>
-                      <div style={{ fontSize: 14, color: t.textDim, marginTop: 8 }}>Recovery is part of the plan.</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div style={{ position: "sticky", top: 20, alignSelf: "start", maxHeight: "calc(100vh - 60px)", overflowY: "auto" }}>
-                <Sidebar weekIdx={weekIdx} viewLevel={viewLevel} curWeek={curWeek} curDay={curDay} plan={plan} />
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            {/* BUILDER HEADER */}
+        {/* Dashboard with nested views */}
+        <Route path="/dashboard" element={<DashboardLayout {...dashLayoutProps} />}>
+          <Route index element={<MonthRoute />} />
+          <Route path="week/:weekIdx" element={<WeekRoute monthData={monthData} />} />
+          <Route path="week/:weekIdx/day/:dayIdx" element={<DayRoute monthData={monthData} plan={plan} />} />
+        </Route>
+
+        {/* Progress — reuses dashboard layout */}
+        <Route path="/progress" element={<DashboardLayout {...dashLayoutProps} />}>
+          <Route index element={<ProgressPlaceholder />} />
+        </Route>
+
+        {/* Builder */}
+        <Route path="/builder" element={
+          <div style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 24px", color: t.text, transition: "color 0.3s" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
               <div>
                 <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 3, color: t.textFaint, fontFamily: "mono", marginBottom: 6 }}>Plan Builder &middot; New Mesocycle</div>
@@ -220,10 +311,13 @@ export default function App() {
               </div>
               {builderStep >= 1 && <div style={{ position: "sticky", top: 20, alignSelf: "start", maxHeight: "calc(100vh - 60px)", overflowY: "auto" }}><BuilderSidebar plan={builderPlan} /></div>}
             </div>
-          </>
-        )}
-      </div>
-      )}
+          </div>
+        } />
+
+        {/* Catch-all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+
       </PlanDataContext.Provider>
     </ThemeContext.Provider>
   );

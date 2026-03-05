@@ -125,6 +125,140 @@ export function AlertsPanel({ alerts, maxVisible = 5 }) {
   );
 }
 
+// ── SparkLine ───────────────────────────────────────────────
+// Minimal inline SVG line chart (no axes). For trend indicators.
+export function SparkLine({ data = [], width = 120, height = 32, color = "#4C9EFF", fillOpacity = 0.1 }) {
+  if (data.length < 2) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const points = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((v - min) / range) * (height - 4) - 2;
+    return `${x},${y}`;
+  }).join(" ");
+  const fillPoints = `0,${height} ${points} ${width},${height}`;
+  return (
+    <svg width={width} height={height} style={{ display: "block" }}>
+      <polyline points={fillPoints} fill={color} opacity={fillOpacity} stroke="none" />
+      <polyline points={points} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// ── BarChart ─────────────────────────────────────────────────
+// Simple vertical bar chart with optional labels.
+export function BarChart({ data = [], width = 300, height = 140, barColor = "#4C9EFF" }) {
+  const t = useTheme();
+  if (data.length === 0) return null;
+  const maxVal = Math.max(...data.map(d => d.value), 1);
+  const barGap = 4;
+  const barWidth = Math.max(6, (width - barGap * (data.length - 1)) / data.length);
+  return (
+    <div>
+      <svg width={width} height={height} style={{ display: "block" }}>
+        {data.map((d, i) => {
+          const barH = (d.value / maxVal) * (height - 20);
+          const x = i * (barWidth + barGap);
+          const y = height - 20 - barH;
+          return (
+            <g key={i}>
+              <rect x={x} y={y} width={barWidth} height={barH} rx={3} fill={d.color || barColor} opacity={0.85} />
+              <text x={x + barWidth / 2} y={height - 4} textAnchor="middle" fontSize={9} fontFamily="'JetBrains Mono', monospace" fill={t.textFaint}>
+                {d.label || ""}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+// ── LineChart ────────────────────────────────────────────────
+// SVG line chart with axis labels, dots, and optional grid.
+export function LineChart({ data = [], width = 400, height = 200, color = "#4C9EFF", yLabel = "", showDots = true }) {
+  const t = useTheme();
+  if (data.length < 2) return null;
+  const pad = { top: 10, right: 10, bottom: 24, left: yLabel ? 40 : 10 };
+  const cw = width - pad.left - pad.right;
+  const ch = height - pad.top - pad.bottom;
+  const vals = data.map(d => d.y);
+  const minY = Math.min(...vals);
+  const maxY = Math.max(...vals);
+  const rangeY = maxY - minY || 1;
+  const points = data.map((d, i) => {
+    const x = pad.left + (i / (data.length - 1)) * cw;
+    const y = pad.top + ch - ((d.y - minY) / rangeY) * ch;
+    return { x, y, label: d.x };
+  });
+  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+  return (
+    <svg width={width} height={height} style={{ display: "block" }}>
+      {/* Grid lines */}
+      {[0, 0.25, 0.5, 0.75, 1].map((frac) => {
+        const y = pad.top + ch - frac * ch;
+        return <line key={frac} x1={pad.left} y1={y} x2={width - pad.right} y2={y} stroke={t.border} strokeWidth={0.5} />;
+      })}
+      {/* Line */}
+      <path d={linePath} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      {/* Dots */}
+      {showDots && points.map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r={3} fill={color} />
+      ))}
+      {/* X labels (show first, middle, last) */}
+      {[0, Math.floor(points.length / 2), points.length - 1].map(idx => {
+        const p = points[idx];
+        if (!p) return null;
+        return <text key={idx} x={p.x} y={height - 4} textAnchor="middle" fontSize={9} fontFamily="'JetBrains Mono', monospace" fill={t.textFaint}>{p.label}</text>;
+      })}
+      {/* Y labels */}
+      {yLabel && <text x={4} y={pad.top + ch / 2} textAnchor="start" fontSize={9} fontFamily="'JetBrains Mono', monospace" fill={t.textFaint} transform={`rotate(-90,4,${pad.top + ch / 2})`}>{yLabel}</text>}
+    </svg>
+  );
+}
+
+// ── Tabs ─────────────────────────────────────────────────────
+export function Tabs({ items = [], active, onChange }) {
+  const t = useTheme();
+  return (
+    <div style={{ display: "flex", gap: 2, background: t.surface2, borderRadius: 8, padding: 2, marginBottom: 20 }}>
+      {items.map(item => {
+        const isActive = item.key === active;
+        return (
+          <button key={item.key} onClick={() => onChange(item.key)} style={{
+            fontSize: 11, fontFamily: "mono", padding: "6px 16px", borderRadius: 6,
+            border: "none", cursor: "pointer",
+            background: isActive ? "rgba(76,158,255,0.12)" : "transparent",
+            color: isActive ? "#4C9EFF" : t.textDim,
+            fontWeight: isActive ? 600 : 400,
+          }}>{item.label}</button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── EmptyState ───────────────────────────────────────────────
+export function EmptyState({ icon = "📭", title = "No data yet", message = "" }) {
+  const t = useTheme();
+  return (
+    <div style={{ textAlign: "center", padding: "48px 24px" }}>
+      <div style={{ fontSize: 40, marginBottom: 12 }}>{icon}</div>
+      <div style={{ fontSize: 16, fontWeight: 700, color: t.text, marginBottom: 6 }}>{title}</div>
+      {message && <div style={{ fontSize: 13, color: t.textDim, maxWidth: 320, margin: "0 auto" }}>{message}</div>}
+    </div>
+  );
+}
+
+// ── SectionLabel ─────────────────────────────────────────────
+export function SectionLabel({ children }) {
+  const t = useTheme();
+  return (
+    <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 14 }}>{children}</div>
+  );
+}
+
 export function MuscleDiagram({ muscleVol, size = 160 }) {
   const t = useTheme();
   const goals = calcGoalPcts(muscleVol);
