@@ -152,7 +152,7 @@ export function saveTheme(mode) {
   }
   // Sync theme to profiles table
   const uid = getUserId();
-  if (uid) {
+  if (uid && supabase) {
     supabase
       .from("profiles")
       .update({ theme: mode })
@@ -168,6 +168,7 @@ export function saveTheme(mode) {
  * Returns the cloud theme (or null) so App can apply it.
  */
 export async function pullFromCloud(userId) {
+  if (!supabase) return null;
   const results = await Promise.allSettled([
     supabase.from("profiles").select("theme").eq("id", userId).single(),
     supabase.from("plans").select("data").eq("user_id", userId).single(),
@@ -207,6 +208,7 @@ export async function pullFromCloud(userId) {
  * Push all localStorage data to Supabase (called on first login to seed cloud).
  */
 export async function pushToCloud(userId) {
+  if (!supabase) return;
   const plan = loadPlan(null);
   const logs = loadWorkoutLogs();
   const theme = loadTheme("dark");
