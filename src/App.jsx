@@ -4,7 +4,7 @@ import { themes, ThemeContext, useTheme } from "./context/theme.js";
 import { PlanDataContext } from "./context/plan-data.js";
 import { MO_NAMES } from "./utils/helpers.js";
 import { buildMonthFromPlan, DEFAULT_PLAN, clonePlan, ensurePlanId } from "./utils/plan-engine.js";
-import { loadPlan, savePlan, loadTheme, saveTheme, hasSavedPlan, pullFromCloud, pushToCloud } from "./utils/storage.js";
+import { loadPlan, savePlan, loadTheme, saveTheme, hasSavedPlan, pullFromCloud, pushToCloud, loadProfile, saveProfile, isOnboardingComplete } from "./utils/storage.js";
 import { onAuthStateChange, signOut } from "./lib/supabase.js";
 
 import MonthView from "./components/MonthView.jsx";
@@ -23,11 +23,13 @@ import BuilderSidebar from "./components/BuilderSidebar.jsx";
 import ProgressView from "./components/ProgressView.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import AIInsights from "./components/AIInsights.jsx";
+import Onboarding from "./components/Onboarding.jsx";
+import ProfilePage from "./components/ProfilePage.jsx";
 
 const BUILDER_STEPS = [{ key: "split", label: "Plan" }, { key: "schedule", label: "Schedule" }, { key: "exercises", label: "Exercises" }, { key: "review", label: "Review" }];
 
 /* ── Dashboard Layout (header + sidebar + content via Outlet) ── */
-function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan, onSignOut, onAIInsights }) {
+function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan, onSignOut, onAIInsights, onProfile, profile }) {
   const t = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -59,10 +61,15 @@ function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan, 
       {/* HEADER */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
         <div>
+          {profile?.displayName && (
+            <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 4 }}>
+              {(() => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; })()}, {profile.displayName}
+            </div>
+          )}
           <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 3, color: t.textFaint, fontFamily: "mono", marginBottom: 6 }}>Active Plan &middot; {plan.weeks}-Week Mesocycle</div>
           <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: -0.5, color: t.text }}>{plan.splitName}</h1>
           <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(76,158,255,0.1)", color: "#4C9EFF" }}>hypertrophy</span>
+            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(76,158,255,0.1)", color: "#4C9EFF" }}>{profile?.primaryGoal?.replace(/_/g, " ") || "hypertrophy"}</span>
             <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(61,220,132,0.1)", color: "#3DDC84" }}>{dateRange}</span>
             <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(167,139,250,0.1)", color: "#A78BFA" }}>progressive overload</span>
           </div>
@@ -84,7 +91,7 @@ function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan, 
           )}
 
           <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
-          <SettingsMenu onEditPlan={onEditPlan} onSignOut={onSignOut} onAIInsights={onAIInsights} />
+          <SettingsMenu onEditPlan={onEditPlan} onSignOut={onSignOut} onAIInsights={onAIInsights} onProfile={onProfile} />
         </div>
       </div>
 
@@ -170,10 +177,11 @@ export default function App() {
           await pushToCloud(user.id);
         }
 
-        // Refresh plan/monthData from (now-populated) localStorage
+        // Refresh plan/monthData and profile from (now-populated) localStorage
         const freshPlan = ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN)));
         setPlan(freshPlan);
         setMonthData(buildMonthFromPlan(freshPlan));
+        setUserProfile(loadProfile());
       }
 
       setAuthReady(true);
@@ -263,8 +271,30 @@ export default function App() {
   // AI Insights panel
   const [showAI, setShowAI] = useState(false);
 
+  // Profile state
+  const [userProfile, setUserProfile] = useState(() => loadProfile());
+
+  const handleOnboardingComplete = (profile, recommendedSplitKey) => {
+    saveProfile(profile);
+    setUserProfile(profile);
+    // Pre-seed the builder with recommended split
+    historyRef.current = { past: [], future: [] };
+    const seeded = clonePlan(DEFAULT_PLAN);
+    seeded.splitKey = recommendedSplitKey;
+    seeded.weeks = 4;
+    _setBuilderPlan(seeded);
+    setBuilderStep(0);
+    navigate("/builder");
+  };
+
   // Shared dashboard layout props
-  const dashLayoutProps = { plan, monthData, themeMode, toggleTheme, onEditPlan: editPlan, onSignOut: handleSignOut, onAIInsights: () => setShowAI(true) };
+  const dashLayoutProps = {
+    plan, monthData, themeMode, toggleTheme,
+    onEditPlan: editPlan, onSignOut: handleSignOut,
+    onAIInsights: () => setShowAI(true),
+    onProfile: () => navigate("/profile"),
+    profile: userProfile,
+  };
 
   // Show nothing while checking initial auth state
   if (!authReady) {
@@ -315,11 +345,20 @@ export default function App() {
       `}</style>
 
       <Routes>
-        {/* Intro — redirect to dashboard if plan exists */}
+        {/* Root — onboarding check → dashboard or intro */}
         <Route path="/" element={
-          hasSavedPlan()
-            ? <Navigate to="/dashboard" replace />
-            : <IntroScreen onStart={startBuilder} themeMode={themeMode} onToggleTheme={toggleTheme} />
+          !isOnboardingComplete()
+            ? <Navigate to="/onboarding" replace />
+            : hasSavedPlan()
+              ? <Navigate to="/dashboard" replace />
+              : <IntroScreen onStart={startBuilder} themeMode={themeMode} onToggleTheme={toggleTheme} />
+        } />
+
+        {/* Onboarding */}
+        <Route path="/onboarding" element={
+          isOnboardingComplete()
+            ? <Navigate to={hasSavedPlan() ? "/dashboard" : "/"} replace />
+            : <Onboarding themeMode={themeMode} onToggleTheme={toggleTheme} onComplete={handleOnboardingComplete} />
         } />
 
         {/* Dashboard with nested views */}
@@ -378,6 +417,11 @@ export default function App() {
             </div>
           </div>
           </ErrorBoundary>
+        } />
+
+        {/* Profile */}
+        <Route path="/profile" element={
+          <ProfilePage onBack={() => navigate(hasSavedPlan() ? "/dashboard" : "/")} />
         } />
 
         {/* Catch-all */}

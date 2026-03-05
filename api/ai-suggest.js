@@ -45,7 +45,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "ANTHROPIC_API_KEY not configured" });
   }
 
-  const { type, plan, logs } = req.body;
+  const { type, plan, logs, profile } = req.body;
 
   if (!type || !TYPE_PROMPTS[type]) {
     return res.status(400).json({ error: "Invalid type. Use: analyze, stall, swap" });
@@ -67,9 +67,20 @@ export default async function handler(req, res) {
     })),
   } : null;
 
+  const profileSummary = profile ? {
+    experience: profile.experienceLevel,
+    primaryGoal: profile.primaryGoal,
+    secondaryGoals: profile.secondaryGoals,
+    equipment: profile.equipment,
+    injuries: profile.injuries,
+    focusMuscles: profile.focusMuscles,
+    trainingDays: profile.trainingDaysPerWeek,
+    sessionDuration: profile.sessionDuration,
+  } : null;
+
   const userMessage = `${TYPE_PROMPTS[type]}
 
-PLAN:
+${profileSummary ? `USER PROFILE:\n${JSON.stringify(profileSummary, null, 2)}\n\n` : ""}PLAN:
 ${JSON.stringify(planSummary, null, 2)}
 
 RECENT LOGS (last entries):
