@@ -201,22 +201,26 @@ function StepAboutYou({ profile, onChange, t }) {
             />
           ) : (
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <input
-                type="number" min="0" max="8"
-                value={heightFt}
+              <select
+                value={heightFt || ""}
                 onChange={e => setHeightImperial(e.target.value, heightIn)}
-                placeholder="5"
-                style={{ ...inputStyle(t), width: "50%" }}
-              />
-              <span style={{ fontSize: 12, color: t.textMuted, flexShrink: 0 }}>ft</span>
-              <input
-                type="number" min="0" max="11"
-                value={heightIn}
+                style={{ ...selectStyle, width: "50%" }}
+              >
+                <option value="">ft</option>
+                {Array.from({ length: 9 }, (_, i) => (
+                  <option key={i} value={i}>{i}</option>
+                ))}
+              </select>
+              <select
+                value={heightIn || ""}
                 onChange={e => setHeightImperial(heightFt, e.target.value)}
-                placeholder="10"
-                style={{ ...inputStyle(t), width: "50%" }}
-              />
-              <span style={{ fontSize: 12, color: t.textMuted, flexShrink: 0 }}>in</span>
+                style={{ ...selectStyle, width: "50%" }}
+              >
+                <option value="">in</option>
+                {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i} value={i}>{i}</option>
+                ))}
+              </select>
             </div>
           )}
         </div>
