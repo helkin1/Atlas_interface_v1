@@ -23,7 +23,7 @@ function SetPill({ set, idx, logged }) {
   return (
     <div style={{
       border: `1px solid ${bc}`, background: bg, color: tc, borderRadius: 8,
-      padding: "8px 12px", fontFamily: "inherit", fontSize: 12,
+      padding: "8px 12px", fontSize: 12,
       minWidth: 78, textAlign: "center",
     }}>
       <div style={{ fontSize: 10, opacity: 0.6, marginBottom: 2 }}>Set {idx + 1}</div>
@@ -141,7 +141,7 @@ export default function DayView({ day, planId, onBack }) {
               <span style={{ fontSize: 12, color: t.textMuted, fontWeight: 500 }}>
                 Session logged — {completedSets}/{totalSets} sets
               </span>
-              <span style={{ fontSize: 12, fontFamily: "inherit", fontWeight: 700, color: pct === 100 ? "#3DDC84" : "#4C9EFF" }}>{pct}%</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: pct === 100 ? "#3DDC84" : "#4C9EFF" }}>{pct}%</span>
             </div>
             <div style={{ height: 4, borderRadius: 2, background: t.surface3, overflow: "hidden" }}>
               <div style={{ height: "100%", borderRadius: 2, background: pct === 100 ? "#3DDC84" : "#4C9EFF", width: `${pct}%`, transition: "width 0.3s" }} />
@@ -149,8 +149,8 @@ export default function DayView({ day, planId, onBack }) {
           </div>
           {actualVol > 0 && (
             <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <div style={{ fontSize: 14, fontFamily: "inherit", fontWeight: 700, color: t.text }}>{actualVol.toLocaleString()}</div>
-              <div style={{ fontSize: 9, color: t.textFaint, fontFamily: "inherit" }}>LBS VOL</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{actualVol.toLocaleString()}</div>
+              <div style={{ fontSize: 9, color: t.textFaint }}>LBS VOL</div>
             </div>
           )}
         </div>
@@ -160,7 +160,7 @@ export default function DayView({ day, planId, onBack }) {
         {day.exercises.map((entry, ei) => {
           const ex = EXERCISES[entry.exercise_id]; if (!ex) return null;
           return (
-            <div key={ei} style={{ background: t.surface, borderRadius: 12, padding: 24, marginBottom: 10 }}>
+            <div key={ei} style={{ background: t.surface, borderRadius: 12, padding: 24, boxShadow: t.shadow, marginBottom: 10 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: t.text }}>{ex.name}</div>
@@ -169,7 +169,7 @@ export default function DayView({ day, planId, onBack }) {
                     {ex.muscles.filter((m) => m.role !== "direct").map((m) => <span key={m.name} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 8, background: `${t.textFaint}20`, color: t.textDim }}>{m.name}</span>)}
                   </div>
                 </div>
-                <span style={{ fontSize: 10, fontFamily: "inherit", color: t.textFaint }}>{entry.sets.length} sets</span>
+                <span style={{ fontSize: 10, color: t.textFaint }}>{entry.sets.length} sets</span>
               </div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {entry.sets.map((s, si) => {

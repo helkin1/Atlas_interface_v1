@@ -43,7 +43,7 @@ export default function IntroScreen({ onStart, themeMode, onToggleTheme }) {
       {/* Features grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, maxWidth: 720, width: "100%" }}>
         {FEATURES.map(f => (
-          <div key={f.title} style={{ background: t.surface, borderRadius: 12, padding: 24, textAlign: "center" }}>
+          <div key={f.title} style={{ background: t.surface, borderRadius: 12, padding: 24, boxShadow: t.shadow, textAlign: "center" }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>{f.icon}</div>
             <div style={{ fontSize: 12, fontWeight: 700, color: t.text, marginBottom: 4 }}>{f.title}</div>
             <div style={{ fontSize: 10, color: t.textDim, lineHeight: 1.5 }}>{f.desc}</div>

@@ -17,7 +17,6 @@ function inputStyle(t) {
     background: t.surface,
     color: t.text,
     fontSize: 14,
-    fontFamily: "'Outfit', sans-serif",
     outline: "none",
   };
 }
@@ -93,7 +92,7 @@ export default function ProfilePage({ onBack }) {
     update({ [key]: list.includes(id) ? list.filter(x => x !== id) : [...list, id] });
   };
 
-  const sectionStyle = { background: t.surface, borderRadius: 12, padding: 24, marginBottom: 16 };
+  const sectionStyle = { background: t.surface, borderRadius: 12, padding: 24, marginBottom: 16, boxShadow: t.shadow };
   const sectionTitle = { fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 16 };
 
   return (
@@ -101,7 +100,7 @@ export default function ProfilePage({ onBack }) {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", color: "#4C9EFF", fontSize: 13, fontFamily: "'Outfit', sans-serif" }}>{"\u2190"} Back</button>
+          <button onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", color: "#4C9EFF", fontSize: 13 }}>{"\u2190"} Back</button>
           <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.5, color: t.text }}>Your Profile</h1>
         </div>
         <button onClick={handleSave} style={{

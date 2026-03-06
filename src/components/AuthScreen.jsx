@@ -43,7 +43,7 @@ export default function AuthScreen({ themeMode, onToggleTheme, onDemoMode }) {
     background: t.surface2,
     color: t.text,
     fontSize: 14,
-    fontFamily: "'Outfit', sans-serif",
+
     outline: "none",
   };
 
@@ -121,7 +121,7 @@ export default function AuthScreen({ themeMode, onToggleTheme, onDemoMode }) {
           <button
             type="button"
             onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(null); setConfirmMsg(null); }}
-            style={{ background: "none", border: "none", color: "#4C9EFF", fontSize: 13, cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}
+            style={{ background: "none", border: "none", color: "#4C9EFF", fontSize: 13, cursor: "pointer" }}
           >
             {mode === "login" ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
           </button>
@@ -147,7 +147,7 @@ export default function AuthScreen({ themeMode, onToggleTheme, onDemoMode }) {
             fontSize: 14,
             fontWeight: 600,
             cursor: "pointer",
-            fontFamily: "'Outfit', sans-serif",
+        
             transition: "all 0.2s",
           }}
         >

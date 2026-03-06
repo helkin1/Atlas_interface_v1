@@ -73,6 +73,7 @@ export const themes = {
     textFaint: "#3A4560",
     modalOverlay: "rgba(0,0,0,0.7)",
     cardHover: "#1A1E28",
+    shadow: "0 1px 3px rgba(0,0,0,0.24), 0 0 0 1px rgba(255,255,255,0.03)",
     ...tokens,
   },
   light: {
@@ -89,6 +90,7 @@ export const themes = {
     textFaint: "#A0A8B8",
     modalOverlay: "rgba(0,0,0,0.35)",
     cardHover: "#F0F1F4",
+    shadow: "0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)",
     ...tokens,
   },
 };

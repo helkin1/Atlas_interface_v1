@@ -19,7 +19,7 @@ export function MiniBar({ name, sets, max }) {
 export function StatCard({ label, value, sub, color }) {
   const t = useTheme();
   return (
-    <div style={{ background: t.surface, borderRadius: 12, padding: 20 }}>
+    <div style={{ background: t.surface, borderRadius: 12, padding: 20, boxShadow: t.shadow }}>
       <div style={{ fontSize: 11, color: t.textMuted, letterSpacing: 0.5, marginBottom: 8 }}>{label}</div>
       <div style={{ fontSize: 26, fontWeight: 700, color: color || t.text }}>{value}</div>
       {sub && <div style={{ fontSize: 12, color: t.textDim, marginTop: 4 }}>{sub}</div>}

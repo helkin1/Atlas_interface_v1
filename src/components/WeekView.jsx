@@ -33,10 +33,10 @@ export default function WeekView({ week, onDay, onBack }) {
               borderRadius: 14, padding: 16, cursor: day.isRest ? "default" : "pointer",
               textAlign: "left", opacity: day.isRest ? 0.4 : 1, minHeight: 140, transition: "all 0.15s",
             }}>
-              <div style={{ fontSize: 10, color: t.textFaint, fontFamily: "inherit", marginBottom: 4 }}>{DAY_NAMES[day.date.getDay()]} &middot; {MO_NAMES[day.date.getMonth()]} {day.date.getDate()}</div>
+              <div style={{ fontSize: 10, color: t.textFaint, marginBottom: 4 }}>{DAY_NAMES[day.date.getDay()]} &middot; {MO_NAMES[day.date.getMonth()]} {day.date.getDate()}</div>
               <div style={{ fontSize: 15, fontWeight: 700, color: day.isRest ? t.textFaint : t.text, marginBottom: 8 }}>{day.label}</div>
               {!day.isRest && pat && <PatternBadge pattern={pat} />}
-              {!day.isRest && <div style={{ marginTop: 10, fontSize: 11, color: t.textDim, fontFamily: "inherit" }}>{day.exercises.length} ex &middot; {getDaySets(day)} sets</div>}
+              {!day.isRest && <div style={{ marginTop: 10, fontSize: 11, color: t.textDim }}>{day.exercises.length} ex &middot; {getDaySets(day)} sets</div>}
               {day.isRest && <div style={{ fontSize: 28, marginTop: 8 }}>😴</div>}
             </button>
           );
@@ -44,7 +44,7 @@ export default function WeekView({ week, onDay, onBack }) {
       </div>
 
       {/* Exercise breakdown — replaces the goal-bars panel */}
-      <div style={{ background: t.surface, borderRadius: 12, padding: 24 }}>
+      <div style={{ background: t.surface, borderRadius: 12, padding: 24, boxShadow: t.shadow }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 18 }}>Exercise Breakdown</div>
 
         {trainingDays.map((day, di) => {
@@ -55,7 +55,7 @@ export default function WeekView({ week, onDay, onBack }) {
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{day.label}</span>
                 {pat && <PatternBadge pattern={pat} />}
-                <span style={{ fontSize: 11, color: t.textDim, fontFamily: "inherit", marginLeft: "auto" }}>{getDaySets(day)} sets</span>
+                <span style={{ fontSize: 11, color: t.textDim, marginLeft: "auto" }}>{getDaySets(day)} sets</span>
               </div>
 
               {/* Exercise rows */}
@@ -90,7 +90,7 @@ export default function WeekView({ week, onDay, onBack }) {
                         ))}
                       </div>
                     </div>
-                    <span style={{ fontSize: 11, fontFamily: "inherit", color: t.textFaint, flexShrink: 0, marginLeft: 8 }}>
+                    <span style={{ fontSize: 11, color: t.textFaint, flexShrink: 0, marginLeft: 8 }}>
                       {entry.sets.length} sets
                     </span>
                   </div>
