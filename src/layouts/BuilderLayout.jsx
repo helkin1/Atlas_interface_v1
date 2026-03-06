@@ -36,7 +36,7 @@ export default function BuilderLayout({
             <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
               {BUILDER_STEPS.map((s, i) => (
                 <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <button onClick={() => i <= builderStep && setBuilderStep(i)} style={{ fontSize: 11, fontFamily: "inherit", padding: "4px 10px", borderRadius: 6, cursor: i <= builderStep ? "pointer" : "default", background: i === builderStep ? t.alpha.primary._10 : "transparent", border: `1px solid ${i === builderStep ? t.colors.primary : i < builderStep ? t.alpha.success._30 : t.border}`, color: i === builderStep ? t.colors.primary : i < builderStep ? t.colors.success : t.textDim }}>{i < builderStep ? "\u2713" : i + 1}. {s.label}</button>
+                  <button onClick={() => i <= builderStep && setBuilderStep(i)} style={{ fontSize: 11, padding: "4px 10px", borderRadius: 6, cursor: i <= builderStep ? "pointer" : "default", background: i === builderStep ? t.alpha.primary._10 : "transparent", border: `1px solid ${i === builderStep ? t.colors.primary : i < builderStep ? t.alpha.success._30 : t.border}`, color: i === builderStep ? t.colors.primary : i < builderStep ? t.colors.success : t.textDim }}>{i < builderStep ? "\u2713" : i + 1}. {s.label}</button>
                   {i < BUILDER_STEPS.length - 1 && <span style={{ color: t.textFaint, fontSize: 10 }}>&rarr;</span>}
                 </div>
               ))}

@@ -33,7 +33,6 @@ export function inputStyle(t) {
     background: t.surface,
     color: t.text,
     fontSize: 14,
-    fontFamily: "'Outfit', sans-serif",
     outline: "none",
   };
 }

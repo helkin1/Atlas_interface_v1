@@ -149,7 +149,7 @@ function StallResult({ data, t }) {
         <div style={{ fontSize: 13, color: t.text, lineHeight: 1.6 }}>{data.general}</div>
       )}
       {data.stalls?.length > 0 ? data.stalls.map((s, i) => (
-        <div key={i} style={{ background: t.surface, borderRadius: 12, padding: 20 }}>
+        <div key={i} style={{ background: t.surface, borderRadius: 12, padding: 20, boxShadow: t.shadow }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: "#FBBF24", marginBottom: 6 }}>{s.exercise}</div>
           <div style={{ fontSize: 12, color: t.textDim, marginBottom: 8 }}>{s.observation}</div>
           <div style={{ fontSize: 12, color: t.text, background: "rgba(76,158,255,0.06)", borderRadius: 8, padding: 10 }}>{s.suggestion}</div>
@@ -165,7 +165,7 @@ function SwapResult({ data, t }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {data.swaps?.map((s, i) => (
-        <div key={i} style={{ background: t.surface, borderRadius: 12, padding: 20 }}>
+        <div key={i} style={{ background: t.surface, borderRadius: 12, padding: 20, boxShadow: t.shadow }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 4 }}>{s.current}</div>
           <div style={{ fontSize: 11, color: t.textDim, marginBottom: 10 }}>{s.reason}</div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>

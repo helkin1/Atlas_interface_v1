@@ -15,7 +15,7 @@ export default function MonthView({ onWeek, onDay }) {
       {MONTH.map((week, wi) => (
         <div key={wi} style={{ marginBottom: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <button onClick={() => onWeek(wi)} style={{ fontSize: 11, fontFamily: "inherit", color: "#4C9EFF", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>{week.label}</button>
+            <button onClick={() => onWeek(wi)} style={{ fontSize: 11, color: "#4C9EFF", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>{week.label}</button>
             <span style={{ fontSize: 10, color: t.textFaint }}>&middot; {getWeekSets(week)} sets</span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
@@ -30,9 +30,9 @@ export default function MonthView({ onWeek, onDay }) {
                   textAlign: "center", opacity: day.isRest ? 0.35 : 1, minHeight: 80,
                   display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, transition: "all 0.15s",
                 }}>
-                  <div style={{ fontSize: 9, color: t.textDim, fontFamily: "inherit" }}>{MO_NAMES[day.date.getMonth()]} {day.date.getDate()}</div>
+                  <div style={{ fontSize: 9, color: t.textDim }}>{MO_NAMES[day.date.getMonth()]} {day.date.getDate()}</div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: day.isRest ? t.textFaint : pc ? pc.text : t.text }}>{day.isRest ? "Rest" : day.label}</div>
-                  {!day.isRest && <div style={{ fontSize: 9, fontFamily: "inherit", color: t.textDim }}>{getDaySets(day)} sets</div>}
+                  {!day.isRest && <div style={{ fontSize: 9, color: t.textDim }}>{getDaySets(day)} sets</div>}
                 </button>
               );
             })}

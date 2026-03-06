@@ -35,7 +35,7 @@ function InlineRestTimer({ duration = 90, onDone }) {
       <div style={{ height: 3, background: t.surface3, borderRadius: 2, overflow: "hidden", marginBottom: 10 }}>
         <div style={{ height: "100%", background: done ? "#3DDC84" : "#4C9EFF", width: `${pct}%`, transition: "width 1s linear" }} />
       </div>
-      <div style={{ fontSize: 36, fontFamily: "inherit", fontWeight: 700, color: done ? "#3DDC84" : remaining <= 10 ? "#EF4444" : t.text, marginBottom: 10 }}>
+      <div style={{ fontSize: 36, fontWeight: 700, color: done ? "#3DDC84" : remaining <= 10 ? "#EF4444" : t.text, marginBottom: 10 }}>
         {mins}:{String(secs).padStart(2, "0")}
       </div>
       <div style={{ display: "flex", gap: 6 }}>
@@ -67,7 +67,6 @@ function GymLogModal({ exercise, setData, idx, onConfirm, onCancel }) {
     borderRadius: 10,
     color: t.text,
     fontSize: 28,
-    fontFamily: "inherit",
     fontWeight: 700,
     padding: "14px 16px",
     width: "100%",
@@ -88,25 +87,25 @@ function GymLogModal({ exercise, setData, idx, onConfirm, onCancel }) {
         <div style={{ width: 36, height: 4, borderRadius: 2, background: t.borderLight, margin: "0 auto 20px" }} />
         <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 4 }}>Log Set {idx + 1}</div>
         <div style={{ fontSize: 20, fontWeight: 700, color: t.text, marginBottom: 2 }}>{ex?.name}</div>
-        <div style={{ fontSize: 12, color: t.textDim, marginBottom: 22, fontFamily: "inherit" }}>
+        <div style={{ fontSize: 12, color: t.textDim, marginBottom: 22 }}>
           Target: {setData.w > 0 ? `${setData.w} \u00d7 ${setData.r}` : `BW \u00d7 ${setData.r}`}
         </div>
 
         {/* weight + reps side by side */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
           <div>
-            <label style={{ fontSize: 11, color: t.textDim, fontFamily: "inherit", display: "block", marginBottom: 6 }}>WEIGHT (lbs)</label>
+            <label style={{ fontSize: 11, color: t.textDim, display: "block", marginBottom: 6 }}>WEIGHT (lbs)</label>
             <input type="number" value={w} onChange={(e) => setW(e.target.value)} style={iStyle} />
           </div>
           <div>
-            <label style={{ fontSize: 11, color: t.textDim, fontFamily: "inherit", display: "block", marginBottom: 6 }}>REPS</label>
+            <label style={{ fontSize: 11, color: t.textDim, display: "block", marginBottom: 6 }}>REPS</label>
             <input type="number" value={r} onChange={(e) => setR(e.target.value)} style={iStyle} />
           </div>
         </div>
 
         {/* RPE 6–10 tap row */}
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 11, color: t.textDim, fontFamily: "inherit", marginBottom: 8 }}>RPE (optional)</div>
+          <div style={{ fontSize: 11, color: t.textDim, marginBottom: 8 }}>RPE (optional)</div>
           <div style={{ display: "flex", gap: 6 }}>
             {[6, 7, 8, 9, 10].map((v) => (
               <button
@@ -117,7 +116,7 @@ function GymLogModal({ exercise, setData, idx, onConfirm, onCancel }) {
                   border: `1px solid ${rpe === v ? rpeColor(v) : t.borderLight}`,
                   background: rpe === v ? `${rpeColor(v)}20` : "transparent",
                   color: rpe === v ? rpeColor(v) : t.textMuted,
-                  fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.12s",
+                  fontSize: 14, fontWeight: 700, cursor: "pointer", transition: "all 0.12s",
                 }}
               >{v}</button>
             ))}
@@ -154,7 +153,7 @@ function GymSetPill({ set, idx, logged, onLog }) {
       onClick={() => !isL && onLog()}
       style={{
         border: `1px solid ${bc}`, background: bg, color: tc, borderRadius: 10,
-        padding: "12px 14px", fontFamily: "inherit", fontSize: 13,
+        padding: "12px 14px", fontSize: 13,
         cursor: !isL ? "pointer" : "default", minWidth: 88, textAlign: "center",
         transition: "all 0.15s", position: "relative",
       }}
@@ -166,7 +165,7 @@ function GymSetPill({ set, idx, logged, onLog }) {
       {isL && logged.rpe != null && (
         <div style={{
           position: "absolute", top: -7, right: -7,
-          fontSize: 9, fontWeight: 800, fontFamily: "inherit",
+          fontSize: 9, fontWeight: 800,
           background: rpeColor(logged.rpe), color: "#000",
           borderRadius: 6, padding: "2px 5px", lineHeight: 1,
         }}>
@@ -252,7 +251,7 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
           <div>
-            <div style={{ fontSize: 12, color: t.textDim, fontFamily: "inherit" }}>{day.label}</div>
+            <div style={{ fontSize: 12, color: t.textDim }}>{day.label}</div>
             <div style={{ fontSize: 13, fontWeight: 600, color: pct === 100 ? "#3DDC84" : "#4C9EFF" }}>
               {completedSets}/{totalSets} sets &middot; {pct}%
             </div>
@@ -304,7 +303,7 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
                       ))}
                     </div>
                   </div>
-                  <div style={{ fontSize: 11, fontFamily: "inherit", color: allDone ? "#3DDC84" : t.textFaint }}>
+                  <div style={{ fontSize: 11, color: allDone ? "#3DDC84" : t.textFaint }}>
                     {loggedCount}/{entry.sets.length}
                   </div>
                 </div>
@@ -334,7 +333,7 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
           {/* Session clock */}
           <div>
             <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 8 }}>Session Time</div>
-            <div style={{ fontSize: 38, fontFamily: "inherit", fontWeight: 700, color: paused ? t.textMuted : t.text, marginBottom: 10, letterSpacing: -1 }}>
+            <div style={{ fontSize: 38, fontWeight: 700, color: paused ? t.textMuted : t.text, marginBottom: 10, letterSpacing: -1 }}>
               {clockStr}
             </div>
             <button onClick={togglePause} style={{

@@ -4,8 +4,8 @@ import { getSplitRecommendation } from "./getSplitRecommendation.js";
 export default function StepReview({ profile, t }) {
   const rec = getSplitRecommendation(profile);
 
-  const sectionStyle = { background: t.surface, border: `1px solid ${t.border}`, borderRadius: 14, padding: 20 };
-  const labelStyle = { fontSize: 10, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, marginBottom: 8 };
+  const sectionStyle = { background: t.surface, borderRadius: 12, padding: 20, boxShadow: t.shadow };
+  const labelStyle = { fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8 };
   const valStyle = { fontSize: 14, fontWeight: 600, color: t.text };
 
   return (

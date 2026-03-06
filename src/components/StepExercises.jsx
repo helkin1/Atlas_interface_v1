@@ -54,7 +54,7 @@ export default function StepExercises({ plan, onChange }) {
     return true;
   });
   const currentExIds = isTrainingDay ? new Set(currentDay.exercises.map(e => e.id)) : new Set();
-  const inputSt = { width: 52, padding: "4px 6px", borderRadius: 6, border: `1px solid ${t.borderLight}`, background: t.surface2, color: t.text, fontSize: 12, fontFamily: "inherit", textAlign: "center", outline: "none" };
+  const inputSt = { width: 52, padding: "4px 6px", borderRadius: 6, border: `1px solid ${t.borderLight}`, background: t.surface2, color: t.text, fontSize: 12, textAlign: "center", outline: "none" };
 
   return (
     <div>
@@ -76,11 +76,11 @@ export default function StepExercises({ plan, onChange }) {
       {isTrainingDay && (
         <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 20 }}>
           {/* ── LEFT: Current day's exercises ── */}
-          <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 16, padding: 20 }}>
+          <div style={{ background: t.surface, borderRadius: 12, padding: 20, boxShadow: t.shadow }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: t.text }}>{currentDay.label}</div>
-                <div style={{ fontSize: 11, fontFamily: "inherit", color: t.textDim, marginTop: 2 }}>{currentDay.exercises.length} exercises</div>
+                <div style={{ fontSize: 11, color: t.textDim, marginTop: 2 }}>{currentDay.exercises.length} exercises</div>
               </div>
             </div>
 
@@ -123,8 +123,8 @@ export default function StepExercises({ plan, onChange }) {
                       </div>
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0, marginRight: 4 }}>
-                      <div style={{ fontSize: 11, fontFamily: "inherit", color: "#4C9EFF", fontWeight: 600 }}>{sm.count} sets</div>
-                      <div style={{ fontSize: 10, fontFamily: "inherit", color: t.textMuted }}>{sm.repsRange} reps</div>
+                      <div style={{ fontSize: 11, color: "#4C9EFF", fontWeight: 600 }}>{sm.count} sets</div>
+                      <div style={{ fontSize: 10, color: t.textMuted }}>{sm.repsRange} reps</div>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); setExpandedIdx(isExp ? null : ei); }} style={{ background: isExp ? "rgba(76,158,255,0.1)" : "transparent", border: `1px solid ${isExp ? "#4C9EFF40" : t.borderLight}`, borderRadius: 8, padding: "4px 10px", cursor: "pointer", fontSize: 10, fontWeight: 600, color: isExp ? "#4C9EFF" : t.textDim, whiteSpace: "nowrap" }}>
                       {isExp ? "Close" : "Edit Sets"}
@@ -142,7 +142,7 @@ export default function StepExercises({ plan, onChange }) {
                       </div>
                       {entry.setDetails.map((set, si) => (
                         <div key={si} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, paddingLeft: 28 }}>
-                          <span style={{ width: 40, fontSize: 11, fontFamily: "inherit", color: t.textDim }}>#{si + 1}</span>
+                          <span style={{ width: 40, fontSize: 11, color: t.textDim }}>#{si + 1}</span>
                           <input type="number" value={set.reps} min={1} max={30} onChange={e => updateSetDetail(ei, si, "reps", e.target.value)} style={inputSt} />
                           <input type="number" value={set.weight} min={0} max={999} onChange={e => updateSetDetail(ei, si, "weight", e.target.value)} style={{ ...inputSt, width: 64 }} />
                           <span style={{ fontSize: 9, color: t.textFaint }}>lbs</span>
@@ -167,7 +167,7 @@ export default function StepExercises({ plan, onChange }) {
                       <div style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{s.name}</div>
                       <div style={{ fontSize: 10, color: t.textDim }}>Targets: {s.directMuscles.join(", ")}</div>
                     </div>
-                    {s.isNew && <span style={{ fontSize: 8, fontFamily: "inherit", padding: "1px 5px", borderRadius: 4, background: "rgba(61,220,132,0.1)", color: "#3DDC84" }}>NEW</span>}
+                    {s.isNew && <span style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, background: "rgba(61,220,132,0.1)", color: "#3DDC84" }}>NEW</span>}
                   </button>
                 ))}
               </div>

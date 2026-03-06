@@ -52,11 +52,11 @@ export default function StepSchedule({ plan, onChange }) {
           const isRest = day.isRest;
           return (
             <div key={i} draggable onDragStart={() => setDragIdx(i)} onDragOver={e => e.preventDefault()} onDrop={() => { swapDays(dragIdx, i); setDragIdx(null); }} onDragEnd={() => setDragIdx(null)} style={{ background: isRest ? t.surface2 : t.surface, border: `1px solid ${dragIdx === i ? "#4C9EFF" : t.border}`, borderRadius: 12, padding: 20, textAlign: "center", minHeight: 160, opacity: dragIdx === i ? 0.5 : 1, cursor: "grab", transition: "all 0.15s" }}>
-              <div style={{ fontSize: 10, fontFamily: "inherit", color: t.textFaint, marginBottom: 4 }}>{DAY_NAMES[(i + 1) % 7]}</div>
+              <div style={{ fontSize: 10, color: t.textFaint, marginBottom: 4 }}>{DAY_NAMES[(i + 1) % 7]}</div>
               <div style={{ fontSize: 12, color: t.textDim, marginBottom: 6, letterSpacing: 2 }}>{"\u2630"}</div>
               {isRest ? <><div style={{ fontSize: 28, marginBottom: 4 }}>😴</div><div style={{ fontSize: 12, color: t.textFaint, marginBottom: 8 }}>Rest</div></> : <>
                 <div style={{ fontSize: 13, fontWeight: 700, color: t.text, marginBottom: 4 }}>{day.label}</div>
-                <div style={{ fontSize: 10, fontFamily: "inherit", color: t.textDim }}>{day.exercises.length > 0 ? `${day.exercises.length} exercises` : "No exercises"}</div>
+                <div style={{ fontSize: 10, color: t.textDim }}>{day.exercises.length > 0 ? `${day.exercises.length} exercises` : "No exercises"}</div>
               </>}
               <button onClick={() => toggleRest(i)} style={{ marginTop: 10, fontSize: 10, padding: "4px 10px", borderRadius: 6, cursor: "pointer", background: "transparent", border: `1px solid ${t.borderLight}`, color: t.textDim }}>{isRest ? "Make Training" : "Make Rest"}</button>
             </div>

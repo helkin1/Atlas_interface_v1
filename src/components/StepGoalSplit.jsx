@@ -23,7 +23,7 @@ export default function StepGoalSplit({ plan, onChange }) {
             <button key={key} onClick={() => { const p = buildPlanFromPreset(key); if (p) onChange({ ...p, weeks: plan.weeks || 4 }); }} style={{ background: sel ? `${goalPctColor(100)}08` : t.surface, border: `1px solid ${sel ? goalPctColor(100) + "40" : t.border}`, borderRadius: 12, padding: 24, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                 <span style={{ fontSize: 16, fontWeight: 700, color: sel ? "#3DDC84" : t.text }}>{preset.name}</span>
-                {preset.daysPerWeek > 0 && <span style={{ fontSize: 10, fontFamily: "inherit", color: t.textDim, padding: "2px 8px", background: t.surface2, borderRadius: 6 }}>{preset.daysPerWeek}&times;/wk</span>}
+                {preset.daysPerWeek > 0 && <span style={{ fontSize: 10, color: t.textDim, padding: "2px 8px", background: t.surface2, borderRadius: 6 }}>{preset.daysPerWeek}&times;/wk</span>}
               </div>
               <p style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.5, marginBottom: 10 }}>{preset.description}</p>
               <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
@@ -44,7 +44,7 @@ export default function StepGoalSplit({ plan, onChange }) {
           }}
         >
           <div style={{ flex: 1, height: 1, background: t.border }} />
-          <span style={{ fontSize: 11, fontFamily: "inherit", color: t.textDim, whiteSpace: "nowrap" }}>
+          <span style={{ fontSize: 11, color: t.textDim, whiteSpace: "nowrap" }}>
             {showTemplates ? "\u25BC" : "\u25B6"} Popular Programs
           </span>
           <div style={{ flex: 1, height: 1, background: t.border }} />
@@ -59,7 +59,7 @@ export default function StepGoalSplit({ plan, onChange }) {
                 <button key={tmpl.key} onClick={() => { const p = buildPlanFromTemplate(tmpl); if (p) onChange({ ...p, weeks: plan.weeks || 4 }); }} style={{ background: sel ? `${goalPctColor(100)}08` : t.surface, border: `1px solid ${sel ? goalPctColor(100) + "40" : t.border}`, borderRadius: 12, padding: 24, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                     <span style={{ fontSize: 16, fontWeight: 700, color: sel ? "#3DDC84" : t.text }}>{tmpl.name}</span>
-                    <span style={{ fontSize: 10, fontFamily: "inherit", color: t.textDim, padding: "2px 8px", background: t.surface2, borderRadius: 6 }}>{tmpl.daysPerWeek}&times;/wk</span>
+                    <span style={{ fontSize: 10, color: t.textDim, padding: "2px 8px", background: t.surface2, borderRadius: 6 }}>{tmpl.daysPerWeek}&times;/wk</span>
                   </div>
                   <div style={{ fontSize: 10, color: t.textDim, marginBottom: 8 }}>by {tmpl.author}</div>
                   <p style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.5, marginBottom: 10 }}>{tmpl.description}</p>
@@ -106,7 +106,7 @@ export default function StepGoalSplit({ plan, onChange }) {
           {/* Start Date */}
           <div style={{ background: t.surface, borderRadius: 12, padding: 24 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Start Date</div>
-            <input type="date" value={plan.startDate || ""} onChange={e => onChange({ ...plan, startDate: e.target.value })} style={{ padding: "10px 14px", borderRadius: 10, fontSize: 14, fontWeight: 600, border: `1px solid ${t.borderLight}`, background: t.surface2, color: t.text, fontFamily: "inherit", outline: "none", cursor: "pointer" }} />
+            <input type="date" value={plan.startDate || ""} onChange={e => onChange({ ...plan, startDate: e.target.value })} style={{ padding: "10px 14px", borderRadius: 10, fontSize: 14, fontWeight: 600, border: `1px solid ${t.borderLight}`, background: t.surface2, color: t.text, outline: "none", cursor: "pointer" }} />
             {!plan.startDate && <div style={{ fontSize: 11, color: t.textDim, marginTop: 8 }}>Defaults to next Monday if not set.</div>}
           </div>
         </div>
