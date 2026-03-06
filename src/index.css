@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+/*
+ * Atlas Design System — Tailwind v4 theme configuration
+ * Maps existing tokens from src/context/theme.js into CSS custom properties
+ * and Tailwind's @theme directive for use in utility classes.
+ */
+
+@theme {
+  /* ── Colors: Semantic palette ─────────────────────────── */
+  --color-primary: #4C9EFF;
+  --color-success: #3DDC84;
+  --color-warning: #FBBF24;
+  --color-error: #EF4444;
+  --color-pull: #A78BFA;
+  --color-accent: #FF8A50;
+  --color-pink: #F472B6;
+
+  /* ── Colors: Dark theme surfaces ──────────────────────── */
+  --color-dark-bg: #08090C;
+  --color-dark-surface: #11141A;
+  --color-dark-surface2: #151921;
+  --color-dark-surface3: #1C2230;
+  --color-dark-border: #1A1E28;
+  --color-dark-border-light: #2A3040;
+  --color-dark-border-accent: #3A4560;
+  --color-dark-text: #E8ECF2;
+  --color-dark-text-muted: #8892A4;
+  --color-dark-text-dim: #5A6478;
+  --color-dark-text-faint: #3A4560;
+
+  /* ── Colors: Light theme surfaces ─────────────────────── */
+  --color-light-bg: #F5F6F8;
+  --color-light-surface: #FFFFFF;
+  --color-light-surface2: #F0F1F4;
+  --color-light-surface3: #E8E9ED;
+  --color-light-border: #E0E2E8;
+  --color-light-border-light: #D0D3DA;
+  --color-light-border-accent: #B0B5C0;
+  --color-light-text: #1A1D24;
+  --color-light-text-muted: #5A6070;
+  --color-light-text-dim: #7A8090;
+  --color-light-text-faint: #A0A8B8;
+
+  /* ── Colors: Muscle groups ────────────────────────────── */
+  --color-muscle-chest: #3DDC84;
+  --color-muscle-quads: #4C9EFF;
+  --color-muscle-lats: #A78BFA;
+  --color-muscle-hamstrings: #FF8A50;
+  --color-muscle-glutes: #F472B6;
+  --color-muscle-triceps: #FBBF24;
+  --color-muscle-biceps: #EF4444;
+
+  /* ── Border radius ────────────────────────────────────── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-2xl: 16px;
+  --radius-pill: 20px;
+  --radius-full: 9999px;
+
+  /* ── Font families ────────────────────────────────────── */
+  --font-body: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* ── Font sizes ───────────────────────────────────────── */
+  --text-2xs: 9px;
+  --text-xs: 10px;
+  --text-sm: 11px;
+  --text-body: 12px;
+  --text-md: 13px;
+  --text-lg: 16px;
+  --text-xl: 22px;
+  --text-2xl: 26px;
+  --text-display: 48px;
+}
+
+/* ── Base resets (migrated from App.jsx inline <style>) ── */
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-body);
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+}
+
+/* ── Animations ─────────────────────────────────────────── */
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
