@@ -26,52 +26,59 @@ export default function BuilderLayout({
 
   return (
     <ErrorBoundary>
-      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "36px 36px", color: t.text, transition: "color 0.3s" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 36 }}>
+      <div className="max-w-[1400px] mx-auto px-9 py-9 text-content transition-colors duration-300">
+        <div className="flex justify-between items-start mb-9">
           <div>
-            <div style={{ fontSize: 12, color: t.textDim, marginBottom: 6 }}>Plan Builder</div>
-            <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, color: t.text }}>{builderPlan.splitName || "Build Your Plan"}</h1>
+            <div className="text-xs text-dim mb-1.5">Plan Builder</div>
+            <h1 className="text-2xl font-[800] tracking-tight text-content">{builderPlan.splitName || "Build Your Plan"}</h1>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ display: "inline-flex", gap: 4, background: t.surface2, borderRadius: 16, padding: 4, alignItems: "center" }}>
+          <div className="flex items-center gap-3">
+            <div className="inline-flex gap-1 bg-surface2 rounded-md p-1 items-center">
               {BUILDER_STEPS.map((s, i) => (
-                <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <button onClick={() => i <= builderStep && setBuilderStep(i)} style={{
-                    fontSize: 12, padding: "7px 14px", borderRadius: 12, cursor: i <= builderStep ? "pointer" : "default",
-                    background: i === builderStep ? t.surface : "transparent",
-                    border: "none",
-                    color: i === builderStep ? t.text : i < builderStep ? t.colors.success : t.textDim,
-                    fontWeight: i === builderStep ? 600 : 400,
-                    boxShadow: i === builderStep ? t.shadow : "none",
-                    transition: "all 0.2s ease",
-                  }}>{i < builderStep ? "\u2713 " : ""}{s.label}</button>
-                  {i < BUILDER_STEPS.length - 1 && <span style={{ color: t.textFaint, fontSize: 10 }}>&rarr;</span>}
+                <div key={s.key} className="flex items-center gap-1">
+                  <button onClick={() => i <= builderStep && setBuilderStep(i)}
+                    className={`text-xs px-3.5 py-[7px] rounded-sm border-none transition-all duration-200
+                      ${i <= builderStep ? "cursor-pointer" : "cursor-default"}
+                      ${i === builderStep ? "bg-surface text-content font-semibold shadow-card" : "bg-transparent font-normal"}
+                      ${i < builderStep ? "text-success" : i > builderStep ? "text-dim" : ""}`}
+                  >{i < builderStep ? "\u2713 " : ""}{s.label}</button>
+                  {i < BUILDER_STEPS.length - 1 && <span className="text-faint text-xs">&rarr;</span>}
                 </div>
               ))}
             </div>
-            <div style={{ display: "flex", gap: 4 }}>
-              <button onClick={undo} disabled={!canUndo} title="Undo (Ctrl+Z)" style={{ padding: "6px 10px", borderRadius: 10, border: `1px solid ${t.border}`, background: t.surface, color: canUndo ? t.textMuted : t.textFaint, cursor: canUndo ? "pointer" : "default", fontSize: 13, fontWeight: 700, opacity: canUndo ? 1 : 0.35 }}>{"\u21A9"}</button>
-              <button onClick={redo} disabled={!canRedo} title="Redo (Ctrl+Shift+Z)" style={{ padding: "6px 10px", borderRadius: 10, border: `1px solid ${t.border}`, background: t.surface, color: canRedo ? t.textMuted : t.textFaint, cursor: canRedo ? "pointer" : "default", fontSize: 13, fontWeight: 700, opacity: canRedo ? 1 : 0.35 }}>{"\u21AA"}</button>
+            <div className="flex gap-1">
+              <button onClick={undo} disabled={!canUndo} title="Undo (Ctrl+Z)"
+                className={`px-2.5 py-1.5 rounded-[10px] border border-edge bg-surface text-body font-bold ${canUndo ? "text-muted cursor-pointer opacity-100" : "text-faint cursor-default opacity-35"}`}
+              >{"\u21A9"}</button>
+              <button onClick={redo} disabled={!canRedo} title="Redo (Ctrl+Shift+Z)"
+                className={`px-2.5 py-1.5 rounded-[10px] border border-edge bg-surface text-body font-bold ${canRedo ? "text-muted cursor-pointer opacity-100" : "text-faint cursor-default opacity-35"}`}
+              >{"\u21AA"}</button>
             </div>
             <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: builderStep >= 1 ? "1fr 320px" : "1fr", gap: 32 }}>
+        <div className={`grid ${builderStep >= 1 ? "grid-cols-[1fr_320px]" : "grid-cols-1"} gap-8`}>
           <div>
             {builderStep === 0 && <StepGoalSplit plan={builderPlan} onChange={setBuilderPlan} />}
             {builderStep === 1 && <StepSchedule plan={builderPlan} onChange={setBuilderPlan} />}
             {builderStep === 2 && <StepExercises plan={builderPlan} onChange={setBuilderPlan} />}
             {builderStep === 3 && <StepReview plan={builderPlan} />}
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 32, paddingTop: 24, borderTop: `1px solid ${t.border}` }}>
-              <button onClick={onCancel} style={{ padding: "12px 24px", borderRadius: 14, fontSize: 13, fontWeight: 600, cursor: "pointer", background: t.surface, border: `1px solid ${t.border}`, color: t.textMuted, boxShadow: t.shadow }}>{builderStep > 0 ? "\u2190 Back" : "\u2190 Cancel"}</button>
+            <div className="flex justify-between mt-8 pt-6 border-t border-edge">
+              <button onClick={onCancel} className="px-6 py-3 rounded-[14px] text-body font-semibold cursor-pointer bg-surface border border-edge text-muted shadow-card">
+                {builderStep > 0 ? "\u2190 Back" : "\u2190 Cancel"}
+              </button>
               {builderStep < 3 ? (
-                <button onClick={() => canNext && setBuilderStep(builderStep + 1)} style={{ padding: "12px 28px", borderRadius: 14, fontSize: 13, fontWeight: 600, cursor: canNext ? "pointer" : "default", background: canNext ? t.ctaBg : t.surface2, border: "none", color: canNext ? t.ctaText : t.textDim }}>Next: {BUILDER_STEPS[builderStep + 1]?.label} &rarr;</button>
+                <button onClick={() => canNext && setBuilderStep(builderStep + 1)}
+                  className={`px-7 py-3 rounded-[14px] text-body font-semibold border-none ${canNext ? "bg-cta text-cta-text cursor-pointer" : "bg-surface2 text-dim cursor-default"}`}
+                >Next: {BUILDER_STEPS[builderStep + 1]?.label} &rarr;</button>
               ) : (
-                <button onClick={onActivate} style={{ padding: "12px 28px", borderRadius: 14, fontSize: 13, fontWeight: 700, cursor: "pointer", background: t.colors.success, border: "none", color: "#FFFFFF" }}>{"\u2713"} Activate Plan</button>
+                <button onClick={onActivate} className="px-7 py-3 rounded-[14px] text-body font-bold cursor-pointer bg-success border-none text-white">
+                  {"\u2713"} Activate Plan
+                </button>
               )}
             </div>
           </div>
-          {builderStep >= 1 && <div style={{ position: "sticky", top: 20, alignSelf: "start", maxHeight: "calc(100vh - 60px)", overflowY: "auto" }}><BuilderSidebar plan={builderPlan} /></div>}
+          {builderStep >= 1 && <div className="sticky top-5 self-start max-h-[calc(100vh-60px)] overflow-y-auto"><BuilderSidebar plan={builderPlan} /></div>}
         </div>
       </div>
     </ErrorBoundary>

@@ -35,34 +35,34 @@ export default function Onboarding({ themeMode, onToggleTheme, onComplete }) {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 24px", position: "relative" }}>
+    <div className="min-h-screen flex flex-col items-center px-6 py-10 relative">
       {/* Theme toggle */}
-      <div style={{ position: "absolute", top: 28, right: 28 }}>
+      <div className="absolute top-7 right-7">
         <ThemeToggle mode={themeMode} onToggle={onToggleTheme} />
       </div>
 
       {/* Logo */}
-      <div style={{ fontSize: 12, letterSpacing: 3, color: t.textDim, marginBottom: 8 }}>Atlas</div>
+      <div className="text-xs tracking-[3px] text-dim mb-2">Atlas</div>
 
       {/* Progress bar */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 32, marginTop: 16 }}>
+      <div className="flex gap-1.5 mb-8 mt-4">
         {STEPS.map((_, i) => (
-          <div key={i} style={{
-            width: i === step ? 32 : 12, height: 4, borderRadius: 2,
-            background: i <= step ? t.colors.primary : t.border,
-            transition: "all 0.3s",
-          }} />
+          <div key={i} className="h-1 rounded-[2px] transition-all duration-300"
+            style={{
+              width: i === step ? 32 : 12,
+              background: i <= step ? "var(--atlas-primary)" : "var(--atlas-border)",
+            }} />
         ))}
       </div>
 
       {/* Step header */}
-      <div style={{ textAlign: "center", marginBottom: 32, maxWidth: 480 }}>
-        <h2 style={{ fontSize: 24, fontWeight: 800, color: t.text, letterSpacing: -0.5, marginBottom: 8 }}>{STEPS[step].title}</h2>
-        <p style={{ fontSize: 14, color: t.textMuted }}>{STEPS[step].subtitle}</p>
+      <div className="text-center mb-8 max-w-[480px]">
+        <h2 className="text-2xl font-[800] text-content tracking-tight mb-2">{STEPS[step].title}</h2>
+        <p className="text-sm text-muted">{STEPS[step].subtitle}</p>
       </div>
 
       {/* Step content */}
-      <div style={{ width: "100%", maxWidth: 560, flex: 1 }}>
+      <div className="w-full max-w-[560px] flex-1">
         {step === 0 && <StepAboutYou profile={profile} onChange={setProfile} t={t} />}
         {step === 1 && <StepFitnessBackground profile={profile} onChange={setProfile} t={t} />}
         {step === 2 && <StepGoals profile={profile} onChange={setProfile} t={t} />}
@@ -71,29 +71,25 @@ export default function Onboarding({ themeMode, onToggleTheme, onComplete }) {
       </div>
 
       {/* Navigation */}
-      <div style={{
-        display: "flex", justifyContent: "space-between", width: "100%", maxWidth: 560,
-        marginTop: 32, paddingTop: 20, borderTop: `1px solid ${t.border}`,
-      }}>
-        <button onClick={() => step > 0 && setStep(step - 1)} style={{
-          padding: "12px 28px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: step > 0 ? "pointer" : "default",
-          background: "transparent", border: `1px solid ${step > 0 ? t.borderLight : "transparent"}`,
-          color: step > 0 ? t.textMuted : "transparent",
-        }}>{"\u2190"} Back</button>
+      <div className="flex justify-between w-full max-w-[560px] mt-8 pt-5 border-t border-edge">
+        <button onClick={() => step > 0 && setStep(step - 1)}
+          className={`px-7 py-3 rounded-[10px] text-[13px] font-semibold bg-transparent border ${
+            step > 0 ? "border-edge-light text-muted cursor-pointer" : "border-transparent text-transparent cursor-default"
+          }`}
+        >{"\u2190"} Back</button>
 
         {step < 4 ? (
-          <button onClick={() => canNext() && setStep(step + 1)} style={{
-            padding: "12px 32px", borderRadius: 10, fontSize: 13, fontWeight: 600,
-            cursor: canNext() ? "pointer" : "default",
-            background: canNext() ? t.alpha.primary._12 : t.surface2,
-            border: `1px solid ${canNext() ? t.colors.primary : t.border}`,
-            color: canNext() ? t.colors.primary : t.textDim,
-          }}>Next {"\u2192"}</button>
+          <button onClick={() => canNext() && setStep(step + 1)}
+            className={`px-8 py-3 rounded-[10px] text-[13px] font-semibold ${
+              canNext()
+                ? "bg-primary/[0.12] border border-primary text-primary cursor-pointer"
+                : "bg-surface2 border border-edge text-dim cursor-default"
+            }`}
+          >Next {"\u2192"}</button>
         ) : (
-          <button onClick={handleComplete} style={{
-            padding: "12px 32px", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer",
-            background: t.alpha.success._12, border: `1px solid ${t.alpha.success._40}`, color: t.colors.success,
-          }}>{"\u2713"} Build My Plan</button>
+          <button onClick={handleComplete}
+            className="px-8 py-3 rounded-[10px] text-[13px] font-bold cursor-pointer bg-success/[0.12] border border-success/40 text-success"
+          >{"\u2713"} Build My Plan</button>
         )}
       </div>
     </div>

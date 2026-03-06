@@ -1,5 +1,7 @@
 import { INJURY_OPTIONS, SESSION_DURATIONS } from "./constants.js";
-import { cardStyle, chipStyle } from "./styles.js";
+import { cardClass, chipClass } from "./styles.js";
+
+const LABEL = "text-xs font-semibold text-muted mb-3 block";
 
 export default function StepSchedule({ profile, onChange, t }) {
   const toggleInjury = (id) => {
@@ -10,28 +12,30 @@ export default function StepSchedule({ profile, onChange, t }) {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+    <div className="flex flex-col gap-7">
       <div>
-        <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12, display: "block" }}>Training Days Per Week</label>
-        <div style={{ display: "flex", gap: 8 }}>
-          {[2, 3, 4, 5, 6, 7].map(n => (
-            <button key={n} onClick={() => onChange({ ...profile, trainingDaysPerWeek: n })} style={{
-              width: 48, height: 48, borderRadius: 12,
-              border: `1.5px solid ${profile.trainingDaysPerWeek === n ? t.colors.primary : t.border}`,
-              background: profile.trainingDaysPerWeek === n ? t.alpha.primary._8 : t.surface,
-              color: profile.trainingDaysPerWeek === n ? t.colors.primary : t.text,
-              fontSize: 18, fontWeight: 700, cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>{n}</button>
-          ))}
+        <label className={LABEL}>Training Days Per Week</label>
+        <div className="flex gap-2">
+          {[2, 3, 4, 5, 6, 7].map(n => {
+            const sel = profile.trainingDaysPerWeek === n;
+            return (
+              <button key={n} onClick={() => onChange({ ...profile, trainingDaysPerWeek: n })}
+                className={`w-12 h-12 rounded-sm border-[1.5px] cursor-pointer text-lg font-bold flex items-center justify-center ${
+                  sel
+                    ? "border-primary bg-primary/[0.08] text-primary"
+                    : "border-edge bg-surface text-content"
+                }`}
+              >{n}</button>
+            );
+          })}
         </div>
       </div>
 
       <div>
-        <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12, display: "block" }}>Typical Session Duration</label>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <label className={LABEL}>Typical Session Duration</label>
+        <div className="flex gap-2 flex-wrap">
           {SESSION_DURATIONS.map(d => (
-            <button key={d} onClick={() => onChange({ ...profile, sessionDuration: d })} style={chipStyle(t, profile.sessionDuration === d)}>
+            <button key={d} onClick={() => onChange({ ...profile, sessionDuration: d })} className={chipClass(profile.sessionDuration === d)}>
               {d}
             </button>
           ))}
@@ -39,13 +43,16 @@ export default function StepSchedule({ profile, onChange, t }) {
       </div>
 
       <div>
-        <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12, display: "block" }}>Any Injuries or Limitations? (optional)</label>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-          {INJURY_OPTIONS.map(opt => (
-            <button key={opt.id} onClick={() => toggleInjury(opt.id)} style={cardStyle(t, profile.injuries.includes(opt.id))}>
-              <span style={{ fontSize: 13, fontWeight: profile.injuries.includes(opt.id) ? 600 : 400, color: profile.injuries.includes(opt.id) ? t.colors.primary : t.text }}>{opt.label}</span>
-            </button>
-          ))}
+        <label className={LABEL}>Any Injuries or Limitations? (optional)</label>
+        <div className="grid grid-cols-2 gap-2">
+          {INJURY_OPTIONS.map(opt => {
+            const sel = profile.injuries.includes(opt.id);
+            return (
+              <button key={opt.id} onClick={() => toggleInjury(opt.id)} className={cardClass(sel)}>
+                <span className={`text-body ${sel ? "font-semibold text-primary" : "font-normal text-content"}`}>{opt.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

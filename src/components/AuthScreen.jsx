@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useTheme } from "../context/theme.js";
 import { signIn, signUp } from "../lib/supabase.js";
 import ThemeToggle from "./ThemeToggle.jsx";
 
+const INPUT_CLS = "w-full px-4 py-3 rounded-[10px] border border-edge-light bg-surface2 text-content text-sm outline-none";
+
 export default function AuthScreen({ themeMode, onToggleTheme, onDemoMode }) {
-  const t = useTheme();
   const [mode, setMode] = useState("login"); // "login" | "signup"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +26,6 @@ export default function AuthScreen({ themeMode, onToggleTheme, onDemoMode }) {
         }
       } else {
         await signIn(email, password);
-        // Auth state change handled by App.jsx listener
       }
     } catch (err) {
       setError(err.message);
@@ -35,125 +34,70 @@ export default function AuthScreen({ themeMode, onToggleTheme, onDemoMode }) {
     }
   };
 
-  const inputStyle = {
-    width: "100%",
-    padding: "12px 16px",
-    borderRadius: 10,
-    border: `1px solid ${t.borderLight}`,
-    background: t.surface2,
-    color: t.text,
-    fontSize: 14,
-
-    outline: "none",
-  };
-
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 40, position: "relative" }}>
+    <div className="min-h-screen flex flex-col items-center justify-center p-10 relative">
 
       {/* Theme toggle */}
-      <div style={{ position: "absolute", top: 28, right: 28 }}>
+      <div className="absolute top-7 right-7">
         <ThemeToggle mode={themeMode} onToggle={onToggleTheme} />
       </div>
 
       {/* Branding */}
-      <div style={{ textAlign: "center", marginBottom: 40 }}>
-        <div style={{ fontSize: 12, letterSpacing: 3, color: t.textDim, marginBottom: 12 }}>Welcome to</div>
-        <h1 style={{ fontSize: 48, fontWeight: 800, letterSpacing: -1.5, color: t.text, marginBottom: 8 }}>Atlas</h1>
-        <p style={{ fontSize: 14, color: t.textMuted }}>
+      <div className="text-center mb-10">
+        <div className="text-xs tracking-[3px] text-dim mb-3">Welcome to</div>
+        <h1 className="text-5xl font-[800] tracking-tighter text-content mb-2">Atlas</h1>
+        <p className="text-sm text-muted">
           {mode === "login" ? "Sign in to your account" : "Create your account"}
         </p>
       </div>
 
       {/* Auth form */}
-      <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: 380, display: "flex", flexDirection: "column", gap: 14 }}>
+      <form onSubmit={handleSubmit} className="w-full max-w-[380px] flex flex-col gap-3.5">
 
         {confirmMsg && (
-          <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", color: "#22C55E", fontSize: 13 }}>
+          <div className="px-3.5 py-2.5 rounded-[10px] bg-success/10 border border-success/30 text-success text-[13px]">
             {confirmMsg}
           </div>
         )}
 
         {error && (
-          <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#EF4444", fontSize: 13 }}>
+          <div className="px-3.5 py-2.5 rounded-[10px] bg-error/10 border border-error/30 text-error text-[13px]">
             {error}
           </div>
         )}
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={inputStyle}
-        />
+        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className={INPUT_CLS} />
+        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className={INPUT_CLS} />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={6}
-          style={inputStyle}
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: "14px 0",
-            borderRadius: 12,
-            border: "none",
-            background: "#3B82F6",
-            color: "#fff",
-            fontSize: 15,
-            fontWeight: 700,
-            cursor: loading ? "wait" : "pointer",
-            opacity: loading ? 0.7 : 1,
-            transition: "opacity 0.2s",
-          }}
+        <button type="submit" disabled={loading}
+          className={`py-3.5 rounded-xl border-none bg-[#3B82F6] text-white text-[15px] font-bold transition-opacity duration-200 ${loading ? "cursor-wait opacity-70" : "cursor-pointer opacity-100"}`}
         >
           {loading ? "..." : mode === "login" ? "Sign In" : "Create Account"}
         </button>
 
-        <div style={{ textAlign: "center", marginTop: 8 }}>
-          <button
-            type="button"
+        <div className="text-center mt-2">
+          <button type="button"
             onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(null); setConfirmMsg(null); }}
-            style={{ background: "none", border: "none", color: "#3B82F6", fontSize: 13, cursor: "pointer" }}
+            className="bg-none border-none text-primary text-[13px] cursor-pointer"
           >
             {mode === "login" ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
           </button>
         </div>
 
         {/* Divider */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "8px 0" }}>
-          <div style={{ flex: 1, height: 1, background: t.borderLight }} />
-          <span style={{ fontSize: 12, color: t.textDim }}>or</span>
-          <div style={{ flex: 1, height: 1, background: t.borderLight }} />
+        <div className="flex items-center gap-3 my-2">
+          <div className="flex-1 h-px bg-edge-light" />
+          <span className="text-xs text-dim">or</span>
+          <div className="flex-1 h-px bg-edge-light" />
         </div>
 
         {/* Demo button */}
-        <button
-          type="button"
-          onClick={onDemoMode}
-          style={{
-            padding: "12px 0",
-            borderRadius: 12,
-            border: `1px solid ${t.borderLight}`,
-            background: "transparent",
-            color: t.textMuted,
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: "pointer",
-        
-            transition: "all 0.2s",
-          }}
+        <button type="button" onClick={onDemoMode}
+          className="py-3 rounded-xl border border-edge-light bg-transparent text-muted text-sm font-semibold cursor-pointer transition-all duration-200"
         >
           Try Demo
         </button>
-        <p style={{ textAlign: "center", fontSize: 11, color: t.textFaint, marginTop: -4 }}>
+        <p className="text-center text-[11px] text-faint -mt-1">
           Explore Atlas with sample data — no account needed
         </p>
       </form>

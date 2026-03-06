@@ -1,5 +1,7 @@
 import { EXPERIENCE_OPTIONS, EQUIPMENT_OPTIONS } from "./constants.js";
-import { cardStyle } from "./styles.js";
+import { cardClass } from "./styles.js";
+
+const LABEL = "text-xs font-semibold text-muted mb-3 block";
 
 export default function StepFitnessBackground({ profile, onChange, t }) {
   const toggleEquipment = (id) => {
@@ -10,28 +12,34 @@ export default function StepFitnessBackground({ profile, onChange, t }) {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+    <div className="flex flex-col gap-7">
       <div>
-        <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12, display: "block" }}>Experience Level</label>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {EXPERIENCE_OPTIONS.map(opt => (
-            <button key={opt.id} onClick={() => onChange({ ...profile, experienceLevel: opt.id })} style={cardStyle(t, profile.experienceLevel === opt.id)}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: profile.experienceLevel === opt.id ? t.colors.primary : t.text, marginBottom: 4 }}>{opt.label}</div>
-              <div style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.4 }}>{opt.desc}</div>
-            </button>
-          ))}
+        <label className={LABEL}>Experience Level</label>
+        <div className="flex flex-col gap-2.5">
+          {EXPERIENCE_OPTIONS.map(opt => {
+            const sel = profile.experienceLevel === opt.id;
+            return (
+              <button key={opt.id} onClick={() => onChange({ ...profile, experienceLevel: opt.id })} className={cardClass(sel)}>
+                <div className={`text-md font-bold mb-1 ${sel ? "text-primary" : "text-content"}`}>{opt.label}</div>
+                <div className="text-xs text-muted leading-snug">{opt.desc}</div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       <div>
-        <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12, display: "block" }}>Available Equipment (select all that apply)</label>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-          {EQUIPMENT_OPTIONS.map(opt => (
-            <button key={opt.id} onClick={() => toggleEquipment(opt.id)} style={cardStyle(t, profile.equipment.includes(opt.id))}>
-              <span style={{ marginRight: 8 }}>{opt.icon}</span>
-              <span style={{ fontSize: 13, fontWeight: profile.equipment.includes(opt.id) ? 600 : 400, color: profile.equipment.includes(opt.id) ? t.colors.primary : t.text }}>{opt.label}</span>
-            </button>
-          ))}
+        <label className={LABEL}>Available Equipment (select all that apply)</label>
+        <div className="grid grid-cols-2 gap-2">
+          {EQUIPMENT_OPTIONS.map(opt => {
+            const sel = profile.equipment.includes(opt.id);
+            return (
+              <button key={opt.id} onClick={() => toggleEquipment(opt.id)} className={cardClass(sel)}>
+                <span className="mr-2">{opt.icon}</span>
+                <span className={`text-body ${sel ? "font-semibold text-primary" : "font-normal text-content"}`}>{opt.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

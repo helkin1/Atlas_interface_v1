@@ -16,7 +16,6 @@ function rpeColor(v) {
 /* ── Inline Rest Timer (right panel) ─────────────────────────── */
 
 function InlineRestTimer({ duration = 90, onDone }) {
-  const t = useTheme();
   const [remaining, setRemaining] = useState(duration);
 
   useEffect(() => {
@@ -32,18 +31,18 @@ function InlineRestTimer({ duration = 90, onDone }) {
 
   return (
     <div>
-      <div style={{ height: 3, background: t.surface3, borderRadius: 2, overflow: "hidden", marginBottom: 10 }}>
-        <div style={{ height: "100%", background: done ? "#22C55E" : "#3B82F6", width: `${pct}%`, transition: "width 1s linear" }} />
+      <div className="h-[3px] bg-surface3 rounded-[2px] overflow-hidden mb-2.5">
+        <div className="h-full transition-[width] duration-1000 linear" style={{ background: done ? "#22C55E" : "#3B82F6", width: `${pct}%` }} />
       </div>
-      <div style={{ fontSize: 36, fontWeight: 700, color: done ? "#22C55E" : remaining <= 10 ? "#EF4444" : t.text, marginBottom: 10 }}>
+      <div className="text-[36px] font-bold mb-2.5" style={{ color: done ? "#22C55E" : remaining <= 10 ? "#EF4444" : "var(--atlas-text)" }}>
         {mins}:{String(secs).padStart(2, "0")}
       </div>
-      <div style={{ display: "flex", gap: 6 }}>
-        <button onClick={onDone} style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1px solid ${t.borderLight}`, background: "transparent", color: t.textMuted, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+      <div className="flex gap-1.5">
+        <button onClick={onDone} className="flex-1 py-2 rounded-[8px] border border-edge-light bg-transparent text-muted text-xs font-semibold cursor-pointer">
           Skip
         </button>
         {done && (
-          <button onClick={onDone} style={{ flex: 1, padding: "8px", borderRadius: 8, border: "none", background: "#22C55E", color: "#000", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+          <button onClick={onDone} className="flex-1 py-2 rounded-[8px] border-none bg-success text-black text-xs font-bold cursor-pointer">
             Go!
           </button>
         )}
@@ -55,77 +54,60 @@ function InlineRestTimer({ duration = 90, onDone }) {
 /* ── GymLogModal ──────────────────────────────────────────────── */
 
 function GymLogModal({ exercise, setData, idx, onConfirm, onCancel }) {
-  const t = useTheme();
   const ex = EXERCISES[exercise.exercise_id];
   const [w, setW] = useState(String(setData.w));
   const [r, setR] = useState(String(setData.r));
   const [rpe, setRpe] = useState(null);
 
-  const iStyle = {
-    background: t.surface2,
-    border: `1px solid ${t.borderLight}`,
-    borderRadius: 10,
-    color: t.text,
-    fontSize: 28,
-    fontWeight: 700,
-    padding: "14px 16px",
-    width: "100%",
-    textAlign: "center",
-    outline: "none",
-  };
-
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 220, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-      <div onClick={onCancel} style={{ flex: 1, background: "rgba(0,0,0,0.55)" }} />
-      <div style={{
-        background: t.surface,
-        borderRadius: "20px 20px 0 0",
-        padding: "20px 24px 36px",
-        borderTop: `1px solid ${t.borderLight}`,
-        boxShadow: "0 -12px 40px rgba(0,0,0,0.45)",
-      }}>
-        <div style={{ width: 36, height: 4, borderRadius: 2, background: t.borderLight, margin: "0 auto 20px" }} />
-        <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 4 }}>Log Set {idx + 1}</div>
-        <div style={{ fontSize: 20, fontWeight: 700, color: t.text, marginBottom: 2 }}>{ex?.name}</div>
-        <div style={{ fontSize: 12, color: t.textDim, marginBottom: 22 }}>
+    <div className="fixed inset-0 z-[220] flex flex-col justify-end">
+      <div onClick={onCancel} className="flex-1 bg-black/55" />
+      <div className="bg-surface rounded-t-lg px-6 pt-5 pb-9 border-t border-edge-light shadow-[0_-12px_40px_rgba(0,0,0,0.45)]">
+        <div className="w-9 h-1 rounded-[2px] bg-edge-light mx-auto mb-5" />
+        <div className="text-xs text-muted mb-1">Log Set {idx + 1}</div>
+        <div className="text-xl font-bold text-content mb-0.5">{ex?.name}</div>
+        <div className="text-xs text-dim mb-[22px]">
           Target: {setData.w > 0 ? `${setData.w} \u00d7 ${setData.r}` : `BW \u00d7 ${setData.r}`}
         </div>
 
         {/* weight + reps side by side */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
+        <div className="grid grid-cols-2 gap-3 mb-5">
           <div>
-            <label style={{ fontSize: 11, color: t.textDim, display: "block", marginBottom: 6 }}>WEIGHT (lbs)</label>
-            <input type="number" value={w} onChange={(e) => setW(e.target.value)} style={iStyle} />
+            <label className="text-sm text-dim block mb-1.5">WEIGHT (lbs)</label>
+            <input type="number" value={w} onChange={(e) => setW(e.target.value)}
+              className="bg-surface2 border border-edge-light rounded-[10px] text-content text-2xl font-bold px-4 py-3.5 w-full text-center outline-none"
+            />
           </div>
           <div>
-            <label style={{ fontSize: 11, color: t.textDim, display: "block", marginBottom: 6 }}>REPS</label>
-            <input type="number" value={r} onChange={(e) => setR(e.target.value)} style={iStyle} />
+            <label className="text-sm text-dim block mb-1.5">REPS</label>
+            <input type="number" value={r} onChange={(e) => setR(e.target.value)}
+              className="bg-surface2 border border-edge-light rounded-[10px] text-content text-2xl font-bold px-4 py-3.5 w-full text-center outline-none"
+            />
           </div>
         </div>
 
         {/* RPE 6–10 tap row */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 11, color: t.textDim, marginBottom: 8 }}>RPE (optional)</div>
-          <div style={{ display: "flex", gap: 6 }}>
+        <div className="mb-6">
+          <div className="text-sm text-dim mb-2">RPE (optional)</div>
+          <div className="flex gap-1.5">
             {[6, 7, 8, 9, 10].map((v) => (
               <button
                 key={v}
                 onClick={() => setRpe(v === rpe ? null : v)}
+                className="flex-1 py-[11px] px-1 rounded-[8px] text-md font-bold cursor-pointer transition-all duration-[120ms]"
                 style={{
-                  flex: 1, padding: "11px 4px", borderRadius: 8,
-                  border: `1px solid ${rpe === v ? rpeColor(v) : t.borderLight}`,
+                  border: `1px solid ${rpe === v ? rpeColor(v) : "var(--atlas-border-light)"}`,
                   background: rpe === v ? `${rpeColor(v)}20` : "transparent",
-                  color: rpe === v ? rpeColor(v) : t.textMuted,
-                  fontSize: 14, fontWeight: 700, cursor: "pointer", transition: "all 0.12s",
+                  color: rpe === v ? rpeColor(v) : "var(--atlas-text-muted)",
                 }}
               >{v}</button>
             ))}
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={onCancel} style={{ flex: 1, padding: 14, borderRadius: 12, border: `1px solid ${t.borderLight}`, background: "transparent", color: t.textMuted, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
-          <button onClick={() => onConfirm(Number(w), Number(r), rpe)} style={{ flex: 2, padding: 14, borderRadius: 12, border: "none", background: "#3B82F6", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Log Set</button>
+        <div className="flex gap-2.5">
+          <button onClick={onCancel} className="flex-1 py-3.5 rounded-sm border border-edge-light bg-transparent text-muted text-md font-semibold cursor-pointer">Cancel</button>
+          <button onClick={() => onConfirm(Number(w), Number(r), rpe)} className="flex-2 py-3.5 rounded-sm border-none bg-primary text-white text-md font-bold cursor-pointer">Log Set</button>
         </div>
       </div>
     </div>
@@ -135,12 +117,11 @@ function GymLogModal({ exercise, setData, idx, onConfirm, onCancel }) {
 /* ── GymSetPill ───────────────────────────────────────────────── */
 
 function GymSetPill({ set, idx, logged, onLog }) {
-  const t = useTheme();
   const isL = logged != null;
   const hit = isL && logged.reps >= set.r;
   const up = isL && logged.w > set.w;
 
-  let bc = t.borderLight, bg = "transparent", tc = t.textMuted, icon = "";
+  let bc = "var(--atlas-border-light)", bg = "transparent", tc = "var(--atlas-text-muted)", icon = "";
   if (isL && hit && !up) { bc = "#22C55E"; bg = "rgba(34,197,94,0.06)"; tc = "#22C55E"; icon = " \u2713"; }
   else if (isL && up)    { bc = "#F59E0B"; bg = "rgba(245,158,11,0.06)";  tc = "#F59E0B"; icon = " \u2191"; }
   else if (isL && !hit)  { bc = "#EF4444"; bg = "rgba(239,68,68,0.06)";   tc = "#EF4444"; icon = " \u2717"; }
@@ -151,24 +132,17 @@ function GymSetPill({ set, idx, logged, onLog }) {
   return (
     <button
       onClick={() => !isL && onLog()}
-      style={{
-        border: `1px solid ${bc}`, background: bg, color: tc, borderRadius: 10,
-        padding: "12px 14px", fontSize: 13,
-        cursor: !isL ? "pointer" : "default", minWidth: 88, textAlign: "center",
-        transition: "all 0.15s", position: "relative",
-      }}
+      className="rounded-[10px] px-3.5 py-3 text-body min-w-[88px] text-center transition-all duration-[150ms] relative"
+      style={{ border: `1px solid ${bc}`, background: bg, color: tc, cursor: !isL ? "pointer" : "default" }}
     >
-      <div style={{ fontSize: 10, opacity: 0.6, marginBottom: 4 }}>Set {idx + 1}</div>
-      <div style={{ fontWeight: 700 }}>
+      <div className="text-xs opacity-60 mb-1">Set {idx + 1}</div>
+      <div className="font-bold">
         {dw > 0 ? `${dw} \u00d7 ${dr}` : `BW \u00d7 ${dr}`}{icon}
       </div>
       {isL && logged.rpe != null && (
-        <div style={{
-          position: "absolute", top: -7, right: -7,
-          fontSize: 9, fontWeight: 800,
-          background: rpeColor(logged.rpe), color: "#000",
-          borderRadius: 6, padding: "2px 5px", lineHeight: 1,
-        }}>
+        <div className="absolute -top-[7px] -right-[7px] text-[9px] font-[800] text-black rounded-[6px] px-[5px] py-[2px] leading-none"
+          style={{ background: rpeColor(logged.rpe) }}
+        >
           {logged.rpe}
         </div>
       )}
@@ -185,7 +159,6 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
   const [paused, setPaused] = useState(false);
   const [elapsed, setElapsed] = useState(0);
 
-  // effectiveStart adjusts when pausing/resuming so the clock stays continuous
   const effectiveStartRef = useRef(startTime ? new Date(startTime) : new Date());
 
   useEffect(() => {
@@ -198,7 +171,6 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
 
   const togglePause = () => {
     if (paused) {
-      // Resume: shift effectiveStart forward so we continue from where we froze
       effectiveStartRef.current = new Date(Date.now() - elapsed * 1000);
       setPaused(false);
     } else {
@@ -217,7 +189,6 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
     ? `${hrs}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
     : `${mins}:${String(secs).padStart(2, "0")}`;
 
-  // Muscles hit so far (direct only) from logged exercises
   const hitMuscles = {};
   day.exercises.forEach((entry, ei) => {
     const ex = EXERCISES[entry.exercise_id];
@@ -239,47 +210,32 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
   };
 
   return (
-    <div style={{
-      position: "fixed", inset: 0, background: t.bg, zIndex: 200,
-      display: "flex", flexDirection: "column", overflow: "hidden",
-    }}>
+    <div className="fixed inset-0 bg-canvas z-[200] flex flex-col overflow-hidden">
 
-      {/* ── Sticky header (full width) ── */}
-      <div style={{
-        background: t.surface, borderBottom: `1px solid ${t.borderLight}`,
-        padding: "14px 20px 10px", flexShrink: 0,
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+      {/* ── Sticky header ── */}
+      <div className="bg-surface border-b border-edge-light px-5 pt-3.5 pb-2.5 shrink-0">
+        <div className="flex justify-between items-center mb-2.5">
           <div>
-            <div style={{ fontSize: 12, color: t.textDim }}>{day.label}</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: pct === 100 ? "#22C55E" : "#3B82F6" }}>
+            <div className="text-xs text-dim">{day.label}</div>
+            <div className="text-body font-semibold" style={{ color: pct === 100 ? "#22C55E" : "#3B82F6" }}>
               {completedSets}/{totalSets} sets &middot; {pct}%
             </div>
           </div>
-          <button
-            onClick={onEnd}
-            style={{
-              padding: "8px 18px", borderRadius: 8,
-              border: `1px solid ${t.borderLight}`, background: "transparent",
-              color: t.textMuted, fontSize: 13, fontWeight: 600, cursor: "pointer",
-              letterSpacing: 0.3,
-            }}
-          >Exit</button>
+          <button onClick={onEnd} className="px-[18px] py-2 rounded-[8px] border border-edge-light bg-transparent text-muted text-body font-semibold cursor-pointer tracking-wide">
+            Exit
+          </button>
         </div>
         {/* progress bar */}
-        <div style={{ height: 2, background: t.surface3, borderRadius: 2, overflow: "hidden" }}>
-          <div style={{
-            height: "100%", background: pct === 100 ? "#22C55E" : "#3B82F6",
-            width: `${pct}%`, transition: "width 0.3s",
-          }} />
+        <div className="h-0.5 bg-surface3 rounded-[2px] overflow-hidden">
+          <div className="h-full transition-[width] duration-300" style={{ background: pct === 100 ? "#22C55E" : "#3B82F6", width: `${pct}%` }} />
         </div>
       </div>
 
       {/* ── Content row ── */}
-      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+      <div className="flex-1 flex overflow-hidden">
 
         {/* Left: scrollable exercise list */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px 40px" }}>
+        <div className="flex-1 overflow-y-auto px-5 pt-4 pb-10">
           {day.exercises.map((entry, ei) => {
             const ex = EXERCISES[entry.exercise_id];
             if (!ex) return null;
@@ -287,27 +243,29 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
             const allDone = loggedCount === entry.sets.length;
 
             return (
-              <div key={ei} style={{
-                background: allDone ? "rgba(34,197,94,0.04)" : t.surface,
-                border: `1px solid ${allDone ? "rgba(34,197,94,0.2)" : t.border}`,
-                borderRadius: 14, padding: 20, marginBottom: 10, transition: "all 0.2s",
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+              <div key={ei}
+                className="rounded-[14px] p-5 mb-2.5 transition-all duration-200"
+                style={{
+                  background: allDone ? "rgba(34,197,94,0.04)" : "var(--atlas-surface)",
+                  border: `1px solid ${allDone ? "rgba(34,197,94,0.2)" : "var(--atlas-border)"}`,
+                }}
+              >
+                <div className="flex justify-between items-start mb-3.5">
                   <div>
-                    <div style={{ fontSize: 17, fontWeight: 700, color: allDone ? "#22C55E" : t.text }}>{ex.name}</div>
-                    <div style={{ display: "flex", gap: 4, marginTop: 6, flexWrap: "wrap" }}>
+                    <div className="text-[17px] font-bold" style={{ color: allDone ? "#22C55E" : "var(--atlas-text)" }}>{ex.name}</div>
+                    <div className="flex gap-1 mt-1.5 flex-wrap">
                       {ex.muscles.filter((m) => m.role === "direct").map((m) => (
-                        <span key={m.name} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 8, background: `${MUSCLE_COLORS[m.name] || "#666"}18`, color: MUSCLE_COLORS[m.name] || "#888" }}>
+                        <span key={m.name} className="text-xs px-2 py-0.5 rounded-[8px]" style={{ background: `${MUSCLE_COLORS[m.name] || "#666"}18`, color: MUSCLE_COLORS[m.name] || "#888" }}>
                           {m.name}
                         </span>
                       ))}
                     </div>
                   </div>
-                  <div style={{ fontSize: 11, color: allDone ? "#22C55E" : t.textFaint }}>
+                  <div className="text-sm" style={{ color: allDone ? "#22C55E" : "var(--atlas-text-faint)" }}>
                     {loggedCount}/{entry.sets.length}
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <div className="flex gap-2 flex-wrap">
                   {entry.sets.map((s, si) => {
                     const key = `${ei}_${si}`;
                     return (
@@ -324,23 +282,15 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
         </div>
 
         {/* Right: sticky dashboard panel */}
-        <div style={{
-          width: 272, flexShrink: 0,
-          background: t.surface, borderLeft: `1px solid ${t.borderLight}`,
-          padding: 20, display: "flex", flexDirection: "column", gap: 20, overflowY: "auto",
-        }}>
+        <div className="w-[272px] shrink-0 bg-surface border-l border-edge-light p-5 flex flex-col gap-5 overflow-y-auto">
 
           {/* Session clock */}
           <div>
-            <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 8 }}>Session Time</div>
-            <div style={{ fontSize: 38, fontWeight: 700, color: paused ? t.textMuted : t.text, marginBottom: 10, letterSpacing: -1 }}>
+            <div className="text-xs text-muted mb-2">Session Time</div>
+            <div className="text-[38px] font-bold mb-2.5 tracking-tight" style={{ color: paused ? "var(--atlas-text-muted)" : "var(--atlas-text)" }}>
               {clockStr}
             </div>
-            <button onClick={togglePause} style={{
-              width: "100%", padding: "8px 0", borderRadius: 8,
-              border: `1px solid ${t.borderLight}`, background: "transparent",
-              color: t.textMuted, fontSize: 12, fontWeight: 600, cursor: "pointer",
-            }}>
+            <button onClick={togglePause} className="w-full py-2 rounded-[8px] border border-edge-light bg-transparent text-muted text-xs font-semibold cursor-pointer">
               {paused ? "\u25B6 Resume" : "\u23F8 Pause"}
             </button>
           </div>
@@ -348,7 +298,7 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
           {/* Muscles hit */}
           {hitEntries.length > 0 && (
             <div>
-              <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 10 }}>Muscles Hit</div>
+              <div className="text-xs text-muted mb-2.5">Muscles Hit</div>
               {hitEntries.map(([m, v]) => (
                 <MiniBar key={m} name={m} sets={parseFloat(v.toFixed(1))} max={maxHit} />
               ))}
@@ -358,19 +308,14 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
           {/* Rest timer */}
           {restActive && (
             <div>
-              <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 8 }}>Rest Timer</div>
+              <div className="text-xs text-muted mb-2">Rest Timer</div>
               <InlineRestTimer onDone={() => setRestActive(false)} />
             </div>
           )}
 
-          {/* End session — pushed to bottom */}
-          <div style={{ marginTop: "auto" }}>
-            <button onClick={onEnd} style={{
-              width: "100%", padding: "12px 0", borderRadius: 10,
-              border: "1px solid rgba(239,68,68,0.3)",
-              background: "rgba(239,68,68,0.06)",
-              color: "#EF4444", fontSize: 13, fontWeight: 700, cursor: "pointer",
-            }}>
+          {/* End session */}
+          <div className="mt-auto">
+            <button onClick={onEnd} className="w-full py-3 rounded-[10px] border border-error/30 bg-error/[0.06] text-error text-body font-bold cursor-pointer">
               End Session
             </button>
           </div>

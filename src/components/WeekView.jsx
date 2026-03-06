@@ -1,7 +1,7 @@
 import { useTheme, themes } from "../context/theme.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { DAY_NAMES, MO_NAMES, PATTERN_COLORS, MUSCLE_COLORS, getDayPattern, getDaySets, getWeekSets, weekMuscleVol, calcGoalPcts, overallGoalPct, goalPctColor } from "../utils/helpers.js";
-import { PatternBadge, cardStyle } from "./shared.jsx";
+import { PatternBadge, CARD_CLASS } from "./shared.jsx";
 
 export default function WeekView({ week, onDay, onBack }) {
   const t = useTheme();
@@ -13,49 +13,53 @@ export default function WeekView({ week, onDay, onBack }) {
 
   return (
     <div>
-      <button onClick={onBack} style={{ fontSize: 12, color: "#3B82F6", background: "none", border: "none", cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>&larr; Back to Month</button>
+      <button onClick={onBack} className="text-xs text-primary bg-none border-none cursor-pointer mb-4 flex items-center gap-1.5">&larr; Back to Month</button>
 
-      <h2 style={{ fontSize: 22, fontWeight: 800, color: t.text, marginBottom: 4 }}>{week.label}</h2>
-      <div style={{ display: "flex", gap: 12, marginBottom: 24, fontSize: 12, color: t.textDim }}>
+      <h2 className="text-xl font-[800] text-content mb-1">{week.label}</h2>
+      <div className="flex gap-3 mb-6 text-xs text-dim">
         <span>{getWeekSets(week)} total sets</span><span>&middot;</span>
         <span>{trainingDays.length} training days</span><span>&middot;</span>
-        <span style={{ color: goalPctColor(overall), fontWeight: 600 }}>{overall}% of goal</span>
+        <span className="font-semibold" style={{ color: goalPctColor(overall) }}>{overall}% of goal</span>
       </div>
 
       {/* 7-day grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8, marginBottom: 28 }}>
+      <div className="grid grid-cols-7 gap-2 mb-7">
         {week.days.map((day, di) => {
           const pat = getDayPattern(day); const pc = pat ? PATTERN_COLORS[pat] : null;
           return (
-            <button key={di} onClick={() => !day.isRest && onDay(di)} style={{
-              background: day.isRest ? (t === themes.dark ? "#0C0E13" : "#EAEBEE") : t.surface,
-              border: `1px solid ${day.isRest ? t.border : pc ? pc.border : t.border}`,
-              borderRadius: 14, padding: 16, cursor: day.isRest ? "default" : "pointer",
-              textAlign: "left", opacity: day.isRest ? 0.4 : 1, minHeight: 140, transition: "all 0.15s",
-            }}>
-              <div style={{ fontSize: 10, color: t.textFaint, marginBottom: 4 }}>{DAY_NAMES[day.date.getDay()]} &middot; {MO_NAMES[day.date.getMonth()]} {day.date.getDate()}</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: day.isRest ? t.textFaint : t.text, marginBottom: 8 }}>{day.label}</div>
+            <button key={di} onClick={() => !day.isRest && onDay(di)}
+              className="rounded-[14px] p-4 text-left transition-all duration-[150ms]"
+              style={{
+                background: day.isRest ? (t === themes.dark ? "#0C0E13" : "#EAEBEE") : "var(--atlas-surface)",
+                border: `1px solid ${day.isRest ? "var(--atlas-border)" : pc ? pc.border : "var(--atlas-border)"}`,
+                cursor: day.isRest ? "default" : "pointer",
+                opacity: day.isRest ? 0.4 : 1,
+                minHeight: 140,
+              }}
+            >
+              <div className="text-xs text-faint mb-1">{DAY_NAMES[day.date.getDay()]} &middot; {MO_NAMES[day.date.getMonth()]} {day.date.getDate()}</div>
+              <div className={`text-[15px] font-bold mb-2 ${day.isRest ? "text-faint" : "text-content"}`}>{day.label}</div>
               {!day.isRest && pat && <PatternBadge pattern={pat} />}
-              {!day.isRest && <div style={{ marginTop: 10, fontSize: 11, color: t.textDim }}>{day.exercises.length} ex &middot; {getDaySets(day)} sets</div>}
-              {day.isRest && <div style={{ fontSize: 28, marginTop: 8 }}>😴</div>}
+              {!day.isRest && <div className="mt-2.5 text-sm text-dim">{day.exercises.length} ex &middot; {getDaySets(day)} sets</div>}
+              {day.isRest && <div className="text-2xl mt-2">😴</div>}
             </button>
           );
         })}
       </div>
 
-      {/* Exercise breakdown — replaces the goal-bars panel */}
-      <div style={{ ...cardStyle(t, { padding: 24 }) }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 18 }}>Exercise Breakdown</div>
+      {/* Exercise breakdown */}
+      <div className={`${CARD_CLASS} p-6`}>
+        <div className="text-body font-semibold text-muted mb-[18px]">Exercise Breakdown</div>
 
         {trainingDays.map((day, di) => {
           const pat = getDayPattern(day);
           return (
-            <div key={di} style={{ marginBottom: di < trainingDays.length - 1 ? 20 : 0 }}>
+            <div key={di} className={di < trainingDays.length - 1 ? "mb-5" : ""}>
               {/* Day header */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{day.label}</span>
+              <div className="flex items-center gap-2 mb-2.5">
+                <span className="text-body font-bold text-content">{day.label}</span>
                 {pat && <PatternBadge pattern={pat} />}
-                <span style={{ fontSize: 11, color: t.textDim, marginLeft: "auto" }}>{getDaySets(day)} sets</span>
+                <span className="text-sm text-dim ml-auto">{getDaySets(day)} sets</span>
               </div>
 
               {/* Exercise rows */}
@@ -64,33 +68,20 @@ export default function WeekView({ week, onDay, onBack }) {
                 if (!ex) return null;
                 const directMuscles = ex.muscles.filter((m) => m.role === "direct");
                 return (
-                  <div key={ei} style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "7px 10px",
-                    borderRadius: 14,
-                    background: ei % 2 === 0 ? t.surface2 : "transparent",
-                    marginBottom: 2,
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: t.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <div key={ei} className={`flex justify-between items-center px-2.5 py-[7px] rounded-[14px] mb-0.5 ${ei % 2 === 0 ? "bg-surface2" : "bg-transparent"}`}>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="text-xs font-semibold text-content whitespace-nowrap overflow-hidden text-ellipsis">
                         {ex.name}
                       </span>
-                      <div style={{ display: "flex", gap: 4, flexWrap: "nowrap", overflow: "hidden" }}>
+                      <div className="flex gap-1 flex-nowrap overflow-hidden">
                         {directMuscles.slice(0, 2).map((m) => (
-                          <span key={m.name} style={{
-                            fontSize: 9,
-                            padding: "1px 6px",
-                            borderRadius: 6,
-                            background: `${MUSCLE_COLORS[m.name] || "#666"}18`,
-                            color: MUSCLE_COLORS[m.name] || "#888",
-                            whiteSpace: "nowrap",
-                          }}>{m.name}</span>
+                          <span key={m.name} className="text-[9px] px-1.5 py-[1px] rounded-[6px] whitespace-nowrap"
+                            style={{ background: `${MUSCLE_COLORS[m.name] || "#666"}18`, color: MUSCLE_COLORS[m.name] || "#888" }}
+                          >{m.name}</span>
                         ))}
                       </div>
                     </div>
-                    <span style={{ fontSize: 11, color: t.textFaint, flexShrink: 0, marginLeft: 8 }}>
+                    <span className="text-sm text-faint shrink-0 ml-2">
                       {entry.sets.length} sets
                     </span>
                   </div>
@@ -98,14 +89,14 @@ export default function WeekView({ week, onDay, onBack }) {
               })}
 
               {di < trainingDays.length - 1 && (
-                <div style={{ height: 1, background: t.border, marginTop: 14 }} />
+                <div className="h-px bg-edge mt-3.5" />
               )}
             </div>
           );
         })}
 
         {trainingDays.length === 0 && (
-          <div style={{ fontSize: 12, color: t.textFaint, textAlign: "center", padding: "20px 0" }}>No training days this week</div>
+          <div className="text-xs text-faint text-center py-5">No training days this week</div>
         )}
       </div>
     </div>

@@ -1,5 +1,7 @@
 import { GOAL_OPTIONS, FOCUS_MUSCLES } from "./constants.js";
-import { cardStyle, chipStyle } from "./styles.js";
+import { cardClass, chipClass } from "./styles.js";
+
+const LABEL = "text-xs font-semibold text-muted mb-3 block";
 
 export default function StepGoals({ profile, onChange, t }) {
   const toggleSecondary = (id) => {
@@ -17,33 +19,36 @@ export default function StepGoals({ profile, onChange, t }) {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+    <div className="flex flex-col gap-7">
       <div>
-        <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12, display: "block" }}>Primary Goal</label>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {GOAL_OPTIONS.map(opt => (
-            <button key={opt.id} onClick={() => {
-              const sg = profile.secondaryGoals.filter(g => g !== opt.id);
-              onChange({ ...profile, primaryGoal: opt.id, secondaryGoals: sg });
-            }} style={cardStyle(t, profile.primaryGoal === opt.id)}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 20 }}>{opt.icon}</span>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: profile.primaryGoal === opt.id ? t.colors.primary : t.text }}>{opt.label}</div>
-                  <div style={{ fontSize: 12, color: t.textMuted }}>{opt.desc}</div>
+        <label className={LABEL}>Primary Goal</label>
+        <div className="flex flex-col gap-2.5">
+          {GOAL_OPTIONS.map(opt => {
+            const sel = profile.primaryGoal === opt.id;
+            return (
+              <button key={opt.id} onClick={() => {
+                const sg = profile.secondaryGoals.filter(g => g !== opt.id);
+                onChange({ ...profile, primaryGoal: opt.id, secondaryGoals: sg });
+              }} className={cardClass(sel)}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xl">{opt.icon}</span>
+                  <div>
+                    <div className={`text-md font-bold ${sel ? "text-primary" : "text-content"}`}>{opt.label}</div>
+                    <div className="text-xs text-muted">{opt.desc}</div>
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {profile.primaryGoal && (
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12, display: "block" }}>Secondary Goals (optional)</label>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <label className={LABEL}>Secondary Goals (optional)</label>
+          <div className="flex gap-2 flex-wrap">
             {GOAL_OPTIONS.filter(g => g.id !== profile.primaryGoal).map(opt => (
-              <button key={opt.id} onClick={() => toggleSecondary(opt.id)} style={chipStyle(t, profile.secondaryGoals.includes(opt.id))}>
+              <button key={opt.id} onClick={() => toggleSecondary(opt.id)} className={chipClass(profile.secondaryGoals.includes(opt.id))}>
                 {opt.icon} {opt.label}
               </button>
             ))}
@@ -52,10 +57,10 @@ export default function StepGoals({ profile, onChange, t }) {
       )}
 
       <div>
-        <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12, display: "block" }}>Muscle Groups to Prioritize (optional)</label>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <label className={LABEL}>Muscle Groups to Prioritize (optional)</label>
+        <div className="flex gap-2 flex-wrap">
           {FOCUS_MUSCLES.map(m => (
-            <button key={m} onClick={() => toggleMuscle(m)} style={chipStyle(t, profile.focusMuscles.includes(m))}>
+            <button key={m} onClick={() => toggleMuscle(m)} className={chipClass(profile.focusMuscles.includes(m))}>
               {m}
             </button>
           ))}

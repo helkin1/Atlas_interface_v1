@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { inputStyle, chipStyle } from "./styles.js";
+import { INPUT_CLASS, chipClass } from "./styles.js";
+
+const LABEL = "text-xs font-semibold text-muted mb-2 block";
+
+const SELECT_CLASS = `${INPUT_CLASS} appearance-none bg-[url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M2 4l4 4 4-4'/%3E%3C/svg%3E")] bg-no-repeat bg-[right_12px_center] pr-8`;
 
 export default function StepAboutYou({ profile, onChange, t }) {
   const isMetric = profile.unitPreference === "metric";
@@ -37,36 +41,26 @@ export default function StepAboutYou({ profile, onChange, t }) {
     onChange({ ...profile, weightKg: isMetric ? num : parseFloat((num / 2.205).toFixed(2)) });
   };
 
-  const selectStyle = {
-    ...inputStyle(t),
-    appearance: "none",
-    WebkitAppearance: "none",
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M2 4l4 4 4-4'/%3E%3C/svg%3E")`,
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "right 12px center",
-    paddingRight: 32,
-  };
-
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+    <div className="flex flex-col gap-6">
       <div>
-        <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>What should we call you?</label>
-        <input value={profile.displayName} onChange={e => onChange({ ...profile, displayName: e.target.value })} placeholder="Your name" style={inputStyle(t)} />
+        <label className={LABEL}>What should we call you?</label>
+        <input value={profile.displayName} onChange={e => onChange({ ...profile, displayName: e.target.value })} placeholder="Your name" className={INPUT_CLASS} />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Age</label>
-          <select value={profile.age || ""} onChange={e => onChange({ ...profile, age: e.target.value ? parseInt(e.target.value) : null })} style={selectStyle}>
+          <label className={LABEL}>Age</label>
+          <select value={profile.age || ""} onChange={e => onChange({ ...profile, age: e.target.value ? parseInt(e.target.value) : null })} className={SELECT_CLASS}>
             <option value="">Select age</option>
             {Array.from({ length: 101 }, (_, i) => (<option key={i} value={i}>{i}</option>))}
           </select>
         </div>
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Sex</label>
-          <div style={{ display: "flex", gap: 8 }}>
+          <label className={LABEL}>Sex</label>
+          <div className="flex gap-2">
             {["male", "female", "prefer_not_to_say"].map(s => (
-              <button key={s} onClick={() => onChange({ ...profile, sex: s })} style={chipStyle(t, profile.sex === s)}>
+              <button key={s} onClick={() => onChange({ ...profile, sex: s })} className={chipClass(profile.sex === s)}>
                 {s === "prefer_not_to_say" ? "Prefer not to say" : s.charAt(0).toUpperCase() + s.slice(1)}
               </button>
             ))}
@@ -75,31 +69,32 @@ export default function StepAboutYou({ profile, onChange, t }) {
       </div>
 
       <div>
-        <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Preferred Units</label>
-        <div style={{ display: "flex", gap: 4, background: t.surface2, borderRadius: 8, padding: 2, width: "fit-content" }}>
+        <label className={LABEL}>Preferred Units</label>
+        <div className="flex gap-1 bg-surface2 rounded-[8px] p-0.5 w-fit">
           {["imperial", "metric"].map(u => (
-            <button key={u} onClick={() => onChange({ ...profile, unitPreference: u })} style={{
-              padding: "6px 18px", borderRadius: 6, border: "none", cursor: "pointer",
-              background: profile.unitPreference === u ? t.alpha.primary._12 : "transparent",
-              color: profile.unitPreference === u ? t.colors.primary : t.textDim,
-              fontSize: 12, fontWeight: profile.unitPreference === u ? 600 : 400,
-            }}>{u === "imperial" ? "Imperial (lbs/ft)" : "Metric (kg/cm)"}</button>
+            <button key={u} onClick={() => onChange({ ...profile, unitPreference: u })}
+              className={`px-[18px] py-1.5 rounded-[6px] border-none cursor-pointer text-xs ${
+                profile.unitPreference === u
+                  ? "bg-primary/[0.12] text-primary font-semibold"
+                  : "bg-transparent text-dim font-normal"
+              }`}
+            >{u === "imperial" ? "Imperial (lbs/ft)" : "Metric (kg/cm)"}</button>
           ))}
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Height {isMetric ? "(cm)" : ""}</label>
+          <label className={LABEL}>Height {isMetric ? "(cm)" : ""}</label>
           {isMetric ? (
-            <input type="number" min="100" max="250" value={profile.heightCm || ""} onChange={e => { const num = parseFloat(e.target.value); onChange({ ...profile, heightCm: isNaN(num) ? null : num }); }} placeholder="175" style={inputStyle(t)} />
+            <input type="number" min="100" max="250" value={profile.heightCm || ""} onChange={e => { const num = parseFloat(e.target.value); onChange({ ...profile, heightCm: isNaN(num) ? null : num }); }} placeholder="175" className={INPUT_CLASS} />
           ) : (
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <select value={heightFt || ""} onChange={e => setHeightImperial(e.target.value, heightIn)} style={{ ...selectStyle, width: "50%" }}>
+            <div className="flex gap-2 items-center">
+              <select value={heightFt || ""} onChange={e => setHeightImperial(e.target.value, heightIn)} className={`${SELECT_CLASS} w-1/2`}>
                 <option value="">ft</option>
                 {Array.from({ length: 9 }, (_, i) => (<option key={i} value={i}>{i}</option>))}
               </select>
-              <select value={heightIn || ""} onChange={e => setHeightImperial(heightFt, e.target.value)} style={{ ...selectStyle, width: "50%" }}>
+              <select value={heightIn || ""} onChange={e => setHeightImperial(heightFt, e.target.value)} className={`${SELECT_CLASS} w-1/2`}>
                 <option value="">in</option>
                 {Array.from({ length: 12 }, (_, i) => (<option key={i} value={i}>{i}</option>))}
               </select>
@@ -107,9 +102,9 @@ export default function StepAboutYou({ profile, onChange, t }) {
           )}
         </div>
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Weight ({isMetric ? "kg" : "lbs"})</label>
-          <input type="number" min="30" max="700" value={displayWeight} onChange={e => setWeight(e.target.value)} placeholder={isMetric ? "75" : "165"} style={inputStyle(t)} />
-          {weightWarning && (<div style={{ fontSize: 11, color: t.colors.accent, marginTop: 6, fontStyle: "italic" }}>{weightWarning}</div>)}
+          <label className={LABEL}>Weight ({isMetric ? "kg" : "lbs"})</label>
+          <input type="number" min="30" max="700" value={displayWeight} onChange={e => setWeight(e.target.value)} placeholder={isMetric ? "75" : "165"} className={INPUT_CLASS} />
+          {weightWarning && (<div className="text-sm text-accent mt-1.5 italic">{weightWarning}</div>)}
         </div>
       </div>
     </div>

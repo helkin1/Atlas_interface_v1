@@ -1,56 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTheme } from "../context/theme.js";
-import { loadProfile, saveProfile, DEFAULT_PROFILE } from "../utils/storage.js";
+import { loadProfile, saveProfile } from "../utils/storage.js";
 import {
   EQUIPMENT_OPTIONS, INJURY_OPTIONS, FOCUS_MUSCLES,
   GOAL_OPTIONS, EXPERIENCE_OPTIONS, SESSION_DURATIONS,
 } from "./Onboarding.jsx";
 
-/* ── Shared Styles ──────────────────────────────────────────── */
+const LABEL = "text-xs font-semibold text-muted mb-1.5 block";
+const INPUT_CLS = "w-full px-4 py-3 rounded-[14px] border border-edge bg-surface text-content text-md outline-none";
 
-function inputStyle(t) {
-  return {
-    width: "100%",
-    padding: "12px 16px",
-    borderRadius: 14,
-    border: `1px solid ${t.border}`,
-    background: t.surface,
-    color: t.text,
-    fontSize: 14,
-    outline: "none",
-  };
+function chipClass(sel) {
+  return `px-4 py-2 rounded-pill border-[1.5px] cursor-pointer text-sm transition-all duration-200 ${
+    sel ? "border-primary bg-primary/[0.08] font-semibold text-primary" : "border-edge bg-surface font-normal text-muted"
+  }`;
 }
 
-function chipStyle(t, selected) {
-  return {
-    padding: "8px 16px",
-    borderRadius: 9999,
-    border: `1.5px solid ${selected ? t.colors.primary : t.border}`,
-    background: selected ? t.alpha.primary._8 : t.surface,
-    cursor: "pointer",
-    fontSize: 11,
-    fontWeight: selected ? 600 : 400,
-    color: selected ? t.colors.primary : t.textMuted,
-    transition: "all 0.2s ease",
-  };
+function cardBtnClass(sel) {
+  return `px-4 py-3 rounded-[14px] border-[1.5px] cursor-pointer text-xs text-left transition-all duration-200 ${
+    sel ? "border-primary bg-primary/[0.06] font-semibold text-primary" : "border-edge bg-surface font-normal text-content"
+  }`;
 }
-
-function cardStyle(t, selected) {
-  return {
-    padding: "12px 16px",
-    borderRadius: 14,
-    border: `1.5px solid ${selected ? t.colors.primary : t.border}`,
-    background: selected ? t.alpha.primary._6 : t.surface,
-    cursor: "pointer",
-    fontSize: 12,
-    fontWeight: selected ? 600 : 400,
-    color: selected ? t.colors.primary : t.text,
-    textAlign: "left",
-    transition: "all 0.2s ease",
-  };
-}
-
-/* ── Profile Page ────────────────────────────────────────────── */
 
 export default function ProfilePage({ onBack }) {
   const t = useTheme();
@@ -92,70 +61,62 @@ export default function ProfilePage({ onBack }) {
     update({ [key]: list.includes(id) ? list.filter(x => x !== id) : [...list, id] });
   };
 
-  const sectionStyle = { background: t.surface, borderRadius: 20, padding: 28, marginBottom: 20, boxShadow: t.shadow };
-  const sectionTitle = { fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 18 };
-
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto", padding: "28px 24px", color: t.text }}>
+    <div className="max-w-[640px] mx-auto px-6 py-7 text-content">
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={onBack} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, cursor: "pointer", color: t.colors.primary, fontSize: 13, padding: "8px 16px", fontWeight: 500 }}>{"\u2190"} Back</button>
-          <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5, color: t.text }}>Your Profile</h1>
+      <div className="flex items-center justify-between mb-7">
+        <div className="flex items-center gap-3">
+          <button onClick={onBack} className="bg-surface border border-edge rounded-sm cursor-pointer text-primary text-body px-4 py-2 font-medium">{"\u2190"} Back</button>
+          <h1 className="text-[24px] font-[800] tracking-tight text-content">Your Profile</h1>
         </div>
-        <button onClick={handleSave} style={{
-          padding: "10px 28px", borderRadius: 14, fontSize: 13, fontWeight: 600, cursor: "pointer",
-          background: saved ? t.alpha.success._12 : t.ctaBg,
-          border: "none",
-          color: saved ? t.colors.success : t.ctaText,
-          transition: "all 0.2s",
-        }}>{saved ? "\u2713 Saved" : "Save Changes"}</button>
+        <button onClick={handleSave}
+          className={`px-7 py-2.5 rounded-[14px] text-body font-semibold cursor-pointer border-none transition-all duration-200 ${
+            saved ? "bg-success/[0.12] text-success" : "bg-cta text-cta-text"
+          }`}
+        >{saved ? "\u2713 Saved" : "Save Changes"}</button>
       </div>
 
       {/* Personal Info */}
-      <div style={sectionStyle}>
-        <div style={sectionTitle}>Personal Info</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div className="bg-surface rounded-lg p-7 mb-5 shadow-card">
+        <div className="text-body font-semibold text-muted mb-[18px]">Personal Info</div>
+        <div className="flex flex-col gap-4">
           <div>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6, display: "block" }}>Display Name</label>
-            <input value={profile.displayName} onChange={e => update({ displayName: e.target.value })} style={inputStyle(t)} />
+            <label className={LABEL}>Display Name</label>
+            <input value={profile.displayName} onChange={e => update({ displayName: e.target.value })} className={INPUT_CLS} />
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+          <div className="grid grid-cols-3 gap-3">
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6, display: "block" }}>Age</label>
-              <input type="number" value={profile.age || ""} onChange={e => update({ age: e.target.value ? parseInt(e.target.value) : null })} style={inputStyle(t)} />
+              <label className={LABEL}>Age</label>
+              <input type="number" value={profile.age || ""} onChange={e => update({ age: e.target.value ? parseInt(e.target.value) : null })} className={INPUT_CLS} />
             </div>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6, display: "block" }}>Height ({isMetric ? "cm" : "in"})</label>
-              <input type="number" value={displayHeight} onChange={e => setHeight(e.target.value)} style={inputStyle(t)} />
+              <label className={LABEL}>Height ({isMetric ? "cm" : "in"})</label>
+              <input type="number" value={displayHeight} onChange={e => setHeight(e.target.value)} className={INPUT_CLS} />
             </div>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6, display: "block" }}>Weight ({isMetric ? "kg" : "lbs"})</label>
-              <input type="number" value={displayWeight} onChange={e => setWeight(e.target.value)} style={inputStyle(t)} />
+              <label className={LABEL}>Weight ({isMetric ? "kg" : "lbs"})</label>
+              <input type="number" value={displayWeight} onChange={e => setWeight(e.target.value)} className={INPUT_CLS} />
             </div>
           </div>
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted }}>Sex</label>
-            <div style={{ display: "flex", gap: 6 }}>
+          <div className="flex gap-3 items-center">
+            <label className="text-xs font-semibold text-muted">Sex</label>
+            <div className="flex gap-1.5">
               {["male", "female", "prefer_not_to_say"].map(s => (
-                <button key={s} onClick={() => update({ sex: s })} style={chipStyle(t, profile.sex === s)}>
+                <button key={s} onClick={() => update({ sex: s })} className={chipClass(profile.sex === s)}>
                   {s === "prefer_not_to_say" ? "Prefer not to say" : s.charAt(0).toUpperCase() + s.slice(1)}
                 </button>
               ))}
             </div>
           </div>
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted }}>Units</label>
-            <div style={{ display: "inline-flex", gap: 4, background: t.surface2, borderRadius: 14, padding: 4 }}>
+          <div className="flex gap-3 items-center">
+            <label className="text-xs font-semibold text-muted">Units</label>
+            <div className="inline-flex gap-1 bg-surface2 rounded-[14px] p-1">
               {["imperial", "metric"].map(u => (
-                <button key={u} onClick={() => update({ unitPreference: u })} style={{
-                  padding: "7px 16px", borderRadius: 10, border: "none", cursor: "pointer",
-                  background: profile.unitPreference === u ? t.surface : "transparent",
-                  color: profile.unitPreference === u ? t.text : t.textDim,
-                  fontSize: 12, fontWeight: profile.unitPreference === u ? 600 : 400,
-                  boxShadow: profile.unitPreference === u ? t.shadow : "none",
-                  transition: "all 0.2s ease",
-                }}>{u === "imperial" ? "Imperial" : "Metric"}</button>
+                <button key={u} onClick={() => update({ unitPreference: u })}
+                  className={`px-4 py-[7px] rounded-[10px] border-none cursor-pointer text-xs transition-all duration-200 ${
+                    profile.unitPreference === u ? "bg-surface text-content font-semibold shadow-card" : "bg-transparent text-dim font-normal"
+                  }`}
+                >{u === "imperial" ? "Imperial" : "Metric"}</button>
               ))}
             </div>
           </div>
@@ -163,15 +124,15 @@ export default function ProfilePage({ onBack }) {
       </div>
 
       {/* Training Preferences */}
-      <div style={sectionStyle}>
-        <div style={sectionTitle}>Training Preferences</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div className="bg-surface rounded-lg p-7 mb-5 shadow-card">
+        <div className="text-body font-semibold text-muted mb-[18px]">Training Preferences</div>
+        <div className="flex flex-col gap-5">
           {/* Experience */}
           <div>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Experience Level</label>
-            <div style={{ display: "flex", gap: 8 }}>
+            <label className={LABEL}>Experience Level</label>
+            <div className="flex gap-2">
               {EXPERIENCE_OPTIONS.map(opt => (
-                <button key={opt.id} onClick={() => update({ experienceLevel: opt.id })} style={chipStyle(t, profile.experienceLevel === opt.id)}>
+                <button key={opt.id} onClick={() => update({ experienceLevel: opt.id })} className={chipClass(profile.experienceLevel === opt.id)}>
                   {opt.label}
                 </button>
               ))}
@@ -180,13 +141,13 @@ export default function ProfilePage({ onBack }) {
 
           {/* Goals */}
           <div>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Primary Goal</label>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <label className={LABEL}>Primary Goal</label>
+            <div className="flex gap-2 flex-wrap">
               {GOAL_OPTIONS.map(opt => (
                 <button key={opt.id} onClick={() => {
                   const sg = (profile.secondaryGoals || []).filter(g => g !== opt.id);
                   update({ primaryGoal: opt.id, secondaryGoals: sg });
-                }} style={chipStyle(t, profile.primaryGoal === opt.id)}>
+                }} className={chipClass(profile.primaryGoal === opt.id)}>
                   {opt.icon} {opt.label}
                 </button>
               ))}
@@ -195,10 +156,10 @@ export default function ProfilePage({ onBack }) {
 
           {profile.primaryGoal && (
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Secondary Goals</label>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <label className={LABEL}>Secondary Goals</label>
+              <div className="flex gap-2 flex-wrap">
                 {GOAL_OPTIONS.filter(g => g.id !== profile.primaryGoal).map(opt => (
-                  <button key={opt.id} onClick={() => toggleList("secondaryGoals", opt.id)} style={chipStyle(t, (profile.secondaryGoals || []).includes(opt.id))}>
+                  <button key={opt.id} onClick={() => toggleList("secondaryGoals", opt.id)} className={chipClass((profile.secondaryGoals || []).includes(opt.id))}>
                     {opt.label}
                   </button>
                 ))}
@@ -207,27 +168,27 @@ export default function ProfilePage({ onBack }) {
           )}
 
           {/* Schedule */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Training Days / Week</label>
-              <div style={{ display: "flex", gap: 6 }}>
-                {[2, 3, 4, 5, 6, 7].map(n => (
-                  <button key={n} onClick={() => update({ trainingDaysPerWeek: n })} style={{
-                    width: 40, height: 40, borderRadius: 12,
-                    border: `1.5px solid ${profile.trainingDaysPerWeek === n ? t.colors.primary : t.border}`,
-                    background: profile.trainingDaysPerWeek === n ? t.alpha.primary._8 : t.surface,
-                    color: profile.trainingDaysPerWeek === n ? t.colors.primary : t.text,
-                    fontSize: 14, fontWeight: 700, cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>{n}</button>
-                ))}
+              <label className={LABEL}>Training Days / Week</label>
+              <div className="flex gap-1.5">
+                {[2, 3, 4, 5, 6, 7].map(n => {
+                  const sel = profile.trainingDaysPerWeek === n;
+                  return (
+                    <button key={n} onClick={() => update({ trainingDaysPerWeek: n })}
+                      className={`w-10 h-10 rounded-sm border-[1.5px] cursor-pointer text-md font-bold flex items-center justify-center ${
+                        sel ? "border-primary bg-primary/[0.08] text-primary" : "border-edge bg-surface text-content"
+                      }`}
+                    >{n}</button>
+                  );
+                })}
               </div>
             </div>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Session Duration</label>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              <label className={LABEL}>Session Duration</label>
+              <div className="flex gap-1.5 flex-wrap">
                 {SESSION_DURATIONS.map(d => (
-                  <button key={d} onClick={() => update({ sessionDuration: d })} style={chipStyle(t, profile.sessionDuration === d)}>
+                  <button key={d} onClick={() => update({ sessionDuration: d })} className={chipClass(profile.sessionDuration === d)}>
                     {d}
                   </button>
                 ))}
@@ -237,10 +198,10 @@ export default function ProfilePage({ onBack }) {
 
           {/* Equipment */}
           <div>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Available Equipment</label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+            <label className={LABEL}>Available Equipment</label>
+            <div className="grid grid-cols-2 gap-1.5">
               {EQUIPMENT_OPTIONS.map(opt => (
-                <button key={opt.id} onClick={() => toggleList("equipment", opt.id)} style={cardStyle(t, (profile.equipment || []).includes(opt.id))}>
+                <button key={opt.id} onClick={() => toggleList("equipment", opt.id)} className={cardBtnClass((profile.equipment || []).includes(opt.id))}>
                   {opt.icon} {opt.label}
                 </button>
               ))}
@@ -249,10 +210,10 @@ export default function ProfilePage({ onBack }) {
 
           {/* Focus Muscles */}
           <div>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Focus Muscles</label>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <label className={LABEL}>Focus Muscles</label>
+            <div className="flex gap-1.5 flex-wrap">
               {FOCUS_MUSCLES.map(m => (
-                <button key={m} onClick={() => toggleList("focusMuscles", m)} style={chipStyle(t, (profile.focusMuscles || []).includes(m))}>
+                <button key={m} onClick={() => toggleList("focusMuscles", m)} className={chipClass((profile.focusMuscles || []).includes(m))}>
                   {m}
                 </button>
               ))}
@@ -261,10 +222,10 @@ export default function ProfilePage({ onBack }) {
 
           {/* Injuries */}
           <div>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Injuries / Limitations</label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+            <label className={LABEL}>Injuries / Limitations</label>
+            <div className="grid grid-cols-2 gap-1.5">
               {INJURY_OPTIONS.map(opt => (
-                <button key={opt.id} onClick={() => toggleList("injuries", opt.id)} style={cardStyle(t, (profile.injuries || []).includes(opt.id))}>
+                <button key={opt.id} onClick={() => toggleList("injuries", opt.id)} className={cardBtnClass((profile.injuries || []).includes(opt.id))}>
                   {opt.label}
                 </button>
               ))}

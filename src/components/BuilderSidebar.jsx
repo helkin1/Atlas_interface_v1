@@ -1,6 +1,5 @@
-import { useTheme } from "../context/theme.js";
 import { analyzePlan } from "../utils/science-engine.js";
-import { GoalRing, MuscleGoalBar, MuscleDiagram, AlertsPanel } from "./shared.jsx";
+import { GoalRing, MuscleGoalBar, MuscleDiagram, AlertsPanel, CARD_CLASS } from "./shared.jsx";
 
 const BODY_REGION = {
   Chest: "upper", "Upper Chest": "upper",
@@ -13,7 +12,6 @@ const BODY_REGION = {
 };
 
 export default function BuilderSidebar({ plan }) {
-  const t = useTheme();
   const wt = plan.weekTemplate || [];
 
   const report = analyzePlan(wt);
@@ -33,41 +31,41 @@ export default function BuilderSidebar({ plan }) {
 
   return (
     <div>
-      <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 16 }}>Live Analysis</div>
+      <div className="text-[13px] font-semibold text-muted mb-4">Live Analysis</div>
 
       {/* Muscle diagram + coverage ring */}
-      <div style={{ background: t.surface, borderRadius: 12, padding: 20, marginBottom: 16, boxShadow: t.shadow, display: "flex", alignItems: "center", gap: 16 }}>
+      <div className={`${CARD_CLASS} p-5 mb-4 flex items-center gap-4`}>
         <MuscleDiagram muscleVol={effectiveSets} size={120} />
-        <div style={{ flex: 1 }}>
+        <div className="flex-1">
           <GoalRing pct={overallScore} size={72} strokeWidth={5} label="Coverage" />
-          <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#3B82F6" }}>{trainDays}</div>
-              <div style={{ fontSize: 10, color: t.textDim }}>Train Days</div>
+          <div className="mt-2.5 grid grid-cols-2 gap-1">
+            <div className="text-center">
+              <div className="text-lg font-bold text-[#3B82F6]">{trainDays}</div>
+              <div className="text-[10px] text-dim">Train Days</div>
             </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#F59E0B" }}>{totalExercises}</div>
-              <div style={{ fontSize: 10, color: t.textDim }}>Exercises</div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-[#F59E0B]">{totalExercises}</div>
+              <div className="text-[10px] text-dim">Exercises</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Volume Balance: Upper / Lower / Core */}
-      <div style={{ background: t.surface, borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: t.shadow }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 10 }}>Volume Balance</div>
-        <div style={{ display: "flex", gap: 6 }}>
+      <div className={`${CARD_CLASS} p-4 mb-4`}>
+        <div className="text-xs font-semibold text-muted mb-2.5">Volume Balance</div>
+        <div className="flex gap-1.5">
           {[["upper", "#3B82F6", "Upper"], ["lower", "#8B5CF6", "Lower"], ["core", "#F59E0B", "Core"]].map(([key, color, label]) => {
             const v = regionVol[key];
             const pct = Math.round((v / regionTotal) * 100);
             return (
-              <div key={key} style={{ flex: 1, textAlign: "center" }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color }}>{Math.round(v)}</div>
-                <div style={{ fontSize: 9, color: t.textDim }}>{label}</div>
-                <div style={{ height: 4, background: t.border, borderRadius: 2, marginTop: 6, overflow: "hidden" }}>
-                  <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 2, transition: "width 0.3s" }} />
+              <div key={key} className="flex-1 text-center">
+                <div className="text-lg font-bold" style={{ color }}>{Math.round(v)}</div>
+                <div className="text-[9px] text-dim">{label}</div>
+                <div className="h-1 bg-edge rounded-[2px] mt-1.5 overflow-hidden">
+                  <div className="h-full rounded-[2px] transition-[width] duration-300" style={{ width: `${pct}%`, background: color }} />
                 </div>
-                <div style={{ fontSize: 9, color: t.textFaint, marginTop: 3 }}>{pct}%</div>
+                <div className="text-[9px] text-faint mt-[3px]">{pct}%</div>
               </div>
             );
           })}
@@ -75,14 +73,14 @@ export default function BuilderSidebar({ plan }) {
       </div>
 
       {/* Weekly Volume (vs Target) */}
-      <div style={{ background: t.surface, borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: t.shadow }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Weekly Volume (vs Target)</div>
+      <div className={`${CARD_CLASS} p-4 mb-4`}>
+        <div className="text-xs font-semibold text-muted mb-3">Weekly Volume (vs Target)</div>
         {sorted.slice(0, 14).map(([m, data]) => <MuscleGoalBar key={m} name={m} eff={data.eff} target={data.target} compact />)}
       </div>
 
       {/* Plan Alerts — below weekly volume */}
-      <div style={{ background: t.surface, borderRadius: 12, padding: 16, boxShadow: t.shadow }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Plan Alerts</div>
+      <div className={`${CARD_CLASS} p-4`}>
+        <div className="text-xs font-semibold text-muted mb-3">Plan Alerts</div>
         <AlertsPanel alerts={alerts} maxVisible={4} />
       </div>
     </div>

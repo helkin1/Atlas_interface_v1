@@ -19,7 +19,7 @@ import {
   Tabs,
   EmptyState,
   SectionLabel,
-  cardStyle,
+  CARD_CLASS,
 } from "./shared.jsx";
 
 const TABS = [
@@ -43,8 +43,6 @@ function formatDate(d) {
 /* ── Overview Tab ────────────────────────────────────────────── */
 
 function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
-  const t = useTheme();
-
   if (!hasData) {
     return <EmptyState icon="🏋️" title="No workouts logged yet" message="Start logging workouts in GymMode to see your progress here." />;
   }
@@ -72,7 +70,7 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
 
   return (
     <div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 28 }}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3 mb-7">
         <StatCard label="Workouts" value={stats.totalWorkouts} color="#3B82F6" />
         <StatCard label="Total Volume" value={formatVolume(stats.totalVolume)} sub="lbs" color="#22C55E" />
         <StatCard label="Completion" value={`${stats.avgCompletion}%`} color="#F59E0B" />
@@ -80,25 +78,25 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
       </div>
 
       {barData.length > 0 && (
-        <div style={{ ...cardStyle(t, { padding: 20, marginBottom: 20 }) }}>
+        <div className={`${CARD_CLASS} p-5 mb-5`}>
           <SectionLabel>Weekly Volume</SectionLabel>
           <BarChart data={barData} width={Math.min(600, barData.length * 80)} height={140} barColor="#3B82F6" />
         </div>
       )}
 
       {muscleEntries.length > 0 && (
-        <div style={{ ...cardStyle(t, { padding: 20, marginBottom: 20 }) }}>
+        <div className={`${CARD_CLASS} p-5 mb-5`}>
           <SectionLabel>Muscle Volume Trends</SectionLabel>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
             {muscleEntries.map(([name, data]) => {
               const sparkData = data.map(d => d.effectiveSets);
               const last = data[data.length - 1]?.effectiveSets || 0;
               return (
-                <div key={name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, background: t.surface2 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: MUSCLE_COLORS[name] || "#666", flexShrink: 0 }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 11, color: t.textMuted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
-                    <div style={{ fontSize: 10, color: t.textDim }}>{last} sets/wk</div>
+                <div key={name} className="flex items-center gap-2.5 px-2.5 py-2 rounded-[8px] bg-surface2">
+                  <div className="w-2 h-2 rounded-full shrink-0" style={{ background: MUSCLE_COLORS[name] || "#666" }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm text-muted whitespace-nowrap overflow-hidden text-ellipsis">{name}</div>
+                    <div className="text-xs text-dim">{last} sets/wk</div>
                   </div>
                   <SparkLine data={sparkData} width={80} height={24} color={MUSCLE_COLORS[name] || "#3B82F6"} />
                 </div>
@@ -109,17 +107,17 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
       )}
 
       {prList.length > 0 && (
-        <div style={{ ...cardStyle(t, { padding: 20 }) }}>
+        <div className={`${CARD_CLASS} p-5`}>
           <SectionLabel>Personal Records</SectionLabel>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div className="flex flex-col gap-1.5">
             {prList.slice(0, 10).map((pr, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", borderRadius: 8, background: t.surface2 }}>
-                <span style={{ fontSize: 14 }}>🏆</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: t.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pr.name}</div>
-                  <div style={{ fontSize: 10, color: t.textDim }}>{pr.type} &middot; {pr.date ? formatDate(pr.date) : ""}</div>
+              <div key={i} className="flex items-center gap-2.5 px-3 py-2 rounded-[8px] bg-surface2">
+                <span className="text-md">🏆</span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-semibold text-content whitespace-nowrap overflow-hidden text-ellipsis">{pr.name}</div>
+                  <div className="text-xs text-dim">{pr.type} &middot; {pr.date ? formatDate(pr.date) : ""}</div>
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#F59E0B" }}>{pr.value}</div>
+                <div className="text-md font-bold text-warning">{pr.value}</div>
               </div>
             ))}
           </div>
@@ -132,7 +130,6 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
 /* ── Exercises Tab ───────────────────────────────────────────── */
 
 function ExercisesTab({ exerciseHistory, prs }) {
-  const t = useTheme();
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState(null);
 
@@ -149,21 +146,17 @@ function ExercisesTab({ exerciseHistory, prs }) {
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
+      <div className="mb-4">
         <input
           type="text"
           placeholder="Search exercises..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{
-            width: "100%", maxWidth: 360, padding: "8px 14px", fontSize: 13,
-            background: t.surface, border: `1px solid ${t.border}`, borderRadius: 8,
-            color: t.text, outline: "none",
-          }}
+          className="w-full max-w-[360px] px-3.5 py-2 text-body bg-surface border border-edge rounded-[8px] text-content outline-none"
         />
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div className="flex flex-col gap-2">
         {filtered.map(exId => {
           const ex = EXERCISES[exId];
           const name = ex?.name || exId;
@@ -173,35 +166,31 @@ function ExercisesTab({ exerciseHistory, prs }) {
           const lastSession = sessions[sessions.length - 1];
 
           return (
-            <div key={exId} style={{ ...cardStyle(t), overflow: "hidden" }}>
+            <div key={exId} className={`${CARD_CLASS} overflow-hidden`}>
               <button
                 onClick={() => setExpanded(isOpen ? null : exId)}
-                style={{
-                  width: "100%", display: "flex", alignItems: "center", gap: 12,
-                  padding: "14px 16px", background: "transparent", border: "none",
-                  cursor: "pointer", textAlign: "left",
-                }}
+                className="w-full flex items-center gap-3 px-4 py-3.5 bg-transparent border-none cursor-pointer text-left"
               >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: t.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
-                  <div style={{ fontSize: 10, color: t.textDim, marginTop: 2 }}>
+                <div className="flex-1 min-w-0">
+                  <div className="text-body font-semibold text-content whitespace-nowrap overflow-hidden text-ellipsis">{name}</div>
+                  <div className="text-xs text-dim mt-0.5">
                     {sessions.length} session{sessions.length !== 1 ? "s" : ""}
                     {lastSession ? ` · Last: ${formatDate(lastSession.date)}` : ""}
                   </div>
                 </div>
                 {pr && (
-                  <div style={{ fontSize: 11, color: "#F59E0B", fontWeight: 600 }}>
+                  <div className="text-sm text-warning font-semibold">
                     PR: {pr.weight.value} lbs
                   </div>
                 )}
-                <span style={{ fontSize: 12, color: t.textDim, transition: "transform 0.2s", transform: isOpen ? "rotate(180deg)" : "rotate(0)" }}>▾</span>
+                <span className={`text-xs text-dim transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>▾</span>
               </button>
 
               {isOpen && (
-                <div style={{ padding: "0 16px 16px", borderTop: `1px solid ${t.border}` }}>
+                <div className="px-4 pb-4 border-t border-edge">
                   {sessions.length >= 2 && (
-                    <div style={{ marginTop: 14, marginBottom: 14 }}>
-                      <div style={{ fontSize: 11, color: t.textDim, marginBottom: 8 }}>Weight Progression</div>
+                    <div className="mt-3.5 mb-3.5">
+                      <div className="text-sm text-dim mb-2">Weight Progression</div>
                       <LineChart
                         data={sessions.map(s => ({ x: formatDate(s.date), y: s.topWeight }))}
                         width={500} height={160} color="#3B82F6" yLabel="lbs"
@@ -210,8 +199,8 @@ function ExercisesTab({ exerciseHistory, prs }) {
                   )}
 
                   {sessions.length >= 2 && sessions.some(s => s.est1RM > 0) && (
-                    <div style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 11, color: t.textDim, marginBottom: 8 }}>Estimated 1RM</div>
+                    <div className="mb-3.5">
+                      <div className="text-sm text-dim mb-2">Estimated 1RM</div>
                       <LineChart
                         data={sessions.filter(s => s.est1RM > 0).map(s => ({ x: formatDate(s.date), y: s.est1RM }))}
                         width={500} height={160} color="#8B5CF6" yLabel="lbs"
@@ -220,26 +209,26 @@ function ExercisesTab({ exerciseHistory, prs }) {
                   )}
 
                   {pr && (
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+                    <div className="flex gap-2 flex-wrap mb-3">
                       {pr.weight.value > 0 && (
-                        <span style={{ fontSize: 10, padding: "3px 10px", borderRadius: 20, background: "rgba(245,158,11,0.1)", color: "#F59E0B" }}>
+                        <span className="text-xs px-2.5 py-[3px] rounded-[20px] bg-warning/10 text-warning">
                           🏆 Best: {pr.weight.value} lbs
                         </span>
                       )}
                       {pr.est1RM.value > 0 && (
-                        <span style={{ fontSize: 10, padding: "3px 10px", borderRadius: 20, background: "rgba(139,92,246,0.1)", color: "#8B5CF6" }}>
+                        <span className="text-xs px-2.5 py-[3px] rounded-[20px] bg-pull/10 text-pull">
                           Est. 1RM: {pr.est1RM.value} lbs
                         </span>
                       )}
                     </div>
                   )}
 
-                  <div style={{ fontSize: 11, color: t.textDim, marginBottom: 6 }}>Recent Sessions</div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <div className="text-sm text-dim mb-1.5">Recent Sessions</div>
+                  <div className="flex flex-col gap-1">
                     {sessions.slice(-5).reverse().map((s, i) => (
-                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 10px", borderRadius: 6, background: t.surface2, fontSize: 11 }}>
-                        <span style={{ color: t.textDim, width: 50 }}>{formatDate(s.date)}</span>
-                        <span style={{ color: t.text }}>
+                      <div key={i} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-[6px] bg-surface2 text-sm">
+                        <span className="text-dim w-[50px]">{formatDate(s.date)}</span>
+                        <span className="text-content">
                           {s.sets.map(set => `${set.w}×${set.reps}`).join(", ")}
                         </span>
                       </div>
@@ -258,7 +247,6 @@ function ExercisesTab({ exerciseHistory, prs }) {
 /* ── History Tab ─────────────────────────────────────────────── */
 
 function HistoryTab({ workoutHistory }) {
-  const t = useTheme();
   const [expanded, setExpanded] = useState(null);
 
   if (workoutHistory.length === 0) {
@@ -268,40 +256,36 @@ function HistoryTab({ workoutHistory }) {
   const reversed = [...workoutHistory].reverse();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+    <div className="flex flex-col gap-2">
       {reversed.map((session, i) => {
         const isOpen = expanded === i;
         return (
-          <div key={i} style={{ ...cardStyle(t), overflow: "hidden" }}>
+          <div key={i} className={`${CARD_CLASS} overflow-hidden`}>
             <button
               onClick={() => setExpanded(isOpen ? null : i)}
-              style={{
-                width: "100%", display: "flex", alignItems: "center", gap: 12,
-                padding: "14px 16px", background: "transparent", border: "none",
-                cursor: "pointer", textAlign: "left",
-              }}
+              className="w-full flex items-center gap-3 px-4 py-3.5 bg-transparent border-none cursor-pointer text-left"
             >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>{session.label}</div>
-                <div style={{ fontSize: 10, color: t.textDim, marginTop: 2 }}>
+              <div className="flex-1 min-w-0">
+                <div className="text-body font-semibold text-content">{session.label}</div>
+                <div className="text-xs text-dim mt-0.5">
                   {session.weekLabel} &middot; {session.date ? formatDate(session.date) : `Day ${session.dayNum}`}
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 60, height: 5, background: t.border, borderRadius: 3, overflow: "hidden" }}>
-                  <div style={{ width: `${session.pct}%`, height: "100%", background: session.pct >= 80 ? "#22C55E" : session.pct >= 50 ? "#F59E0B" : "#EF4444", borderRadius: 3 }} />
+              <div className="flex items-center gap-2">
+                <div className="w-[60px] h-[5px] bg-edge rounded-[3px] overflow-hidden">
+                  <div className="h-full rounded-[3px]" style={{ width: `${session.pct}%`, background: session.pct >= 80 ? "#22C55E" : session.pct >= 50 ? "#F59E0B" : "#EF4444" }} />
                 </div>
-                <span style={{ fontSize: 10, color: t.textDim, width: 30, textAlign: "right" }}>{session.pct}%</span>
+                <span className="text-xs text-dim w-[30px] text-right">{session.pct}%</span>
               </div>
-              <div style={{ fontSize: 11, color: t.textMuted, width: 60, textAlign: "right" }}>
+              <div className="text-sm text-muted w-[60px] text-right">
                 {formatVolume(session.totalVolume)}
               </div>
-              <span style={{ fontSize: 12, color: t.textDim, transition: "transform 0.2s", transform: isOpen ? "rotate(180deg)" : "rotate(0)" }}>▾</span>
+              <span className={`text-xs text-dim transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>▾</span>
             </button>
 
             {isOpen && (
-              <div style={{ padding: "0 16px 16px", borderTop: `1px solid ${t.border}` }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 12 }}>
+              <div className="px-4 pb-4 border-t border-edge">
+                <div className="flex flex-col gap-1.5 mt-3">
                   {session.exercises.map((entry, ei) => {
                     const ex = EXERCISES[entry.exercise_id];
                     if (!ex) return null;
@@ -312,14 +296,14 @@ function HistoryTab({ workoutHistory }) {
                     });
 
                     return (
-                      <div key={ei} style={{ padding: "8px 10px", borderRadius: 8, background: t.surface2 }}>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: t.text, marginBottom: 4 }}>{ex.name}</div>
-                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      <div key={ei} className="px-2.5 py-2 rounded-[8px] bg-surface2">
+                        <div className="text-xs font-semibold text-content mb-1">{ex.name}</div>
+                        <div className="flex gap-1.5 flex-wrap">
                           {loggedSets.map((s, si) => {
                             const logged = s.logged;
                             if (!logged) {
                               return (
-                                <span key={si} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 6, background: t.border, color: t.textFaint }}>
+                                <span key={si} className="text-xs px-2 py-0.5 rounded-[6px] bg-edge text-faint">
                                   —
                                 </span>
                               );
@@ -329,7 +313,7 @@ function HistoryTab({ workoutHistory }) {
                             const bg = up ? "rgba(245,158,11,0.12)" : hit ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)";
                             const c = up ? "#F59E0B" : hit ? "#22C55E" : "#EF4444";
                             return (
-                              <span key={si} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 6, background: bg, color: c, fontWeight: 600 }}>
+                              <span key={si} className="text-xs px-2 py-0.5 rounded-[6px] font-semibold" style={{ background: bg, color: c }}>
                                 {logged.w}×{logged.reps}
                               </span>
                             );

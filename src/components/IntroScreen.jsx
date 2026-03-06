@@ -1,4 +1,3 @@
-import { useTheme } from "../context/theme.js";
 import ThemeToggle from "./ThemeToggle.jsx";
 
 const FEATURES = [
@@ -9,44 +8,37 @@ const FEATURES = [
 ];
 
 export default function IntroScreen({ onStart, themeMode, onToggleTheme }) {
-  const t = useTheme();
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 40, position: "relative" }}>
+    <div className="min-h-screen flex flex-col items-center justify-center p-10 relative">
 
       {/* Theme toggle — top right */}
-      <div style={{ position: "absolute", top: 28, right: 28 }}>
+      <div className="absolute top-7 right-7">
         <ThemeToggle mode={themeMode} onToggle={onToggleTheme} />
       </div>
 
       {/* Hero */}
-      <div style={{ textAlign: "center", maxWidth: 520, marginBottom: 48 }}>
-        <div style={{ fontSize: 12, letterSpacing: 3, color: t.textDim, marginBottom: 12 }}>Welcome to</div>
-        <h1 style={{ fontSize: 48, fontWeight: 800, letterSpacing: -1.5, color: t.text, marginBottom: 12 }}>Atlas</h1>
-        <p style={{ fontSize: 16, color: t.textMuted, lineHeight: 1.6 }}>
+      <div className="text-center max-w-[520px] mb-12">
+        <div className="text-xs tracking-[3px] text-dim mb-3">Welcome to</div>
+        <h1 className="text-5xl font-[800] tracking-tighter text-content mb-3">Atlas</h1>
+        <p className="text-base text-muted leading-relaxed">
           Your intelligent training companion. Build science-based workout programs with real-time volume analysis and progressive overload.
         </p>
       </div>
 
       {/* CTA */}
-      <button onClick={onStart} style={{
-        padding: "16px 48px", borderRadius: 14, border: "none",
-        background: "#3B82F6", color: "#fff", fontSize: 16, fontWeight: 700,
-        cursor: "pointer", marginBottom: 56, transition: "transform 0.15s, box-shadow 0.15s",
-        boxShadow: "0 4px 24px rgba(59,130,246,0.3)",
-      }}
-        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 32px rgba(59,130,246,0.4)"; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 24px rgba(59,130,246,0.3)"; }}
+      <button onClick={onStart}
+        className="px-12 py-4 rounded-[14px] border-none bg-[#3B82F6] text-white text-base font-bold cursor-pointer mb-14 transition-transform duration-150 shadow-[0_4px_24px_rgba(59,130,246,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_32px_rgba(59,130,246,0.4)]"
       >
         Build Your Plan &rarr;
       </button>
 
       {/* Features grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, maxWidth: 720, width: "100%" }}>
+      <div className="grid grid-cols-4 gap-4 max-w-[720px] w-full">
         {FEATURES.map(f => (
-          <div key={f.title} style={{ background: t.surface, borderRadius: 12, padding: 24, boxShadow: t.shadow, textAlign: "center" }}>
-            <div style={{ fontSize: 24, marginBottom: 8 }}>{f.icon}</div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: t.text, marginBottom: 4 }}>{f.title}</div>
-            <div style={{ fontSize: 10, color: t.textDim, lineHeight: 1.5 }}>{f.desc}</div>
+          <div key={f.title} className="bg-surface rounded-xl p-6 shadow-card text-center">
+            <div className="text-2xl mb-2">{f.icon}</div>
+            <div className="text-xs font-bold text-content mb-1">{f.title}</div>
+            <div className="text-[10px] text-dim leading-relaxed">{f.desc}</div>
           </div>
         ))}
       </div>

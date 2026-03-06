@@ -11,7 +11,6 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Derive viewLevel, weekIdx, dayIdx from URL
   const pathParts = location.pathname.replace(/^\/dashboard\/?/, "").split("/").filter(Boolean);
   let viewLevel = "month", weekIdx = null, dayIdx = null;
   if (pathParts[0] === "week" && pathParts[1] != null) {
@@ -34,59 +33,44 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
   const isProgress = location.pathname.startsWith("/progress");
 
   return (
-    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "36px 36px", color: t.text, transition: "all 0.3s ease" }}>
+    <div className="max-w-[1400px] mx-auto px-9 py-9 text-content transition-all duration-300">
       {/* HEADER */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 36 }}>
+      <div className="flex justify-between items-start mb-9">
         <div>
           {profile?.displayName && (
-            <div style={{ fontSize: 14, color: t.textMuted, marginBottom: 6 }}>
+            <div className="text-md text-muted mb-1.5">
               {(() => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; })()}, {profile.displayName}
             </div>
           )}
-          <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, color: t.text, marginBottom: 4 }}>{plan.splitName}</h1>
-          <div style={{ fontSize: 12, color: t.textDim, marginBottom: 12 }}>{plan.weeks}-Week Mesocycle</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <h1 className="text-2xl font-[800] tracking-tight text-content mb-1">{plan.splitName}</h1>
+          <div className="text-xs text-dim mb-3">{plan.weeks}-Week Mesocycle</div>
+          <div className="flex gap-2 flex-wrap">
             {[
               { text: profile?.primaryGoal?.replace(/_/g, " ") || "hypertrophy", bg: t.alpha.primary._8, color: t.colors.primary },
               { text: dateRange, bg: t.alpha.success._8, color: t.colors.success },
               { text: "progressive overload", bg: t.alpha.pull._8, color: t.colors.pull },
             ].map(({ text, bg, color }) => (
-              <span key={text} style={{
-                fontSize: 11, padding: "5px 14px",
-                borderRadius: 9999,
-                background: bg,
-                color, fontWeight: 500,
-              }}>{text}</span>
+              <span key={text} className="text-sm px-3.5 py-[5px] rounded-pill font-medium" style={{ background: bg, color }}>{text}</span>
             ))}
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div className="flex items-center gap-2.5">
           {/* Tab navigation */}
-          <div style={{ display: "inline-flex", gap: 4, background: t.surface2, borderRadius: 16, padding: 4 }}>
-            <button onClick={() => navigate("/dashboard")} style={{
-              fontSize: 13, padding: "8px 20px", borderRadius: 12, border: "none", cursor: "pointer",
-              background: !isProgress ? t.surface : "transparent",
-              color: !isProgress ? t.text : t.textDim,
-              fontWeight: !isProgress ? 600 : 400,
-              boxShadow: !isProgress ? t.shadow : "none",
-              transition: "all 0.2s ease",
-            }}>Dashboard</button>
-            <button onClick={() => navigate("/progress")} style={{
-              fontSize: 13, padding: "8px 20px", borderRadius: 12, border: "none", cursor: "pointer",
-              background: isProgress ? t.surface : "transparent",
-              color: isProgress ? t.text : t.textDim,
-              fontWeight: isProgress ? 600 : 400,
-              boxShadow: isProgress ? t.shadow : "none",
-              transition: "all 0.2s ease",
-            }}>Progress</button>
+          <div className="inline-flex gap-1 bg-surface2 rounded-md p-1">
+            <button onClick={() => navigate("/dashboard")}
+              className={`text-body px-5 py-2 rounded-sm border-none cursor-pointer transition-all duration-200 ${!isProgress ? "bg-surface text-content font-semibold shadow-card" : "bg-transparent text-dim font-normal"}`}
+            >Dashboard</button>
+            <button onClick={() => navigate("/progress")}
+              className={`text-body px-5 py-2 rounded-sm border-none cursor-pointer transition-all duration-200 ${isProgress ? "bg-surface text-content font-semibold shadow-card" : "bg-transparent text-dim font-normal"}`}
+            >Progress</button>
           </div>
 
           {/* Breadcrumb */}
           {!isProgress && (
-            <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 13 }}>
-              <button onClick={() => navigate("/dashboard")} style={{ color: viewLevel === "month" ? t.text : t.colors.primary, background: "none", border: "none", cursor: "pointer", fontSize: "inherit", textDecoration: viewLevel === "month" ? "none" : "underline", textUnderlineOffset: 3 }}>Month</button>
-              {viewLevel !== "month" && curWeek && <><span style={{ color: t.textFaint }}>/</span><button onClick={() => navigate(`/dashboard/week/${weekIdx}`)} style={{ color: viewLevel === "week" ? t.text : t.colors.primary, background: "none", border: "none", cursor: "pointer", fontSize: "inherit", textDecoration: viewLevel === "week" ? "none" : "underline", textUnderlineOffset: 3 }}>{curWeek.label}</button></>}
-              {viewLevel === "day" && curDay && <><span style={{ color: t.textFaint }}>/</span><span style={{ color: t.text }}>{curDay.label}</span></>}
+            <div className="flex gap-1.5 items-center text-body">
+              <button onClick={() => navigate("/dashboard")} className={`bg-none border-none cursor-pointer text-[inherit] ${viewLevel === "month" ? "text-content no-underline" : "text-primary underline underline-offset-[3px]"}`}>Month</button>
+              {viewLevel !== "month" && curWeek && <><span className="text-faint">/</span><button onClick={() => navigate(`/dashboard/week/${weekIdx}`)} className={`bg-none border-none cursor-pointer text-[inherit] ${viewLevel === "week" ? "text-content no-underline" : "text-primary underline underline-offset-[3px]"}`}>{curWeek.label}</button></>}
+              {viewLevel === "day" && curDay && <><span className="text-faint">/</span><span className="text-content">{curDay.label}</span></>}
             </div>
           )}
 
@@ -99,9 +83,9 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
       {isProgress ? (
         <ErrorBoundary><Outlet /></ErrorBoundary>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 36 }}>
+        <div className="grid grid-cols-[1fr_320px] gap-9">
           <div><ErrorBoundary><Outlet /></ErrorBoundary></div>
-          <div style={{ position: "sticky", top: 20, alignSelf: "start", maxHeight: "calc(100vh - 60px)", overflowY: "auto" }}>
+          <div className="sticky top-5 self-start max-h-[calc(100vh-60px)] overflow-y-auto">
             <Sidebar weekIdx={weekIdx} viewLevel={viewLevel} curWeek={curWeek} curDay={curDay} plan={plan} />
           </div>
         </div>

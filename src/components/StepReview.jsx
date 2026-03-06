@@ -1,11 +1,9 @@
-import { useTheme } from "../context/theme.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { DAY_NAMES, goalPctColor, calcGoalPcts, overallGoalPct } from "../utils/helpers.js";
 import { calcBuilderWeeklyVol } from "../utils/plan-engine.js";
-import { MuscleGoalBar } from "./shared.jsx";
+import { MuscleGoalBar, CARD_CLASS } from "./shared.jsx";
 
 export default function StepReview({ plan }) {
-  const t = useTheme();
   const wt = plan.weekTemplate || [];
   const vol = calcBuilderWeeklyVol(wt); const goals = calcGoalPcts(vol); const overall = overallGoalPct(goals);
   const sorted = Object.entries(goals).filter(([, d]) => d.eff > 0).sort((a, b) => b[1].pct - a[1].pct);
@@ -13,21 +11,50 @@ export default function StepReview({ plan }) {
   const trainDays = wt.filter(d => !d.isRest && d.exercises.length > 0).length;
   const totalEx = wt.reduce((s, d) => s + (d.isRest ? 0 : d.exercises.length), 0);
   const totalSets = wt.reduce((s, d) => d.isRest ? s : s + d.exercises.reduce((ss, e) => ss + (e.setDetails ? e.setDetails.length : 3), 0), 0);
+
   return (
     <div>
-      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Review Your Plan</h2>
-      <p style={{ fontSize: 13, color: t.textDim, marginBottom: 24 }}>{plan.weeks}-week {plan.splitName} mesocycle.</p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
-        {[{ l: "Training Days", v: `${trainDays}/wk`, c: "#22C55E" }, { l: "Exercises", v: totalEx, c: "#3B82F6" }, { l: "Weekly Sets", v: totalSets, c: "#F59E0B" }, { l: "Mesocycle", v: `${plan.weeks} wks`, c: "#8B5CF6" }].map(c => <div key={c.l} style={{ background: t.surface, borderRadius: 12, padding: 20, textAlign: "center" }}><div style={{ fontSize: 24, fontWeight: 700, color: c.c }}>{c.v}</div><div style={{ fontSize: 11, color: t.textDim, marginTop: 4 }}>{c.l}</div></div>)}
+      <h2 className="text-[22px] font-[800] mb-1">Review Your Plan</h2>
+      <p className="text-[13px] text-dim mb-6">{plan.weeks}-week {plan.splitName} mesocycle.</p>
+
+      <div className="grid grid-cols-4 gap-3 mb-6">
+        {[
+          { l: "Training Days", v: `${trainDays}/wk`, c: "#22C55E" },
+          { l: "Exercises", v: totalEx, c: "#3B82F6" },
+          { l: "Weekly Sets", v: totalSets, c: "#F59E0B" },
+          { l: "Mesocycle", v: `${plan.weeks} wks`, c: "#8B5CF6" },
+        ].map(c => (
+          <div key={c.l} className="bg-surface rounded-xl p-5 text-center">
+            <div className="text-2xl font-bold" style={{ color: c.c }}>{c.v}</div>
+            <div className="text-[11px] text-dim mt-1">{c.l}</div>
+          </div>
+        ))}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8, marginBottom: 24 }}>
-        {wt.map((day, i) => <div key={i} style={{ background: day.isRest ? t.surface2 : t.surface, borderRadius: 12, padding: 16, minHeight: 100, opacity: day.isRest ? 0.5 : 1 }}><div style={{ fontSize: 9, color: t.textFaint, marginBottom: 4 }}>{DAY_NAMES[(i + 1) % 7]}</div><div style={{ fontSize: 13, fontWeight: 700, color: t.text, marginBottom: 6 }}>{day.label}</div>{!day.isRest && day.exercises.slice(0, 3).map((e, ei) => <div key={ei} style={{ fontSize: 9, color: t.textDim, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{EXERCISES[e.id]?.name}</div>)}{day.isRest && <div style={{ fontSize: 22, marginTop: 8 }}>😴</div>}</div>)}
+
+      <div className="grid grid-cols-7 gap-2 mb-6">
+        {wt.map((day, i) => (
+          <div key={i} className={`rounded-xl p-4 min-h-[100px] ${day.isRest ? "bg-surface2 opacity-50" : "bg-surface"}`}>
+            <div className="text-[9px] text-faint mb-1">{DAY_NAMES[(i + 1) % 7]}</div>
+            <div className="text-[13px] font-bold text-content mb-1.5">{day.label}</div>
+            {!day.isRest && day.exercises.slice(0, 3).map((e, ei) => (
+              <div key={ei} className="text-[9px] text-dim overflow-hidden text-ellipsis whitespace-nowrap">{EXERCISES[e.id]?.name}</div>
+            ))}
+            {day.isRest && <div className="text-[22px] mt-2">😴</div>}
+          </div>
+        ))}
       </div>
-      <div style={{ background: t.surface, borderRadius: 12, padding: 24, boxShadow: t.shadow }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 14 }}>Predicted Weekly Coverage</div>
+
+      <div className={`${CARD_CLASS} p-6`}>
+        <div className="text-[13px] font-semibold text-muted mb-3.5">Predicted Weekly Coverage</div>
         {sorted.map(([m, data]) => <MuscleGoalBar key={m} name={m} eff={data.eff} target={data.target} />)}
       </div>
-      {gaps.length > 0 && <div style={{ marginTop: 16, background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 12, padding: 16 }}><div style={{ fontSize: 11, fontWeight: 700, color: "#EF4444", marginBottom: 8 }}>{"\u26A0"} Potential gaps</div><div style={{ fontSize: 12, color: t.textMuted }}>Below 50% MAV: {gaps.map(([m]) => m).join(", ")}</div></div>}
+
+      {gaps.length > 0 && (
+        <div className="mt-4 bg-error/5 border border-error/20 rounded-xl p-4">
+          <div className="text-[11px] font-bold text-error mb-2">{"\u26A0"} Potential gaps</div>
+          <div className="text-xs text-muted">Below 50% MAV: {gaps.map(([m]) => m).join(", ")}</div>
+        </div>
+      )}
     </div>
   );
 }

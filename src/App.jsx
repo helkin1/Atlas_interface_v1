@@ -109,7 +109,7 @@ export default function App() {
   const location = useLocation();
   const isBuilder = location.pathname.startsWith("/builder");
 
-  useEffect(() => { saveTheme(themeMode); }, [themeMode]);
+  useEffect(() => { saveTheme(themeMode); document.documentElement.dataset.theme = themeMode; }, [themeMode]);
 
   useEffect(() => { savePlan(ensurePlanId(plan)); }, [plan]);
 
@@ -186,13 +186,9 @@ export default function App() {
   if (!authReady) {
     return (
       <ThemeContext.Provider value={t}>
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-          body { background: ${t.bg}; transition: background 0.3s; }
-        `}</style>
-        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
-          <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, color: t.text, fontFamily: "'Outfit', sans-serif" }}>Atlas</div>
-          <div style={{ width: 32, height: 32, border: `2px solid ${t.borderLight}`, borderTopColor: t.colors.primary, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+          <div className="text-2xl font-[800] tracking-tight text-content font-body">Atlas</div>
+          <div className="w-8 h-8 border-2 border-edge-light border-t-primary rounded-full animate-spin" />
         </div>
       </ThemeContext.Provider>
     );
@@ -202,10 +198,6 @@ export default function App() {
   if (!authUser) {
     return (
       <ThemeContext.Provider value={t}>
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-          body { background: ${t.bg}; transition: background 0.3s; }
-        `}</style>
         <AuthScreen themeMode={themeMode} onToggleTheme={toggleTheme} onDemoMode={handleDemoMode} />
       </ThemeContext.Provider>
     );
@@ -215,22 +207,15 @@ export default function App() {
   return (
     <ThemeContext.Provider value={t}>
       <PlanDataContext.Provider value={monthData}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-        body { background: ${t.bg}; transition: background 0.3s; }
-        [style*="fontFamily: \\"mono\\""], [style*="font-family: mono"] { font-family: 'JetBrains Mono', monospace !important; }
-        ::-webkit-scrollbar-thumb { background: ${t.borderLight}; border-radius: 4px; }
-      `}</style>
-
       {demoMode && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center", gap: 12, padding: "8px 16px", background: t.alpha.primary._15, backdropFilter: "blur(8px)", borderBottom: `1px solid ${t.alpha.primary._25}` }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: t.colors.primary, fontFamily: "'Outfit', sans-serif" }}>Demo Mode</span>
-          <span style={{ fontSize: 11, color: t.textMuted }}>Exploring with sample data</span>
-          <button onClick={handleSignOut} style={{ fontSize: 11, padding: "3px 12px", borderRadius: 6, border: `1px solid ${t.alpha.primary._30}`, background: "transparent", color: t.colors.primary, cursor: "pointer", fontFamily: "'Outfit', sans-serif", fontWeight: 600 }}>Exit Demo</button>
+        <div className="fixed top-0 left-0 right-0 z-[9999] flex justify-center items-center gap-3 px-4 py-2 bg-primary/15 backdrop-blur-sm border-b border-primary/25">
+          <span className="text-xs font-semibold text-primary font-body">Demo Mode</span>
+          <span className="text-sm text-muted">Exploring with sample data</span>
+          <button onClick={handleSignOut} className="text-sm px-3 py-0.5 rounded-md border border-primary/30 bg-transparent text-primary cursor-pointer font-body font-semibold">Exit Demo</button>
         </div>
       )}
 
-      <div style={demoMode ? { paddingTop: 40 } : undefined}>
+      <div className={demoMode ? "pt-10" : undefined}>
       <Routes>
         <Route path="/" element={
           !isOnboardingComplete()

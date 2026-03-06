@@ -1,3 +1,22 @@
+export function cardClass(selected) {
+  return `px-5 py-4 rounded-md border-[1.5px] cursor-pointer transition-all duration-200 text-left ${
+    selected
+      ? "border-primary bg-primary/[0.06] shadow-none"
+      : "border-edge bg-surface shadow-card"
+  }`;
+}
+
+export function chipClass(selected) {
+  return `px-[18px] py-[9px] rounded-pill border-[1.5px] cursor-pointer text-xs transition-all duration-200 ${
+    selected
+      ? "border-primary bg-primary/[0.08] font-semibold text-primary shadow-none"
+      : "border-edge bg-surface font-normal text-muted shadow-card"
+  }`;
+}
+
+export const INPUT_CLASS = "w-full px-4 py-3 rounded-[14px] border border-edge bg-surface text-content text-md outline-none shadow-card";
+
+// Backward compat — remove once all consumers are migrated
 export function cardStyle(t, selected) {
   return {
     padding: "16px 20px",

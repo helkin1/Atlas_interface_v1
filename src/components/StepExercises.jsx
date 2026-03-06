@@ -14,6 +14,8 @@ function seqIdxToWtIdx(wt, seqIdx) {
   return -1;
 }
 
+const INPUT_CLS = "w-[52px] px-1.5 py-1 rounded-[6px] border border-edge-light bg-surface2 text-content text-xs text-center outline-none";
+
 export default function StepExercises({ plan, onChange }) {
   const t = useTheme();
   const wt = plan.weekTemplate || [];
@@ -25,12 +27,10 @@ export default function StepExercises({ plan, onChange }) {
   const [dragIdx, setDragIdx] = useState(null);
   const [expandedIdx, setExpandedIdx] = useState(null);
 
-  // Resolve current selection
   const wtIdx = seqIdxToWtIdx(wt, selectedSeqIdx);
   const currentDay = wtIdx >= 0 ? wt[wtIdx] : null;
   const isTrainingDay = currentDay && !currentDay.isRest;
 
-  // Update both weekTemplate and trainingSequence together
   const updateDay = (seqIdx, fn) => {
     const wi = seqIdxToWtIdx(wt, seqIdx);
     if (wi < 0) return;
@@ -54,19 +54,22 @@ export default function StepExercises({ plan, onChange }) {
     return true;
   });
   const currentExIds = isTrainingDay ? new Set(currentDay.exercises.map(e => e.id)) : new Set();
-  const inputSt = { width: 52, padding: "4px 6px", borderRadius: 6, border: `1px solid ${t.borderLight}`, background: t.surface2, color: t.text, fontSize: 12, textAlign: "center", outline: "none" };
 
   return (
     <div>
-      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Build Your Workouts</h2>
-      <p style={{ fontSize: 13, color: t.textDim, marginBottom: 20 }}>Select a training day, then add or reorder exercises.</p>
+      <h2 className="text-xl font-[800] mb-1">Build Your Workouts</h2>
+      <p className="text-body text-dim mb-5">Select a training day, then add or reorder exercises.</p>
 
-      {/* ── Day selector — all training sessions flat ── */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 20, flexWrap: "wrap" }}>
+      {/* ── Day selector ── */}
+      <div className="flex gap-1.5 mb-5 flex-wrap">
         {seq.map((day, seqIdx) => {
           const sel = selectedSeqIdx === seqIdx;
           return (
-            <button key={seqIdx} onClick={() => { setSelectedSeqIdx(seqIdx); setExpandedIdx(null); }} style={{ padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: "pointer", border: `1px solid ${sel ? "#3B82F6" : t.borderLight}`, background: sel ? "rgba(59,130,246,0.1)" : "transparent", color: sel ? "#3B82F6" : t.textMuted }}>
+            <button key={seqIdx} onClick={() => { setSelectedSeqIdx(seqIdx); setExpandedIdx(null); }}
+              className={`px-4 py-2 rounded-[10px] text-xs font-semibold cursor-pointer border ${
+                sel ? "border-primary bg-primary/10 text-primary" : "border-edge-light bg-transparent text-muted"
+              }`}
+            >
               {day.label}{day.exercises.length > 0 ? ` (${day.exercises.length})` : ""}
             </button>
           );
@@ -74,18 +77,18 @@ export default function StepExercises({ plan, onChange }) {
       </div>
 
       {isTrainingDay && (
-        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 20 }}>
+        <div className="grid grid-cols-[1.2fr_0.8fr] gap-5">
           {/* ── LEFT: Current day's exercises ── */}
-          <div style={{ background: t.surface, borderRadius: 12, padding: 20, boxShadow: t.shadow }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div className="bg-surface rounded-sm p-5 shadow-card">
+            <div className="flex justify-between items-center mb-4">
               <div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: t.text }}>{currentDay.label}</div>
-                <div style={{ fontSize: 11, color: t.textDim, marginTop: 2 }}>{currentDay.exercises.length} exercises</div>
+                <div className="text-lg font-bold text-content">{currentDay.label}</div>
+                <div className="text-sm text-dim mt-0.5">{currentDay.exercises.length} exercises</div>
               </div>
             </div>
 
             {!currentDay.exercises.length && (
-              <div style={{ border: `1px dashed ${t.borderLight}`, borderRadius: 12, padding: 40, textAlign: "center", fontSize: 13, color: t.textDim }}>
+              <div className="border border-dashed border-edge-light rounded-sm p-10 text-center text-body text-dim">
                 No exercises yet. Add from the browser or try a suggestion.
               </div>
             )}
@@ -95,7 +98,7 @@ export default function StepExercises({ plan, onChange }) {
               const isExp = expandedIdx === ei;
               const sm = summarizeSets(entry);
               return (
-                <div key={`${entry.id}-${ei}`} style={{ marginBottom: 6 }}>
+                <div key={`${entry.id}-${ei}`} className="mb-1.5">
                   {/* Exercise header row */}
                   <div
                     draggable
@@ -103,71 +106,66 @@ export default function StepExercises({ plan, onChange }) {
                     onDragOver={e => e.preventDefault()}
                     onDrop={() => { reorderExercise(dragIdx, ei); setDragIdx(null); }}
                     onDragEnd={() => setDragIdx(null)}
-                    style={{
-                      background: isExp ? t.surface2 : t.surface3,
-                      border: `1px solid ${dragIdx === ei ? "#3B82F6" : isExp ? t.borderLight : t.border}`,
-                      borderRadius: isExp ? "12px 12px 0 0" : 12,
-                      padding: "12px 14px",
-                      display: "flex", alignItems: "center", gap: 10,
-                      opacity: dragIdx === ei ? 0.4 : 1,
-                      cursor: "pointer",
-                    }}
+                    className={`flex items-center gap-2.5 px-3.5 py-3 cursor-pointer ${isExp ? "bg-surface2 border border-edge-light rounded-t-sm" : "bg-surface3 border border-edge rounded-sm"}`}
+                    style={{ opacity: dragIdx === ei ? 0.4 : 1, borderColor: dragIdx === ei ? "#3B82F6" : undefined }}
                   >
-                    <div style={{ cursor: "grab", color: t.textDim, fontSize: 14, width: 18, textAlign: "center", flexShrink: 0 }} onClick={e => e.stopPropagation()}>{"\u2630"}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: t.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ex.name}</div>
-                      <div style={{ display: "flex", gap: 4, marginTop: 4, flexWrap: "wrap" }}>
+                    <div className="cursor-grab text-dim text-md w-[18px] text-center shrink-0" onClick={e => e.stopPropagation()}>{"\u2630"}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-body font-semibold text-content overflow-hidden text-ellipsis whitespace-nowrap">{ex.name}</div>
+                      <div className="flex gap-1 mt-1 flex-wrap">
                         {ex.muscles.filter(m => m.role === "direct").map(m => (
-                          <span key={m.name} style={{ fontSize: 9, padding: "1px 6px", borderRadius: 6, background: `${MUSCLE_COLORS[m.name] || '#666'}18`, color: MUSCLE_COLORS[m.name] || '#888' }}>{m.name}</span>
+                          <span key={m.name} className="text-[9px] px-1.5 py-[1px] rounded-[6px]" style={{ background: `${MUSCLE_COLORS[m.name] || '#666'}18`, color: MUSCLE_COLORS[m.name] || '#888' }}>{m.name}</span>
                         ))}
                       </div>
                     </div>
-                    <div style={{ textAlign: "right", flexShrink: 0, marginRight: 4 }}>
-                      <div style={{ fontSize: 11, color: "#3B82F6", fontWeight: 600 }}>{sm.count} sets</div>
-                      <div style={{ fontSize: 10, color: t.textMuted }}>{sm.repsRange} reps</div>
+                    <div className="text-right shrink-0 mr-1">
+                      <div className="text-sm text-primary font-semibold">{sm.count} sets</div>
+                      <div className="text-xs text-muted">{sm.repsRange} reps</div>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); setExpandedIdx(isExp ? null : ei); }} style={{ background: isExp ? "rgba(59,130,246,0.1)" : "transparent", border: `1px solid ${isExp ? "#3B82F640" : t.borderLight}`, borderRadius: 8, padding: "4px 10px", cursor: "pointer", fontSize: 10, fontWeight: 600, color: isExp ? "#3B82F6" : t.textDim, whiteSpace: "nowrap" }}>
-                      {isExp ? "Close" : "Edit Sets"}
-                    </button>
-                    <button onClick={e => { e.stopPropagation(); removeExercise(ei); }} style={{ background: "none", border: "none", color: "#EF4444", cursor: "pointer", fontSize: 14, padding: "2px 4px", flexShrink: 0 }}>{"\u2715"}</button>
+                    <button onClick={(e) => { e.stopPropagation(); setExpandedIdx(isExp ? null : ei); }}
+                      className={`rounded-[8px] px-2.5 py-1 cursor-pointer text-xs font-semibold whitespace-nowrap ${
+                        isExp ? "bg-primary/10 border border-primary/25 text-primary" : "bg-transparent border border-edge-light text-dim"
+                      }`}
+                    >{isExp ? "Close" : "Edit Sets"}</button>
+                    <button onClick={e => { e.stopPropagation(); removeExercise(ei); }} className="bg-none border-none text-error cursor-pointer text-md px-1 py-0.5 shrink-0">{"\u2715"}</button>
                   </div>
 
                   {/* Expanded set editor */}
                   {isExp && (
-                    <div style={{ background: t.surface2, border: `1px solid ${t.borderLight}`, borderTop: "none", borderRadius: "0 0 12px 12px", padding: "14px 16px" }}>
-                      <div style={{ display: "flex", gap: 6, marginBottom: 8, paddingLeft: 28 }}>
-                        <span style={{ width: 40, fontSize: 10, color: t.textDim }}>SET</span>
-                        <span style={{ width: 52, fontSize: 10, color: t.textDim, textAlign: "center" }}>REPS</span>
-                        <span style={{ width: 64, fontSize: 10, color: t.textDim, textAlign: "center" }}>WEIGHT</span>
+                    <div className="bg-surface2 border border-edge-light border-t-0 rounded-b-sm px-4 py-3.5">
+                      <div className="flex gap-1.5 mb-2 pl-7">
+                        <span className="w-10 text-xs text-dim">SET</span>
+                        <span className="w-[52px] text-xs text-dim text-center">REPS</span>
+                        <span className="w-16 text-xs text-dim text-center">WEIGHT</span>
                       </div>
                       {entry.setDetails.map((set, si) => (
-                        <div key={si} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, paddingLeft: 28 }}>
-                          <span style={{ width: 40, fontSize: 11, color: t.textDim }}>#{si + 1}</span>
-                          <input type="number" value={set.reps} min={1} max={30} onChange={e => updateSetDetail(ei, si, "reps", e.target.value)} style={inputSt} />
-                          <input type="number" value={set.weight} min={0} max={999} onChange={e => updateSetDetail(ei, si, "weight", e.target.value)} style={{ ...inputSt, width: 64 }} />
-                          <span style={{ fontSize: 9, color: t.textFaint }}>lbs</span>
-                          {entry.setDetails.length > 1 && <button onClick={() => removeSet(ei, si)} style={{ background: "none", border: "none", color: t.textDim, cursor: "pointer", fontSize: 11 }}>{"\u2715"}</button>}
+                        <div key={si} className="flex items-center gap-1.5 mb-1 pl-7">
+                          <span className="w-10 text-sm text-dim">#{si + 1}</span>
+                          <input type="number" value={set.reps} min={1} max={30} onChange={e => updateSetDetail(ei, si, "reps", e.target.value)} className={INPUT_CLS} />
+                          <input type="number" value={set.weight} min={0} max={999} onChange={e => updateSetDetail(ei, si, "weight", e.target.value)} className={`${INPUT_CLS} !w-16`} />
+                          <span className="text-[9px] text-faint">lbs</span>
+                          {entry.setDetails.length > 1 && <button onClick={() => removeSet(ei, si)} className="bg-none border-none text-dim cursor-pointer text-sm">{"\u2715"}</button>}
                         </div>
                       ))}
-                      <button onClick={() => addSet(ei)} style={{ marginTop: 8, marginLeft: 28, fontSize: 11, padding: "5px 14px", borderRadius: 8, background: "transparent", border: `1px dashed ${t.borderLight}`, color: "#3B82F6", cursor: "pointer" }}>+ Add Set</button>
+                      <button onClick={() => addSet(ei)} className="mt-2 ml-7 text-sm px-3.5 py-[5px] rounded-[8px] bg-transparent border border-dashed border-edge-light text-primary cursor-pointer">+ Add Set</button>
                     </div>
                   )}
                 </div>
               );
             })}
 
-            {/* Gap suggestions inside the exercise list */}
+            {/* Gap suggestions */}
             {suggestions.length > 0 && (
-              <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${t.border}` }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8 }}><span style={{ color: "#F59E0B" }}>{"\u26A1"}</span> Suggested to fill gaps</div>
+              <div className="mt-4 pt-4 border-t border-edge">
+                <div className="text-xs font-semibold text-muted mb-2"><span className="text-warning">{"\u26A1"}</span> Suggested to fill gaps</div>
                 {suggestions.map(s => (
-                  <button key={s.id} onClick={() => addExercise(s.id)} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: "rgba(245,158,11,0.04)", border: "1px dashed rgba(245,158,11,0.25)", borderRadius: 10, padding: 10, marginBottom: 4, cursor: "pointer", textAlign: "left" }}>
-                    <span style={{ fontSize: 14, color: "#22C55E" }}>+</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{s.name}</div>
-                      <div style={{ fontSize: 10, color: t.textDim }}>Targets: {s.directMuscles.join(", ")}</div>
+                  <button key={s.id} onClick={() => addExercise(s.id)} className="flex items-center gap-2.5 w-full bg-warning/[0.04] border border-dashed border-warning/25 rounded-[10px] p-2.5 mb-1 cursor-pointer text-left">
+                    <span className="text-md text-success">+</span>
+                    <div className="flex-1">
+                      <div className="text-xs font-semibold text-content">{s.name}</div>
+                      <div className="text-xs text-dim">Targets: {s.directMuscles.join(", ")}</div>
                     </div>
-                    {s.isNew && <span style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, background: "rgba(34,197,94,0.1)", color: "#22C55E" }}>NEW</span>}
+                    {s.isNew && <span className="text-[8px] px-[5px] py-[1px] rounded-[4px] bg-success/10 text-success">NEW</span>}
                   </button>
                 ))}
               </div>
@@ -176,29 +174,44 @@ export default function StepExercises({ plan, onChange }) {
 
           {/* ── RIGHT: Exercise browser ── */}
           <div>
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search exercises..." style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${t.borderLight}`, background: t.surface, color: t.text, fontSize: 13, outline: "none", marginBottom: 10 }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search exercises..."
+              className="w-full px-3.5 py-2.5 rounded-[10px] border border-edge-light bg-surface text-content text-body outline-none mb-2.5"
+            />
 
             {/* Muscle group filter */}
-            <div style={{ display: "flex", gap: 4, marginBottom: 12, flexWrap: "wrap" }}>
-              <button onClick={() => setFilterMuscle("all")} style={{ padding: "5px 10px", borderRadius: 8, fontSize: 10, fontWeight: 600, cursor: "pointer", border: `1px solid ${filterMuscle === "all" ? "#3B82F640" : t.borderLight}`, background: filterMuscle === "all" ? "rgba(59,130,246,0.08)" : "transparent", color: filterMuscle === "all" ? "#3B82F6" : t.textDim }}>All Muscles</button>
+            <div className="flex gap-1 mb-3 flex-wrap">
+              <button onClick={() => setFilterMuscle("all")}
+                className={`px-2.5 py-[5px] rounded-[8px] text-xs font-semibold cursor-pointer border ${
+                  filterMuscle === "all" ? "border-primary/25 bg-primary/[0.08] text-primary" : "border-edge-light bg-transparent text-dim"
+                }`}
+              >All Muscles</button>
               {allMuscles.map(m => (
-                <button key={m} onClick={() => setFilterMuscle(filterMuscle === m ? "all" : m)} style={{ padding: "5px 10px", borderRadius: 8, fontSize: 10, fontWeight: 600, cursor: "pointer", border: `1px solid ${filterMuscle === m ? (MUSCLE_COLORS[m] || "#3B82F6") + "40" : t.borderLight}`, background: filterMuscle === m ? `${MUSCLE_COLORS[m] || "#3B82F6"}10` : "transparent", color: filterMuscle === m ? (MUSCLE_COLORS[m] || "#3B82F6") : t.textDim }}>
-                  {m}
-                </button>
+                <button key={m} onClick={() => setFilterMuscle(filterMuscle === m ? "all" : m)}
+                  className="px-2.5 py-[5px] rounded-[8px] text-xs font-semibold cursor-pointer border"
+                  style={{
+                    borderColor: filterMuscle === m ? `${MUSCLE_COLORS[m] || "#3B82F6"}40` : "var(--atlas-border-light)",
+                    background: filterMuscle === m ? `${MUSCLE_COLORS[m] || "#3B82F6"}10` : "transparent",
+                    color: filterMuscle === m ? (MUSCLE_COLORS[m] || "#3B82F6") : "var(--atlas-text-dim)",
+                  }}
+                >{m}</button>
               ))}
             </div>
 
             {/* Exercise list */}
-            <div style={{ maxHeight: 520, overflowY: "auto", borderRadius: 12, border: `1px solid ${t.border}` }}>
+            <div className="max-h-[520px] overflow-y-auto rounded-sm border border-edge">
               {filtered.map(([id, ex]) => {
                 const inDay = currentExIds.has(id);
                 return (
-                  <button key={id} onClick={() => !inDay && addExercise(id)} disabled={inDay} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 14px", background: inDay ? t.surface2 : "transparent", border: "none", borderBottom: `1px solid ${t.border}`, cursor: inDay ? "default" : "pointer", textAlign: "left", opacity: inDay ? 0.5 : 1 }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{ex.name}</div>
-                      <div style={{ fontSize: 10, color: t.textDim }}>{ex.muscles.filter(m => m.role === "direct").map(m => m.name).join(", ")}</div>
+                  <button key={id} onClick={() => !inDay && addExercise(id)} disabled={inDay}
+                    className={`flex items-center gap-2.5 w-full px-3.5 py-2.5 border-none border-b border-edge cursor-pointer text-left ${
+                      inDay ? "bg-surface2 opacity-50 !cursor-default" : "bg-transparent"
+                    }`}
+                  >
+                    <div className="flex-1">
+                      <div className="text-xs font-semibold text-content">{ex.name}</div>
+                      <div className="text-xs text-dim">{ex.muscles.filter(m => m.role === "direct").map(m => m.name).join(", ")}</div>
                     </div>
-                    {inDay ? <span style={{ fontSize: 10, color: t.textDim }}>Added</span> : <span style={{ fontSize: 14, color: "#22C55E" }}>+</span>}
+                    {inDay ? <span className="text-xs text-dim">Added</span> : <span className="text-md text-success">+</span>}
                   </button>
                 );
               })}

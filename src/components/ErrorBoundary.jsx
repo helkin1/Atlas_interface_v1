@@ -1,5 +1,4 @@
 import { Component } from "react";
-import { themes } from "../context/theme.js";
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -18,30 +17,21 @@ export default class ErrorBoundary extends Component {
   render() {
     if (!this.state.hasError) return this.props.children;
 
-    const t = themes.dark;
     return (
-      <div style={{ padding: 60, textAlign: "center", maxWidth: 480, margin: "0 auto" }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>{"!!"}</div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: t.text, marginBottom: 8 }}>Something went wrong</h2>
-        <p style={{ fontSize: 13, color: t.textDim, lineHeight: 1.6, marginBottom: 24 }}>
+      <div className="px-[60px] py-[60px] text-center max-w-[480px] mx-auto">
+        <div className="text-5xl mb-4">{"!!"}</div>
+        <h2 className="text-xl font-bold text-content mb-2">Something went wrong</h2>
+        <p className="text-[13px] text-dim leading-relaxed mb-6">
           An unexpected error occurred. Try reloading the page.
         </p>
         {this.state.error && (
-          <pre style={{
-            fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: t.colors.error,
-            background: t.surface2, border: `1px solid ${t.border}`, borderRadius: 10,
-            padding: 16, textAlign: "left", overflow: "auto", maxHeight: 120, marginBottom: 20,
-          }}>
+          <pre className="text-[11px] font-mono text-error bg-surface2 border border-edge rounded-[10px] p-4 text-left overflow-auto max-h-[120px] mb-5">
             {this.state.error.message}
           </pre>
         )}
         <button
           onClick={() => window.location.reload()}
-          style={{
-            padding: "10px 28px", borderRadius: 10, fontSize: 13, fontWeight: 600,
-            cursor: "pointer", background: "rgba(59,130,246,0.12)",
-            border: "1px solid #3B82F6", color: "#3B82F6",
-          }}
+          className="px-7 py-2.5 rounded-[10px] text-[13px] font-semibold cursor-pointer bg-primary/[0.12] border border-primary text-primary"
         >
           Reload Page
         </button>

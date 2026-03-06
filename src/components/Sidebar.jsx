@@ -3,7 +3,7 @@ import { usePlanData } from "../context/plan-data.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { calcMuscleVol, weekMuscleVol, calcGoalPcts, overallGoalPct, goalPctColor, getDaySets, getWeekSets } from "../utils/helpers.js";
 import { analyzePlan } from "../utils/science-engine.js";
-import { MiniBar, GoalRing, MuscleGoalBar, MuscleDiagram, AlertsPanel, cardStyle } from "./shared.jsx";
+import { MiniBar, GoalRing, MuscleGoalBar, MuscleDiagram, AlertsPanel, CARD_CLASS } from "./shared.jsx";
 
 export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
   const t = useTheme();
@@ -20,25 +20,25 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
 
     return (
       <div>
-        <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 16 }}>Week {curWeek.weekNum} Overview</div>
-        <div style={{ ...cardStyle(t, { padding: 20, marginBottom: 16 }), display: "flex", alignItems: "center", gap: 16 }}>
+        <div className="text-body font-semibold text-muted mb-4">Week {curWeek.weekNum} Overview</div>
+        <div className={`${CARD_CLASS} p-5 mb-4 flex items-center gap-4`}>
           <MuscleDiagram muscleVol={mv} size={120} />
-          <div style={{ flex: 1 }}>
+          <div className="flex-1">
             <GoalRing pct={overall} size={72} strokeWidth={5} label="Weekly Goal" />
-            <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "#3B82F6" }}>{wkSets}</div>
-                <div style={{ fontSize: 10, color: t.textDim }}>Sets</div>
+            <div className="mt-2.5 grid grid-cols-2 gap-1">
+              <div className="text-center">
+                <div className="text-lg font-bold text-primary">{wkSets}</div>
+                <div className="text-xs text-dim">Sets</div>
               </div>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "#22C55E" }}>{trainDays}</div>
-                <div style={{ fontSize: 10, color: t.textDim }}>Train Days</div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-success">{trainDays}</div>
+                <div className="text-xs text-dim">Train Days</div>
               </div>
             </div>
           </div>
         </div>
-        <div style={{ ...cardStyle(t, { padding: 16 }) }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>% of Goal (vs MAV)</div>
+        <div className={`${CARD_CLASS} p-4`}>
+          <div className="text-xs font-semibold text-muted mb-3">% of Goal (vs MAV)</div>
           {sortedGoals.map(([m, data]) => (
             <MuscleGoalBar key={m} name={m} eff={data.eff} target={data.target} compact />
           ))}
@@ -61,34 +61,34 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
 
     return (
       <div>
-        <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 16 }}>{curDay.label} Overview</div>
-        <div style={{ ...cardStyle(t, { padding: 20, marginBottom: 16 }), display: "flex", alignItems: "center", gap: 16 }}>
+        <div className="text-body font-semibold text-muted mb-4">{curDay.label} Overview</div>
+        <div className={`${CARD_CLASS} p-5 mb-4 flex items-center gap-4`}>
           <MuscleDiagram muscleVol={dayMuscVol} size={120} />
-          <div style={{ flex: 1 }}>
+          <div className="flex-1">
             <GoalRing pct={wkOverall} size={72} strokeWidth={5} label="Week So Far" />
-            <div style={{ marginTop: 10, textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#3B82F6" }}>{getDaySets(curDay)}</div>
-              <div style={{ fontSize: 10, color: t.textDim }}>Sets Today</div>
+            <div className="mt-2.5 text-center">
+              <div className="text-lg font-bold text-primary">{getDaySets(curDay)}</div>
+              <div className="text-xs text-dim">Sets Today</div>
             </div>
           </div>
         </div>
-        <div style={{ ...cardStyle(t, { padding: 16, marginBottom: 16 }) }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Muscle Breakdown</div>
+        <div className={`${CARD_CLASS} p-4 mb-4`}>
+          <div className="text-xs font-semibold text-muted mb-3">Muscle Breakdown</div>
           {dayMuscles.map(([m, s]) => <MiniBar key={m} name={m} sets={s} max={maxM} />)}
         </div>
         {week && (
-          <div style={{ ...cardStyle(t, { padding: 16 }) }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Weekly Goal Progress</div>
+          <div className={`${CARD_CLASS} p-4`}>
+            <div className="text-xs font-semibold text-muted mb-3">Weekly Goal Progress</div>
             {Object.entries(wkGoals).filter(([,d]) => d.eff > 0).sort((a, b) => b[1].pct - a[1].pct).slice(0, 10).map(([m, data]) => {
               const dayContrib = dayMuscVol[m] || 0;
               const dayPct = data.target > 0 ? Math.round((dayContrib / data.target) * 100) : 0;
               const pc = goalPctColor(data.pct);
               return (
-                <div key={m} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0", borderBottom: `1px solid ${t.border}` }}>
-                  <span style={{ fontSize: 11, color: t.textMuted }}>{m}</span>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 9, color: t.textDim }}>+{dayPct}%</span>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: pc }}>{data.pct}%</span>
+                <div key={m} className="flex justify-between items-center py-1 border-b border-edge">
+                  <span className="text-sm text-muted">{m}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] text-dim">+{dayPct}%</span>
+                    <span className="text-sm font-semibold" style={{ color: pc }}>{data.pct}%</span>
                   </div>
                 </div>
               );
@@ -116,7 +116,6 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
   const overall = overallGoalPct(goalPcts);
   const sortedGoals = Object.entries(goalPcts).sort((a, b) => b[1].pct - a[1].pct);
 
-  // Volume balance: Upper / Lower / Core from avg weekly effective sets
   const BODY_REGION = {
     Chest: "upper", "Upper Chest": "upper",
     "Front Delts": "upper", "Side Delts": "upper", "Rear Delts": "upper",
@@ -133,37 +132,36 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
   });
   const regionTotal = regionVol.upper + regionVol.lower + regionVol.core || 1;
 
-  // Science engine: run on canonical plan weekTemplate when available
   const scienceReport = plan ? analyzePlan(plan.weekTemplate || []) : null;
   const planAlerts = scienceReport ? scienceReport.alerts : [];
 
   return (
     <div>
-      <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 16 }}>Mesocycle Overview</div>
-      <div style={{ ...cardStyle(t, { padding: 20, marginBottom: 16 }), display: "flex", alignItems: "center", gap: 16 }}>
+      <div className="text-body font-semibold text-muted mb-4">Mesocycle Overview</div>
+      <div className={`${CARD_CLASS} p-5 mb-4 flex items-center gap-4`}>
         <MuscleDiagram muscleVol={avgWeekMusc} size={120} />
-        <div style={{ flex: 1 }}>
+        <div className="flex-1">
           <GoalRing pct={overall} size={72} strokeWidth={5} label="Avg Weekly" />
-          <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#3B82F6" }}>{totalSets}</div>
-              <div style={{ fontSize: 10, color: t.textDim }}>Total Sets</div>
+          <div className="mt-2.5 grid grid-cols-2 gap-1">
+            <div className="text-center">
+              <div className="text-lg font-bold text-primary">{totalSets}</div>
+              <div className="text-xs text-dim">Total Sets</div>
             </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#22C55E" }}>{trainDays}</div>
-              <div style={{ fontSize: 10, color: t.textDim }}>Train Days</div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-success">{trainDays}</div>
+              <div className="text-xs text-dim">Train Days</div>
             </div>
           </div>
         </div>
       </div>
       {/* Plan alerts from science engine */}
-      <div style={{ ...cardStyle(t, { padding: 16, marginBottom: 16 }) }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Plan Alerts</div>
+      <div className={`${CARD_CLASS} p-4 mb-4`}>
+        <div className="text-xs font-semibold text-muted mb-3">Plan Alerts</div>
         <AlertsPanel alerts={planAlerts} maxVisible={4} />
       </div>
-      <div style={{ ...cardStyle(t, { padding: 16, marginBottom: 16 }) }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Volume Balance</div>
-        <div style={{ display: "flex", gap: 8 }}>
+      <div className={`${CARD_CLASS} p-4 mb-4`}>
+        <div className="text-xs font-semibold text-muted mb-3">Volume Balance</div>
+        <div className="flex gap-2">
           {[
             { key: "upper", label: "Upper", color: "#3B82F6" },
             { key: "lower", label: "Lower", color: "#8B5CF6" },
@@ -172,41 +170,41 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
             const v = regionVol[key];
             const pct = Math.round((v / regionTotal) * 100);
             return (
-              <div key={key} style={{ flex: 1, textAlign: "center" }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color }}>{Math.round(v)}</div>
-                <div style={{ fontSize: 10, color: t.textDim }}>{label}</div>
-                <div style={{ height: 4, background: t.border, borderRadius: 2, marginTop: 8, overflow: "hidden" }}>
-                  <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 2 }} />
+              <div key={key} className="flex-1 text-center">
+                <div className="text-xl font-bold" style={{ color }}>{Math.round(v)}</div>
+                <div className="text-xs text-dim">{label}</div>
+                <div className="h-1 bg-edge rounded-[2px] mt-2 overflow-hidden">
+                  <div className="h-full rounded-[2px]" style={{ width: `${pct}%`, background: color }} />
                 </div>
-                <div style={{ fontSize: 10, color: t.textFaint, marginTop: 4 }}>{pct}%</div>
+                <div className="text-xs text-faint mt-1">{pct}%</div>
               </div>
             );
           })}
         </div>
-        <div style={{ fontSize: 10, color: t.textDim, marginTop: 10, textAlign: "center" }}>avg weekly effective sets per region</div>
+        <div className="text-xs text-dim mt-2.5 text-center">avg weekly effective sets per region</div>
       </div>
-      <div style={{ ...cardStyle(t, { padding: 16, marginBottom: 16 }) }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Weekly Sets</div>
-        <div style={{ display: "flex", gap: 6, alignItems: "flex-end", height: 70 }}>
+      <div className={`${CARD_CLASS} p-4 mb-4`}>
+        <div className="text-xs font-semibold text-muted mb-3">Weekly Sets</div>
+        <div className="flex gap-1.5 items-end h-[70px]">
           {wkSets.map((s, i) => {
             const h = (s / maxWS) * 100;
             const sel = weekIdx === i;
             return (
-              <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                <span style={{ fontSize: 10, color: sel ? "#3B82F6" : t.textDim }}>{s}</span>
-                <div style={{ width: "100%", height: `${h}%`, background: sel ? "#3B82F6" : t.border, borderRadius: 4, minHeight: 4, transition: "all 0.3s" }} />
-                <span style={{ fontSize: 9, color: t.textFaint }}>W{i + 1}</span>
+              <div key={i} className="flex-1 flex flex-col items-center gap-[3px]">
+                <span className={`text-xs ${sel ? "text-primary" : "text-dim"}`}>{s}</span>
+                <div className="w-full rounded-[4px] min-h-1 transition-all duration-300" style={{ height: `${h}%`, background: sel ? "#3B82F6" : "var(--atlas-border)" }} />
+                <span className="text-[9px] text-faint">W{i + 1}</span>
               </div>
             );
           })}
         </div>
       </div>
-      <div style={{ ...cardStyle(t, { padding: 16 }) }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>% of Goal (Avg Weekly vs MAV)</div>
+      <div className={`${CARD_CLASS} p-4`}>
+        <div className="text-xs font-semibold text-muted mb-3">% of Goal (Avg Weekly vs MAV)</div>
         {sortedGoals.slice(0, 12).map(([m, data]) => (
           <MuscleGoalBar key={m} name={m} eff={data.eff} target={data.target} compact />
         ))}
-        {sortedGoals.length > 12 && <div style={{ fontSize: 10, color: t.textFaint, textAlign: "center", marginTop: 6 }}>+{sortedGoals.length - 12} more</div>}
+        {sortedGoals.length > 12 && <div className="text-xs text-faint text-center mt-1.5">+{sortedGoals.length - 12} more</div>}
       </div>
     </div>
   );
