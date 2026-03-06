@@ -69,22 +69,36 @@ export default function ProfilePage({ onBack }) {
   };
 
   const isMetric = profile.unitPreference === "metric";
-  const displayHeight = isMetric
-    ? (profile.heightCm || "")
-    : profile.heightCm ? Math.round(profile.heightCm / 2.54) : "";
   const displayWeight = isMetric
     ? (profile.weightKg || "")
     : profile.weightKg ? Math.round(profile.weightKg * 2.205) : "";
 
-  const setHeight = (val) => {
-    const num = parseFloat(val);
-    if (isNaN(num)) { update({ heightCm: null }); return; }
-    update({ heightCm: isMetric ? num : Math.round(num * 2.54) });
+  // Height helpers for imperial
+  const totalInches = profile.heightCm ? profile.heightCm / 2.54 : null;
+  const heightFt = totalInches !== null ? Math.floor(totalInches / 12) : "";
+  const heightIn = totalInches !== null ? Math.round(totalInches % 12) : "";
+
+  const setHeightImperial = (ft, inches) => {
+    const f = parseInt(ft) || 0;
+    const i = parseInt(inches) || 0;
+    if (f === 0 && i === 0) { update({ heightCm: null }); return; }
+    update({ heightCm: (f * 12 + i) * 2.54 });
   };
+
   const setWeight = (val) => {
     const num = parseFloat(val);
     if (isNaN(num)) { update({ weightKg: null }); return; }
-    update({ weightKg: isMetric ? num : Math.round(num / 2.205) });
+    update({ weightKg: isMetric ? num : parseFloat((num / 2.205).toFixed(2)) });
+  };
+
+  const selectStyle = {
+    ...inputStyle(t),
+    appearance: "none",
+    WebkitAppearance: "none",
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M2 4l4 4 4-4'/%3E%3C/svg%3E")`,
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "right 12px center",
+    paddingRight: 32,
   };
 
   const toggleList = (key, id) => {
@@ -123,11 +137,54 @@ export default function ProfilePage({ onBack }) {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
             <div>
               <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6, display: "block" }}>Age</label>
-              <input type="number" value={profile.age || ""} onChange={e => update({ age: e.target.value ? parseInt(e.target.value) : null })} style={inputStyle(t)} />
+              <select
+                value={profile.age || ""}
+                onChange={e => update({ age: e.target.value ? parseInt(e.target.value) : null })}
+                style={selectStyle}
+              >
+                <option value="">Select</option>
+                {Array.from({ length: 101 }, (_, i) => (
+                  <option key={i} value={i}>{i}</option>
+                ))}
+              </select>
             </div>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6, display: "block" }}>Height ({isMetric ? "cm" : "in"})</label>
-              <input type="number" value={displayHeight} onChange={e => setHeight(e.target.value)} style={inputStyle(t)} />
+              <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6, display: "block" }}>Height {isMetric ? "(cm)" : ""}</label>
+              {isMetric ? (
+                <select
+                  value={profile.heightCm ? Math.round(profile.heightCm) : ""}
+                  onChange={e => update({ heightCm: e.target.value ? parseInt(e.target.value) : null })}
+                  style={selectStyle}
+                >
+                  <option value="">Select</option>
+                  {Array.from({ length: 81 }, (_, i) => 120 + i).map(cm => (
+                    <option key={cm} value={cm}>{cm} cm</option>
+                  ))}
+                </select>
+              ) : (
+                <div style={{ display: "flex", gap: 4 }}>
+                  <select
+                    value={heightFt || ""}
+                    onChange={e => setHeightImperial(e.target.value, heightIn)}
+                    style={{ ...selectStyle, width: "50%" }}
+                  >
+                    <option value="">ft</option>
+                    {Array.from({ length: 5 }, (_, i) => i + 4).map(ft => (
+                      <option key={ft} value={ft}>{ft}'</option>
+                    ))}
+                  </select>
+                  <select
+                    value={heightIn || ""}
+                    onChange={e => setHeightImperial(heightFt, e.target.value)}
+                    style={{ ...selectStyle, width: "50%" }}
+                  >
+                    <option value="">in</option>
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <option key={i} value={i}>{i}"</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
             <div>
               <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6, display: "block" }}>Weight ({isMetric ? "kg" : "lbs"})</label>

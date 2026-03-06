@@ -48,7 +48,8 @@ export default function App() {
       const user = session?.user ?? null;
       setAuthUser(user);
 
-      if (event === "SIGNED_IN" && user) {
+      if (user && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
+        // Pull cloud data on sign-in AND on session restore (e.g. page refresh)
         const cloudTheme = await pullFromCloud(user.id);
         if (cloudTheme) setThemeMode(cloudTheme);
         if (hasSavedPlan()) await pushToCloud(user.id);
@@ -161,16 +162,15 @@ export default function App() {
 
   const canNext = builderStep === 0 ? !!builderPlan.splitKey : builderStep === 1 ? builderPlan.weekTemplate.some(d => !d.isRest) : true;
 
-  const handleOnboardingComplete = (profile, recommendedSplitKey) => {
+  const handleOnboardingComplete = (profile) => {
     saveProfile(profile);
     setUserProfile(profile);
-    historyRef.current = { past: [], future: [] };
-    const seeded = clonePlan(DEFAULT_PLAN);
-    seeded.splitKey = recommendedSplitKey;
-    seeded.weeks = 4;
-    _setBuilderPlan(seeded);
-    setBuilderStep(0);
-    navigate("/builder");
+    // Send user to dashboard (or builder if no plan exists)
+    if (hasSavedPlan()) {
+      navigate("/dashboard");
+    } else {
+      navigate("/builder");
+    }
   };
 
   // Shared dashboard layout props

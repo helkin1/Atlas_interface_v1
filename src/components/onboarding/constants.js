@@ -47,5 +47,5 @@ export const STEPS = [
   { title: "Your Fitness Background", subtitle: "Tell us about your training experience" },
   { title: "Your Goals", subtitle: "What are you working toward?" },
   { title: "Your Schedule", subtitle: "How do you like to train?" },
-  { title: "Review & Go", subtitle: "Here's what we've put together" },
+  { title: "You're All Set", subtitle: "Here's your profile summary \u2014 head to the Plan Builder to create your first program" },
 ];

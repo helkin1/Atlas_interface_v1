@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { inputStyle, chipStyle } from "./styles.js";
 
-export default function StepAboutYou({ profile, onChange, t }) {
+export default function StepAboutYou({ profile, onChange, t, weightWarning }) {
   const isMetric = profile.unitPreference === "metric";
-  const [weightWarning, setWeightWarning] = useState(null);
 
+  // Height: in imperial, split into ft + in (store exact cm to avoid rounding)
   const totalInches = profile.heightCm ? profile.heightCm / 2.54 : null;
   const heightFt = totalInches !== null ? Math.floor(totalInches / 12) : "";
   const heightIn = totalInches !== null ? Math.round(totalInches % 12) : "";
@@ -13,7 +12,7 @@ export default function StepAboutYou({ profile, onChange, t }) {
     const f = parseInt(ft) || 0;
     const i = parseInt(inches) || 0;
     if (f === 0 && i === 0) { onChange({ ...profile, heightCm: null }); return; }
-    onChange({ ...profile, heightCm: Math.round((f * 12 + i) * 2.54) });
+    onChange({ ...profile, heightCm: (f * 12 + i) * 2.54 });
   };
 
   const displayWeight = isMetric
@@ -22,18 +21,7 @@ export default function StepAboutYou({ profile, onChange, t }) {
 
   const setWeight = (val) => {
     const num = parseFloat(val);
-    if (isNaN(num) || val === "") {
-      onChange({ ...profile, weightKg: null });
-      setWeightWarning(null);
-      return;
-    }
-    if (num > 500) {
-      setWeightWarning("are you sure? that seems like a lot");
-    } else if (num < 50) {
-      setWeightWarning("are you sure? that's awfully light");
-    } else {
-      setWeightWarning(null);
-    }
+    if (isNaN(num) || val === "") { onChange({ ...profile, weightKg: null }); return; }
     onChange({ ...profile, weightKg: isMetric ? num : parseFloat((num / 2.205).toFixed(2)) });
   };
 
@@ -92,16 +80,29 @@ export default function StepAboutYou({ profile, onChange, t }) {
         <div>
           <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Height {isMetric ? "(cm)" : ""}</label>
           {isMetric ? (
-            <input type="number" min="100" max="250" value={profile.heightCm || ""} onChange={e => { const num = parseFloat(e.target.value); onChange({ ...profile, heightCm: isNaN(num) ? null : num }); }} placeholder="175" style={inputStyle(t)} />
+            <select
+              value={profile.heightCm ? Math.round(profile.heightCm) : ""}
+              onChange={e => onChange({ ...profile, heightCm: e.target.value ? parseInt(e.target.value) : null })}
+              style={selectStyle}
+            >
+              <option value="">Select height</option>
+              {Array.from({ length: 81 }, (_, i) => 120 + i).map(cm => (
+                <option key={cm} value={cm}>{cm} cm</option>
+              ))}
+            </select>
           ) : (
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <select value={heightFt || ""} onChange={e => setHeightImperial(e.target.value, heightIn)} style={{ ...selectStyle, width: "50%" }}>
                 <option value="">ft</option>
-                {Array.from({ length: 9 }, (_, i) => (<option key={i} value={i}>{i}</option>))}
+                {Array.from({ length: 5 }, (_, i) => i + 4).map(ft => (
+                  <option key={ft} value={ft}>{ft} ft</option>
+                ))}
               </select>
               <select value={heightIn || ""} onChange={e => setHeightImperial(heightFt, e.target.value)} style={{ ...selectStyle, width: "50%" }}>
                 <option value="">in</option>
-                {Array.from({ length: 12 }, (_, i) => (<option key={i} value={i}>{i}</option>))}
+                {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i} value={i}>{i} in</option>
+                ))}
               </select>
             </div>
           )}
@@ -109,7 +110,7 @@ export default function StepAboutYou({ profile, onChange, t }) {
         <div>
           <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Weight ({isMetric ? "kg" : "lbs"})</label>
           <input type="number" min="30" max="700" value={displayWeight} onChange={e => setWeight(e.target.value)} placeholder={isMetric ? "75" : "165"} style={inputStyle(t)} />
-          {weightWarning && (<div style={{ fontSize: 11, color: t.colors.accent, marginTop: 6, fontStyle: "italic" }}>{weightWarning}</div>)}
+          {weightWarning && (<div style={{ fontSize: 11, color: t.colors.accent, marginTop: 6, fontStyle: "italic" }}>{weightWarning} (click Next again to continue)</div>)}
         </div>
       </div>
     </div>
