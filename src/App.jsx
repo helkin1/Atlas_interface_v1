@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
-import { themes, ThemeContext } from "./context/theme.js";
+import { themes, ThemeContext, resolveThemeKey } from "./context/theme.js";
 import { PlanDataContext } from "./context/plan-data.js";
 import { buildMonthFromPlan, DEFAULT_PLAN, clonePlan, ensurePlanId } from "./utils/plan-engine.js";
 import { loadPlan, savePlan, loadTheme, saveTheme, hasSavedPlan, pullFromCloud, pushToCloud, loadProfile, saveProfile, isOnboardingComplete, seedDemoData, isDemoMode, exitDemoMode } from "./utils/storage.js";
@@ -22,6 +22,9 @@ export default function App() {
   const [authReady, setAuthReady] = useState(false);
   const [demoMode, setDemoMode] = useState(() => isDemoMode());
   const [themeMode, setThemeMode] = useState(() => loadTheme("dark"));
+  const [themeVariant, setThemeVariant] = useState(() => {
+    try { return localStorage.getItem("atlas_theme_variant") || "original"; } catch { return "original"; }
+  });
   const [plan, setPlan] = useState(() => ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN))));
   const [monthData, setMonthData] = useState(() => buildMonthFromPlan(ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN)))));
   const navigate = useNavigate();
@@ -110,6 +113,7 @@ export default function App() {
   const isBuilder = location.pathname.startsWith("/builder");
 
   useEffect(() => { saveTheme(themeMode); }, [themeMode]);
+  useEffect(() => { try { localStorage.setItem("atlas_theme_variant", themeVariant); } catch {} }, [themeVariant]);
   useEffect(() => { savePlan(ensurePlanId(plan)); }, [plan]);
 
   // Keyboard shortcut: Ctrl/Cmd+Z = undo, Ctrl/Cmd+Shift+Z = redo (builder only)
@@ -125,7 +129,7 @@ export default function App() {
     return () => window.removeEventListener("keydown", handler);
   }, [isBuilder, undo, redo]);
 
-  const t = themes[themeMode];
+  const t = themes[resolveThemeKey(themeMode, themeVariant)];
   const toggleTheme = () => setThemeMode(m => m === "dark" ? "light" : "dark");
 
   const startBuilder = () => {
@@ -174,7 +178,7 @@ export default function App() {
 
   // Shared dashboard layout props
   const dashLayoutProps = {
-    plan, monthData, themeMode, toggleTheme,
+    plan, monthData, themeMode, toggleTheme, themeVariant, setThemeVariant,
     onEditPlan: editPlan, onSignOut: handleSignOut,
     onAIInsights: () => setShowAI(true),
     onProfile: () => navigate("/profile"),

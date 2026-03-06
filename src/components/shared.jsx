@@ -1,6 +1,43 @@
 import { useTheme } from "../context/theme.js";
 import { PATTERN_COLORS, MUSCLE_COLORS, goalPctColor, calcGoalPcts } from "../utils/helpers.js";
 
+/**
+ * Generates variant-aware card styles.
+ * Use this instead of hardcoding `background: t.surface, borderRadius: 12, boxShadow: t.shadow`.
+ */
+export function cardStyle(t, overrides = {}) {
+  const base = {
+    background: t.surface,
+    borderRadius: t.radius?.md ?? 12,
+    boxShadow: t.shadow,
+    transition: "all 0.3s ease",
+    ...overrides,
+  };
+  if (t.variant === "glass") {
+    return {
+      ...base,
+      background: t.cardBg || t.surface,
+      border: t.cardBorder || `1px solid ${t.borderLight}`,
+      backdropFilter: t.cardBackdrop || "blur(20px)",
+      WebkitBackdropFilter: t.cardBackdrop || "blur(20px)",
+      boxShadow: t.shadow,
+      ...overrides,
+    };
+  }
+  if (t.variant === "stark") {
+    return {
+      ...base,
+      background: "transparent",
+      borderRadius: 0,
+      boxShadow: "none",
+      border: "none",
+      borderBottom: `1px solid ${t.divider || t.borderLight}`,
+      ...overrides,
+    };
+  }
+  return base;
+}
+
 export function MiniBar({ name, sets, max }) {
   const t = useTheme();
   const pct = Math.min((sets / Math.max(max, 1)) * 100, 100);
@@ -19,9 +56,9 @@ export function MiniBar({ name, sets, max }) {
 export function StatCard({ label, value, sub, color }) {
   const t = useTheme();
   return (
-    <div style={{ background: t.surface, borderRadius: 12, padding: 20, boxShadow: t.shadow }}>
-      <div style={{ fontSize: 11, color: t.textMuted, letterSpacing: 0.5, marginBottom: 8 }}>{label}</div>
-      <div style={{ fontSize: 26, fontWeight: 700, color: color || t.text }}>{value}</div>
+    <div style={{ ...cardStyle(t, { padding: 20 }) }}>
+      <div style={{ fontSize: 11, color: t.textMuted, letterSpacing: t.variant === "stark" ? 1 : 0.5, textTransform: t.variant === "stark" ? "uppercase" : "none", marginBottom: 8 }}>{label}</div>
+      <div style={{ fontSize: t.variant === "stark" ? 32 : 26, fontWeight: t.variant === "stark" ? 300 : 700, color: color || t.text, letterSpacing: t.variant === "stark" ? -1 : 0 }}>{value}</div>
       {sub && <div style={{ fontSize: 12, color: t.textDim, marginTop: 4 }}>{sub}</div>}
     </div>
   );

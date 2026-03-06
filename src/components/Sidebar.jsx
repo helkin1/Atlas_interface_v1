@@ -3,7 +3,7 @@ import { usePlanData } from "../context/plan-data.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { calcMuscleVol, weekMuscleVol, calcGoalPcts, overallGoalPct, goalPctColor, getDaySets, getWeekSets } from "../utils/helpers.js";
 import { analyzePlan } from "../utils/science-engine.js";
-import { MiniBar, GoalRing, MuscleGoalBar, MuscleDiagram, AlertsPanel } from "./shared.jsx";
+import { MiniBar, GoalRing, MuscleGoalBar, MuscleDiagram, AlertsPanel, cardStyle } from "./shared.jsx";
 
 export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
   const t = useTheme();
@@ -21,7 +21,7 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
     return (
       <div>
         <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 16 }}>Week {curWeek.weekNum} Overview</div>
-        <div style={{ background: t.surface, borderRadius: 12, padding: 20, marginBottom: 16, boxShadow: t.shadow, display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ ...cardStyle(t, { padding: 20, marginBottom: 16 }), display: "flex", alignItems: "center", gap: 16 }}>
           <MuscleDiagram muscleVol={mv} size={120} />
           <div style={{ flex: 1 }}>
             <GoalRing pct={overall} size={72} strokeWidth={5} label="Weekly Goal" />
@@ -37,7 +37,7 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
             </div>
           </div>
         </div>
-        <div style={{ background: t.surface, borderRadius: 12, padding: 16, boxShadow: t.shadow }}>
+        <div style={{ ...cardStyle(t, { padding: 16 }) }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>% of Goal (vs MAV)</div>
           {sortedGoals.map(([m, data]) => (
             <MuscleGoalBar key={m} name={m} eff={data.eff} target={data.target} compact />
@@ -62,7 +62,7 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
     return (
       <div>
         <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 16 }}>{curDay.label} Overview</div>
-        <div style={{ background: t.surface, borderRadius: 12, padding: 20, marginBottom: 16, boxShadow: t.shadow, display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ ...cardStyle(t, { padding: 20, marginBottom: 16 }), display: "flex", alignItems: "center", gap: 16 }}>
           <MuscleDiagram muscleVol={dayMuscVol} size={120} />
           <div style={{ flex: 1 }}>
             <GoalRing pct={wkOverall} size={72} strokeWidth={5} label="Week So Far" />
@@ -72,12 +72,12 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
             </div>
           </div>
         </div>
-        <div style={{ background: t.surface, borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: t.shadow }}>
+        <div style={{ ...cardStyle(t, { padding: 16, marginBottom: 16 }) }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Muscle Breakdown</div>
           {dayMuscles.map(([m, s]) => <MiniBar key={m} name={m} sets={s} max={maxM} />)}
         </div>
         {week && (
-          <div style={{ background: t.surface, borderRadius: 12, padding: 16, boxShadow: t.shadow }}>
+          <div style={{ ...cardStyle(t, { padding: 16 }) }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Weekly Goal Progress</div>
             {Object.entries(wkGoals).filter(([,d]) => d.eff > 0).sort((a, b) => b[1].pct - a[1].pct).slice(0, 10).map(([m, data]) => {
               const dayContrib = dayMuscVol[m] || 0;
@@ -140,7 +140,7 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
   return (
     <div>
       <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 16 }}>Mesocycle Overview</div>
-      <div style={{ background: t.surface, borderRadius: 12, padding: 20, marginBottom: 16, boxShadow: t.shadow, display: "flex", alignItems: "center", gap: 16 }}>
+      <div style={{ ...cardStyle(t, { padding: 20, marginBottom: 16 }), display: "flex", alignItems: "center", gap: 16 }}>
         <MuscleDiagram muscleVol={avgWeekMusc} size={120} />
         <div style={{ flex: 1 }}>
           <GoalRing pct={overall} size={72} strokeWidth={5} label="Avg Weekly" />
@@ -157,11 +157,11 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
         </div>
       </div>
       {/* Plan alerts from science engine */}
-      <div style={{ background: t.surface, borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: t.shadow }}>
+      <div style={{ ...cardStyle(t, { padding: 16, marginBottom: 16 }) }}>
         <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Plan Alerts</div>
         <AlertsPanel alerts={planAlerts} maxVisible={4} />
       </div>
-      <div style={{ background: t.surface, borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: t.shadow }}>
+      <div style={{ ...cardStyle(t, { padding: 16, marginBottom: 16 }) }}>
         <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Volume Balance</div>
         <div style={{ display: "flex", gap: 8 }}>
           {[
@@ -185,7 +185,7 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
         </div>
         <div style={{ fontSize: 10, color: t.textDim, marginTop: 10, textAlign: "center" }}>avg weekly effective sets per region</div>
       </div>
-      <div style={{ background: t.surface, borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: t.shadow }}>
+      <div style={{ ...cardStyle(t, { padding: 16, marginBottom: 16 }) }}>
         <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Weekly Sets</div>
         <div style={{ display: "flex", gap: 6, alignItems: "flex-end", height: 70 }}>
           {wkSets.map((s, i) => {
@@ -201,7 +201,7 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
           })}
         </div>
       </div>
-      <div style={{ background: t.surface, borderRadius: 12, padding: 16, boxShadow: t.shadow }}>
+      <div style={{ ...cardStyle(t, { padding: 16 }) }}>
         <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>% of Goal (Avg Weekly vs MAV)</div>
         {sortedGoals.slice(0, 12).map(([m, data]) => (
           <MuscleGoalBar key={m} name={m} eff={data.eff} target={data.target} compact />
