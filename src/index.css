@@ -1,76 +1,62 @@
 @import "tailwindcss";
 
 /*
- * Atlas Design System — Clean UI
- * Maps tokens from src/context/theme.js into CSS custom properties.
+ * Atlas Design System — Modern Minimal
+ * Clean, airy design with generous whitespace and subtle shadows.
  */
 
-@theme {
+@theme inline {
+  /* ── Font families ────────────────────────────────────── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* ── Colors: Neutral palette (zinc scale) ─────────────── */
+  --color-zinc-50: #FAFAFA;
+  --color-zinc-100: #F4F4F5;
+  --color-zinc-200: #E4E4E7;
+  --color-zinc-300: #D4D4D8;
+  --color-zinc-400: #A1A1AA;
+  --color-zinc-500: #71717A;
+  --color-zinc-600: #52525B;
+  --color-zinc-700: #3F3F46;
+  --color-zinc-800: #27272A;
+  --color-zinc-900: #18181B;
+  --color-zinc-950: #09090B;
+
   /* ── Colors: Semantic palette ─────────────────────────── */
-  --color-primary: #3B82F6;
-  --color-success: #22C55E;
+  --color-primary: #18181B;
+  --color-success: #10B981;
   --color-warning: #F59E0B;
   --color-error: #EF4444;
-  --color-pull: #8B5CF6;
-  --color-accent: #F97316;
-  --color-pink: #EC4899;
-
-  /* ── Colors: Dark theme surfaces ──────────────────────── */
-  --color-dark-bg: #0C0E14;
-  --color-dark-surface: #161922;
-  --color-dark-surface2: #1C2030;
-  --color-dark-surface3: #232838;
-  --color-dark-border: #1E2438;
-  --color-dark-border-light: #2A3350;
-  --color-dark-border-accent: #3A4868;
-  --color-dark-text: #F0F2F8;
-  --color-dark-text-muted: #8892A8;
-  --color-dark-text-dim: #5C6680;
-  --color-dark-text-faint: #3A4460;
-
-  /* ── Colors: Light theme surfaces ─────────────────────── */
-  --color-light-bg: #F0F1F6;
-  --color-light-surface: #FFFFFF;
-  --color-light-surface2: #F5F6FA;
-  --color-light-surface3: #ECEEF4;
-  --color-light-border: #E2E5EE;
-  --color-light-border-light: #D0D4E0;
-  --color-light-border-accent: #B8BED0;
-  --color-light-text: #1A1D28;
-  --color-light-text-muted: #5A6070;
-  --color-light-text-dim: #7A8098;
-  --color-light-text-faint: #A0A8C0;
+  --color-accent: #6366F1;
 
   /* ── Colors: Muscle groups ────────────────────────────── */
-  --color-muscle-chest: #22C55E;
+  --color-muscle-chest: #10B981;
   --color-muscle-quads: #3B82F6;
-  --color-muscle-lats: #8B5CF6;
+  --color-muscle-lats: #6366F1;
   --color-muscle-hamstrings: #F97316;
   --color-muscle-glutes: #EC4899;
   --color-muscle-triceps: #F59E0B;
   --color-muscle-biceps: #EF4444;
 
   /* ── Border radius ────────────────────────────────────── */
-  --radius-sm: 12px;
-  --radius-md: 16px;
-  --radius-lg: 20px;
-  --radius-xl: 24px;
-  --radius-2xl: 28px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
   --radius-pill: 9999px;
   --radius-full: 9999px;
 
-  /* ── Font families ────────────────────────────────────── */
-  --font-body: 'Outfit', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-
   /* ── Font sizes ───────────────────────────────────────── */
-  --text-xs: 10px;
-  --text-sm: 11px;
-  --text-body: 13px;
-  --text-md: 14px;
-  --text-lg: 16px;
-  --text-xl: 22px;
-  --text-2xl: 28px;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-body: 14px;
+  --text-md: 15px;
+  --text-lg: 17px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
   --text-display: 48px;
 }
 
@@ -81,14 +67,33 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: var(--font-body);
+    font-family: var(--font-sans);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    line-height: 1.5;
+    letter-spacing: -0.01em;
   }
 
   ::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-zinc-300);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-zinc-400);
   }
 
   input::-webkit-outer-spin-button,
@@ -98,6 +103,12 @@
   }
   input[type="number"] {
     -moz-appearance: textfield;
+  }
+
+  /* Focus ring styles */
+  :focus-visible {
+    outline: 2px solid var(--color-zinc-900);
+    outline-offset: 2px;
   }
 }
 
@@ -109,5 +120,25 @@
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Utility classes ─────────────────────────────────────── */
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
 }

@@ -34,78 +34,205 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
   const isProgress = location.pathname.startsWith("/progress");
 
   return (
-    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "36px 36px", color: t.text, transition: "all 0.3s ease" }}>
-      {/* HEADER */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 36 }}>
-        <div>
-          {profile?.displayName && (
-            <div style={{ fontSize: 14, color: t.textMuted, marginBottom: 6 }}>
-              {(() => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; })()}, {profile.displayName}
+    <div style={{ 
+      minHeight: "100vh",
+      background: t.bg,
+      transition: "background 0.2s ease"
+    }}>
+      <div style={{ 
+        maxWidth: 1280, 
+        margin: "0 auto", 
+        padding: "32px 40px",
+        color: t.text,
+      }}>
+        {/* HEADER */}
+        <header style={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "flex-start", 
+          marginBottom: 40,
+          paddingBottom: 24,
+          borderBottom: `1px solid ${t.border}`,
+        }}>
+          <div>
+            {profile?.displayName && (
+              <p style={{ 
+                fontSize: 13, 
+                color: t.textMuted, 
+                marginBottom: 4,
+                fontWeight: 400,
+              }}>
+                {(() => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; })()}, {profile.displayName}
+              </p>
+            )}
+            <h1 style={{ 
+              fontSize: 28, 
+              fontWeight: 600, 
+              letterSpacing: -0.5, 
+              color: t.text, 
+              marginBottom: 6,
+              lineHeight: 1.2,
+            }}>
+              {plan.splitName}
+            </h1>
+            <p style={{ 
+              fontSize: 14, 
+              color: t.textDim, 
+              marginBottom: 16,
+            }}>
+              {plan.weeks}-week mesocycle
+            </p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {[
+                { text: profile?.primaryGoal?.replace(/_/g, " ") || "hypertrophy" },
+                { text: dateRange },
+                { text: "progressive overload" },
+              ].map(({ text }) => (
+                <span key={text} style={{
+                  fontSize: 12, 
+                  padding: "6px 12px",
+                  borderRadius: 6,
+                  background: t.surface2,
+                  color: t.textMuted, 
+                  fontWeight: 500,
+                  border: `1px solid ${t.border}`,
+                }}>
+                  {text}
+                </span>
+              ))}
             </div>
-          )}
-          <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, color: t.text, marginBottom: 4 }}>{plan.splitName}</h1>
-          <div style={{ fontSize: 12, color: t.textDim, marginBottom: 12 }}>{plan.weeks}-Week Mesocycle</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {[
-              { text: profile?.primaryGoal?.replace(/_/g, " ") || "hypertrophy", bg: t.alpha.primary._8, color: t.colors.primary },
-              { text: dateRange, bg: t.alpha.success._8, color: t.colors.success },
-              { text: "progressive overload", bg: t.alpha.pull._8, color: t.colors.pull },
-            ].map(({ text, bg, color }) => (
-              <span key={text} style={{
-                fontSize: 11, padding: "5px 14px",
-                borderRadius: 9999,
-                background: bg,
-                color, fontWeight: 500,
-              }}>{text}</span>
-            ))}
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {/* Tab navigation */}
-          <div style={{ display: "inline-flex", gap: 4, background: t.surface2, borderRadius: 16, padding: 4 }}>
-            <button onClick={() => navigate("/dashboard")} style={{
-              fontSize: 13, padding: "8px 20px", borderRadius: 12, border: "none", cursor: "pointer",
-              background: !isProgress ? t.surface : "transparent",
-              color: !isProgress ? t.text : t.textDim,
-              fontWeight: !isProgress ? 600 : 400,
-              boxShadow: !isProgress ? t.shadow : "none",
-              transition: "all 0.2s ease",
-            }}>Dashboard</button>
-            <button onClick={() => navigate("/progress")} style={{
-              fontSize: 13, padding: "8px 20px", borderRadius: 12, border: "none", cursor: "pointer",
-              background: isProgress ? t.surface : "transparent",
-              color: isProgress ? t.text : t.textDim,
-              fontWeight: isProgress ? 600 : 400,
-              boxShadow: isProgress ? t.shadow : "none",
-              transition: "all 0.2s ease",
-            }}>Progress</button>
           </div>
 
-          {/* Breadcrumb */}
-          {!isProgress && (
-            <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 13 }}>
-              <button onClick={() => navigate("/dashboard")} style={{ color: viewLevel === "month" ? t.text : t.colors.primary, background: "none", border: "none", cursor: "pointer", fontSize: "inherit", textDecoration: viewLevel === "month" ? "none" : "underline", textUnderlineOffset: 3 }}>Month</button>
-              {viewLevel !== "month" && curWeek && <><span style={{ color: t.textFaint }}>/</span><button onClick={() => navigate(`/dashboard/week/${weekIdx}`)} style={{ color: viewLevel === "week" ? t.text : t.colors.primary, background: "none", border: "none", cursor: "pointer", fontSize: "inherit", textDecoration: viewLevel === "week" ? "none" : "underline", textUnderlineOffset: 3 }}>{curWeek.label}</button></>}
-              {viewLevel === "day" && curDay && <><span style={{ color: t.textFaint }}>/</span><span style={{ color: t.text }}>{curDay.label}</span></>}
-            </div>
-          )}
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {/* Tab navigation */}
+            <nav style={{ 
+              display: "inline-flex", 
+              gap: 2, 
+              background: t.surface2, 
+              borderRadius: 10, 
+              padding: 4,
+              border: `1px solid ${t.border}`,
+            }}>
+              <button 
+                onClick={() => navigate("/dashboard")} 
+                style={{
+                  fontSize: 13, 
+                  padding: "8px 16px", 
+                  borderRadius: 8, 
+                  border: "none", 
+                  cursor: "pointer",
+                  background: !isProgress ? t.surface : "transparent",
+                  color: !isProgress ? t.text : t.textDim,
+                  fontWeight: !isProgress ? 500 : 400,
+                  boxShadow: !isProgress ? t.shadow : "none",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                Dashboard
+              </button>
+              <button 
+                onClick={() => navigate("/progress")} 
+                style={{
+                  fontSize: 13, 
+                  padding: "8px 16px", 
+                  borderRadius: 8, 
+                  border: "none", 
+                  cursor: "pointer",
+                  background: isProgress ? t.surface : "transparent",
+                  color: isProgress ? t.text : t.textDim,
+                  fontWeight: isProgress ? 500 : 400,
+                  boxShadow: isProgress ? t.shadow : "none",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                Progress
+              </button>
+            </nav>
 
-          <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
-          <SettingsMenu onEditPlan={onEditPlan} onSignOut={onSignOut} onAIInsights={onAIInsights} onProfile={onProfile} />
-        </div>
+            {/* Breadcrumb */}
+            {!isProgress && viewLevel !== "month" && (
+              <nav style={{ 
+                display: "flex", 
+                gap: 8, 
+                alignItems: "center", 
+                fontSize: 13,
+                padding: "8px 12px",
+                background: t.surface2,
+                borderRadius: 8,
+                border: `1px solid ${t.border}`,
+              }}>
+                <button 
+                  onClick={() => navigate("/dashboard")} 
+                  style={{ 
+                    color: t.textMuted, 
+                    background: "none", 
+                    border: "none", 
+                    cursor: "pointer", 
+                    fontSize: "inherit",
+                    fontWeight: 400,
+                    padding: 0,
+                  }}
+                >
+                  Month
+                </button>
+                {curWeek && (
+                  <>
+                    <span style={{ color: t.textFaint }}>/</span>
+                    <button 
+                      onClick={() => navigate(`/dashboard/week/${weekIdx}`)} 
+                      style={{ 
+                        color: viewLevel === "week" ? t.text : t.textMuted, 
+                        background: "none", 
+                        border: "none", 
+                        cursor: "pointer", 
+                        fontSize: "inherit",
+                        fontWeight: viewLevel === "week" ? 500 : 400,
+                        padding: 0,
+                      }}
+                    >
+                      {curWeek.label}
+                    </button>
+                  </>
+                )}
+                {viewLevel === "day" && curDay && (
+                  <>
+                    <span style={{ color: t.textFaint }}>/</span>
+                    <span style={{ color: t.text, fontWeight: 500 }}>{curDay.label}</span>
+                  </>
+                )}
+              </nav>
+            )}
+
+            <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
+            <SettingsMenu onEditPlan={onEditPlan} onSignOut={onSignOut} onAIInsights={onAIInsights} onProfile={onProfile} />
+          </div>
+        </header>
+
+        {/* Content area */}
+        {isProgress ? (
+          <ErrorBoundary><Outlet /></ErrorBoundary>
+        ) : (
+          <div style={{ 
+            display: "grid", 
+            gridTemplateColumns: "1fr 300px", 
+            gap: 40,
+            alignItems: "start",
+          }}>
+            <main>
+              <ErrorBoundary><Outlet /></ErrorBoundary>
+            </main>
+            <aside style={{ 
+              position: "sticky", 
+              top: 32, 
+              maxHeight: "calc(100vh - 64px)", 
+              overflowY: "auto",
+              overflowX: "hidden",
+            }}>
+              <Sidebar weekIdx={weekIdx} viewLevel={viewLevel} curWeek={curWeek} curDay={curDay} plan={plan} />
+            </aside>
+          </div>
+        )}
       </div>
-
-      {/* Content area */}
-      {isProgress ? (
-        <ErrorBoundary><Outlet /></ErrorBoundary>
-      ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 36 }}>
-          <div><ErrorBoundary><Outlet /></ErrorBoundary></div>
-          <div style={{ position: "sticky", top: 20, alignSelf: "start", maxHeight: "calc(100vh - 60px)", overflowY: "auto" }}>
-            <Sidebar weekIdx={weekIdx} viewLevel={viewLevel} curWeek={curWeek} curDay={curDay} plan={plan} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
