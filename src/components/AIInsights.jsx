@@ -65,7 +65,7 @@ export default function AIInsights({ plan, onClose }) {
             <div style={{ fontSize: 12, color: t.textDim, marginBottom: 4 }}>Choose an analysis type:</div>
             {MODES.map(m => (
               <button key={m.key} onClick={() => run(m.key)} style={{
-                padding: 16, borderRadius: 12, border: `1px solid ${t.border}`, background: t.surface,
+                padding: 16, borderRadius: 12, background: t.surface,
                 cursor: "pointer", textAlign: "left", transition: "border-color 0.15s",
               }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: t.text, marginBottom: 4 }}>{m.label}</div>
@@ -118,7 +118,7 @@ function AnalyzeResult({ data, t }) {
       )}
       {data.strengths?.length > 0 && (
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "#3DDC84", marginBottom: 8 }}>Strengths</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "#3DDC84", marginBottom: 8 }}>Strengths</div>
           {data.strengths.map((s, i) => (
             <div key={i} style={{ fontSize: 12, color: t.textMuted, padding: "6px 0", borderBottom: `1px solid ${t.border}` }}>{s}</div>
           ))}
@@ -126,7 +126,7 @@ function AnalyzeResult({ data, t }) {
       )}
       {data.improvements?.length > 0 && (
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "#FBBF24", marginBottom: 8 }}>Improvements</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "#FBBF24", marginBottom: 8 }}>Improvements</div>
           {data.improvements.map((s, i) => (
             <div key={i} style={{ fontSize: 12, color: t.textMuted, padding: "6px 0", borderBottom: `1px solid ${t.border}` }}>{s}</div>
           ))}
@@ -134,7 +134,7 @@ function AnalyzeResult({ data, t }) {
       )}
       {data.tip && (
         <div style={{ background: "rgba(76,158,255,0.06)", border: "1px solid rgba(76,158,255,0.15)", borderRadius: 10, padding: 14 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "#4C9EFF", marginBottom: 4 }}>Tip</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "#4C9EFF", marginBottom: 4 }}>Tip</div>
           <div style={{ fontSize: 12, color: t.text, lineHeight: 1.5 }}>{data.tip}</div>
         </div>
       )}
@@ -149,7 +149,7 @@ function StallResult({ data, t }) {
         <div style={{ fontSize: 13, color: t.text, lineHeight: 1.6 }}>{data.general}</div>
       )}
       {data.stalls?.length > 0 ? data.stalls.map((s, i) => (
-        <div key={i} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16 }}>
+        <div key={i} style={{ background: t.surface, borderRadius: 12, padding: 20 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: "#FBBF24", marginBottom: 6 }}>{s.exercise}</div>
           <div style={{ fontSize: 12, color: t.textDim, marginBottom: 8 }}>{s.observation}</div>
           <div style={{ fontSize: 12, color: t.text, background: "rgba(76,158,255,0.06)", borderRadius: 8, padding: 10 }}>{s.suggestion}</div>
@@ -165,7 +165,7 @@ function SwapResult({ data, t }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {data.swaps?.map((s, i) => (
-        <div key={i} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16 }}>
+        <div key={i} style={{ background: t.surface, borderRadius: 12, padding: 20 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 4 }}>{s.current}</div>
           <div style={{ fontSize: 11, color: t.textDim, marginBottom: 10 }}>{s.reason}</div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>

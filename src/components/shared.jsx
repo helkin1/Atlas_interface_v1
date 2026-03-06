@@ -7,11 +7,11 @@ export function MiniBar({ name, sets, max }) {
   const color = MUSCLE_COLORS[name] || "#666";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-      <span style={{ fontSize: 11, color: t.textMuted, width: 90, textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
+      <span style={{ fontSize: 12, color: t.textMuted, width: 90, textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
       <div style={{ flex: 1, height: 6, background: t.border, borderRadius: 3, overflow: "hidden" }}>
         <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 3, transition: "width 0.4s" }} />
       </div>
-      <span style={{ fontSize: 10, fontFamily: "mono", color: t.textDim, width: 28, textAlign: "right" }}>{sets % 1 === 0 ? sets : sets.toFixed(1)}</span>
+      <span style={{ fontSize: 11, color: t.textDim, width: 28, textAlign: "right" }}>{sets % 1 === 0 ? sets : sets.toFixed(1)}</span>
     </div>
   );
 }
@@ -19,10 +19,10 @@ export function MiniBar({ name, sets, max }) {
 export function StatCard({ label, value, sub, color }) {
   const t = useTheme();
   return (
-    <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16 }}>
-      <div style={{ fontSize: 11, color: t.textFaint, fontFamily: "mono", textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 26, fontFamily: "mono", fontWeight: 700, color: color || t.text }}>{value}</div>
-      {sub && <div style={{ fontSize: 11, color: t.textDim, marginTop: 2 }}>{sub}</div>}
+    <div style={{ background: t.surface, borderRadius: 12, padding: 20 }}>
+      <div style={{ fontSize: 11, color: t.textMuted, letterSpacing: 0.5, marginBottom: 8 }}>{label}</div>
+      <div style={{ fontSize: 26, fontWeight: 700, color: color || t.text }}>{value}</div>
+      {sub && <div style={{ fontSize: 12, color: t.textDim, marginTop: 4 }}>{sub}</div>}
     </div>
   );
 }
@@ -32,9 +32,9 @@ export function PatternBadge({ pattern, size }) {
   const lg = size === "md";
   return (
     <span style={{
-      fontSize: lg ? 12 : 10, fontFamily: "mono", padding: lg ? "4px 12px" : "2px 8px",
-      borderRadius: 8, background: c.bg, border: `1px solid ${c.border}`, color: c.text,
-      textTransform: "uppercase", letterSpacing: 1, fontWeight: 600,
+      fontSize: lg ? 12 : 10, padding: lg ? "4px 12px" : "2px 8px",
+      borderRadius: 8, background: c.bg, color: c.text,
+      letterSpacing: 0.5, fontWeight: 600,
     }}>{pattern}</span>
   );
 }
@@ -55,9 +55,9 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label }) {
           style={{ transition: "stroke-dashoffset 0.6s ease" }} />
       </svg>
       <div style={{ position: "relative", marginTop: -size + 2, height: size - 2, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ fontSize: size > 60 ? 20 : 14, fontFamily: "mono", fontWeight: 700, color }}>{pct}%</div>
+        <div style={{ fontSize: size > 60 ? 20 : 14, fontWeight: 700, color }}>{pct}%</div>
       </div>
-      {label && <div style={{ fontSize: 9, fontFamily: "mono", color: t.textFaint, textTransform: "uppercase", letterSpacing: 1, marginTop: 2 }}>{label}</div>}
+      {label && <div style={{ fontSize: 10, color: t.textDim, letterSpacing: 0.3, marginTop: 2 }}>{label}</div>}
     </div>
   );
 }
@@ -76,7 +76,7 @@ export function MuscleGoalBar({ name, eff, target, compact }) {
         {/* MAV target marker */}
         <div style={{ position: "absolute", right: 0, top: 0, width: 2, height: "100%", background: `${t.textFaint}80` }} />
       </div>
-      <span style={{ fontSize: compact ? 9 : 10, fontFamily: "mono", fontWeight: 600, color, width: compact ? 30 : 34, textAlign: "right" }}>{pct}%</span>
+      <span style={{ fontSize: compact ? 10 : 11, fontWeight: 600, color, width: compact ? 30 : 34, textAlign: "right" }}>{pct}%</span>
     </div>
   );
 }
@@ -97,7 +97,7 @@ export function AlertsPanel({ alerts, maxVisible = 5 }) {
 
   if (!alerts || alerts.length === 0) {
     return (
-      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 10, background: "rgba(61,220,132,0.07)", border: "1px solid rgba(61,220,132,0.2)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 10, background: "rgba(61,220,132,0.07)" }}>
         <span style={{ fontSize: 14 }}>✓</span>
         <span style={{ fontSize: 12, color: "#3DDC84", fontWeight: 600 }}>Plan looks balanced</span>
       </div>
@@ -109,7 +109,7 @@ export function AlertsPanel({ alerts, maxVisible = 5 }) {
       {visible.map(alert => {
         const s = ALERT_STYLES[alert.severity] || ALERT_STYLES.info;
         return (
-          <div key={alert.id} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 10px", borderRadius: 10, background: s.bg, border: `1px solid ${s.border}` }}>
+          <div key={alert.id} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 10px", borderRadius: 10, background: s.bg }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: s.dot, marginTop: 5, flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: s.color, lineHeight: 1.3, marginBottom: 2 }}>{alert.title}</div>
@@ -164,7 +164,7 @@ export function BarChart({ data = [], width = 300, height = 140, barColor = "#4C
           return (
             <g key={i}>
               <rect x={x} y={y} width={barWidth} height={barH} rx={3} fill={d.color || barColor} opacity={0.85} />
-              <text x={x + barWidth / 2} y={height - 4} textAnchor="middle" fontSize={9} fontFamily="'JetBrains Mono', monospace" fill={t.textFaint}>
+              <text x={x + barWidth / 2} y={height - 4} textAnchor="middle" fontSize={9} fontFamily="'Outfit', sans-serif" fill={t.textFaint}>
                 {d.label || ""}
               </text>
             </g>
@@ -210,10 +210,10 @@ export function LineChart({ data = [], width = 400, height = 200, color = "#4C9E
       {[0, Math.floor(points.length / 2), points.length - 1].map(idx => {
         const p = points[idx];
         if (!p) return null;
-        return <text key={idx} x={p.x} y={height - 4} textAnchor="middle" fontSize={9} fontFamily="'JetBrains Mono', monospace" fill={t.textFaint}>{p.label}</text>;
+        return <text key={idx} x={p.x} y={height - 4} textAnchor="middle" fontSize={9} fontFamily="'Outfit', sans-serif" fill={t.textFaint}>{p.label}</text>;
       })}
       {/* Y labels */}
-      {yLabel && <text x={4} y={pad.top + ch / 2} textAnchor="start" fontSize={9} fontFamily="'JetBrains Mono', monospace" fill={t.textFaint} transform={`rotate(-90,4,${pad.top + ch / 2})`}>{yLabel}</text>}
+      {yLabel && <text x={4} y={pad.top + ch / 2} textAnchor="start" fontSize={9} fontFamily="'Outfit', sans-serif" fill={t.textFaint} transform={`rotate(-90,4,${pad.top + ch / 2})`}>{yLabel}</text>}
     </svg>
   );
 }
@@ -227,7 +227,7 @@ export function Tabs({ items = [], active, onChange }) {
         const isActive = item.key === active;
         return (
           <button key={item.key} onClick={() => onChange(item.key)} style={{
-            fontSize: 11, fontFamily: "mono", padding: "6px 16px", borderRadius: 6,
+            fontSize: 12, padding: "6px 16px", borderRadius: 8,
             border: "none", cursor: "pointer",
             background: isActive ? "rgba(76,158,255,0.12)" : "transparent",
             color: isActive ? "#4C9EFF" : t.textDim,
@@ -255,7 +255,7 @@ export function EmptyState({ icon = "📭", title = "No data yet", message = "" 
 export function SectionLabel({ children }) {
   const t = useTheme();
   return (
-    <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 14 }}>{children}</div>
+    <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 14 }}>{children}</div>
   );
 }
 

@@ -26,17 +26,17 @@ export default function BuilderLayout({
 
   return (
     <ErrorBoundary>
-      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 24px", color: t.text, transition: "color 0.3s" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
+      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "32px 32px", color: t.text, transition: "color 0.3s" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
           <div>
-            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 3, color: t.textFaint, fontFamily: "mono", marginBottom: 6 }}>Plan Builder &middot; New Mesocycle</div>
+            <div style={{ fontSize: 11, color: t.textDim, marginBottom: 6 }}>Plan Builder &middot; New Mesocycle</div>
             <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: -0.5, color: t.text }}>{builderPlan.splitName || "Build Your Plan"}</h1>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
               {BUILDER_STEPS.map((s, i) => (
                 <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <button onClick={() => i <= builderStep && setBuilderStep(i)} style={{ fontSize: 11, fontFamily: "mono", padding: "4px 10px", borderRadius: 6, cursor: i <= builderStep ? "pointer" : "default", background: i === builderStep ? t.alpha.primary._10 : "transparent", border: `1px solid ${i === builderStep ? t.colors.primary : i < builderStep ? t.alpha.success._30 : t.border}`, color: i === builderStep ? t.colors.primary : i < builderStep ? t.colors.success : t.textDim }}>{i < builderStep ? "\u2713" : i + 1}. {s.label}</button>
+                  <button onClick={() => i <= builderStep && setBuilderStep(i)} style={{ fontSize: 11, fontFamily: "inherit", padding: "4px 10px", borderRadius: 6, cursor: i <= builderStep ? "pointer" : "default", background: i === builderStep ? t.alpha.primary._10 : "transparent", border: `1px solid ${i === builderStep ? t.colors.primary : i < builderStep ? t.alpha.success._30 : t.border}`, color: i === builderStep ? t.colors.primary : i < builderStep ? t.colors.success : t.textDim }}>{i < builderStep ? "\u2713" : i + 1}. {s.label}</button>
                   {i < BUILDER_STEPS.length - 1 && <span style={{ color: t.textFaint, fontSize: 10 }}>&rarr;</span>}
                 </div>
               ))}

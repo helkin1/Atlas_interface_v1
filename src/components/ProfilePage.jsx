@@ -93,8 +93,8 @@ export default function ProfilePage({ onBack }) {
     update({ [key]: list.includes(id) ? list.filter(x => x !== id) : [...list, id] });
   };
 
-  const sectionStyle = { background: t.surface, border: `1px solid ${t.border}`, borderRadius: 14, padding: 24, marginBottom: 16 };
-  const sectionTitle = { fontSize: 11, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 16 };
+  const sectionStyle = { background: t.surface, borderRadius: 12, padding: 24, marginBottom: 16 };
+  const sectionTitle = { fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 16 };
 
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "28px 24px", color: t.text }}>
