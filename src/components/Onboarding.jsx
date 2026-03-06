@@ -19,6 +19,17 @@ export default function Onboarding({ themeMode, onToggleTheme, onComplete }) {
   const t = useTheme();
   const [step, setStep] = useState(0);
   const [profile, setProfile] = useState({ ...DEFAULT_PROFILE });
+  const [weightWarning, setWeightWarning] = useState(null);
+  const [weightWarningAcked, setWeightWarningAcked] = useState(false);
+
+  // Reset weight warning acknowledgement when weight changes
+  const handleProfileChange = (newProfile) => {
+    if (newProfile.weightKg !== profile.weightKg) {
+      setWeightWarning(null);
+      setWeightWarningAcked(false);
+    }
+    setProfile(newProfile);
+  };
 
   const canNext = () => {
     if (step === 0) return profile.displayName.trim().length > 0;
@@ -28,10 +39,34 @@ export default function Onboarding({ themeMode, onToggleTheme, onComplete }) {
     return true;
   };
 
+  const getWeightWarning = () => {
+    if (!profile.weightKg) return null;
+    const isMetric = profile.unitPreference === "metric";
+    const displayVal = isMetric ? profile.weightKg : Math.round(profile.weightKg * 2.205);
+    if (displayVal > 500) return "are you sure? that seems like a lot";
+    if (displayVal < 50) return "are you sure? that's awfully light";
+    return null;
+  };
+
+  const handleNext = () => {
+    if (!canNext()) return;
+    // Weight validation on step 0
+    if (step === 0) {
+      const warning = getWeightWarning();
+      if (warning && !weightWarningAcked) {
+        setWeightWarning(warning);
+        setWeightWarningAcked(true);
+        return;
+      }
+    }
+    setWeightWarning(null);
+    setWeightWarningAcked(false);
+    setStep(step + 1);
+  };
+
   const handleComplete = () => {
     const finalProfile = { ...profile, onboardingCompleted: true };
-    const rec = getSplitRecommendation(finalProfile);
-    onComplete(finalProfile, rec.splitKey);
+    onComplete(finalProfile);
   };
 
   return (
@@ -63,7 +98,7 @@ export default function Onboarding({ themeMode, onToggleTheme, onComplete }) {
 
       {/* Step content */}
       <div style={{ width: "100%", maxWidth: 560, flex: 1 }}>
-        {step === 0 && <StepAboutYou profile={profile} onChange={setProfile} t={t} />}
+        {step === 0 && <StepAboutYou profile={profile} onChange={handleProfileChange} t={t} weightWarning={weightWarning} />}
         {step === 1 && <StepFitnessBackground profile={profile} onChange={setProfile} t={t} />}
         {step === 2 && <StepGoals profile={profile} onChange={setProfile} t={t} />}
         {step === 3 && <StepSchedule profile={profile} onChange={setProfile} t={t} />}
@@ -82,7 +117,7 @@ export default function Onboarding({ themeMode, onToggleTheme, onComplete }) {
         }}>{"\u2190"} Back</button>
 
         {step < 4 ? (
-          <button onClick={() => canNext() && setStep(step + 1)} style={{
+          <button onClick={handleNext} style={{
             padding: "12px 32px", borderRadius: 10, fontSize: 13, fontWeight: 600,
             cursor: canNext() ? "pointer" : "default",
             background: canNext() ? t.alpha.primary._12 : t.surface2,
@@ -93,7 +128,7 @@ export default function Onboarding({ themeMode, onToggleTheme, onComplete }) {
           <button onClick={handleComplete} style={{
             padding: "12px 32px", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer",
             background: t.alpha.success._12, border: `1px solid ${t.alpha.success._40}`, color: t.colors.success,
-          }}>{"\u2713"} Build My Plan</button>
+          }}>{"\u2713"} Finish Setup</button>
         )}
       </div>
     </div>

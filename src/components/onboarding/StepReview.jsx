@@ -14,6 +14,9 @@ export default function StepReview({ profile, t }) {
         <div style={{ ...labelStyle, color: t.colors.primary }}>Recommended Split</div>
         <div style={{ fontSize: 18, fontWeight: 800, color: t.colors.primary, marginBottom: 4 }}>{rec.name}</div>
         <div style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.5 }}>{rec.reason}</div>
+        <div style={{ fontSize: 11, color: t.textDim, marginTop: 8, fontStyle: "italic" }}>
+          You can use this recommendation or build a completely custom plan in the Plan Builder.
+        </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -64,6 +67,10 @@ export default function StepReview({ profile, t }) {
           </div>
         </div>
       )}
+
+      <div style={{ fontSize: 12, color: t.textMuted, textAlign: "center", marginTop: 4 }}>
+        You can update any of this later in your Profile settings.
+      </div>
     </div>
   );
 }
