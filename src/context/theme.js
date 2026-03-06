@@ -15,7 +15,47 @@ export const tokens = {
     pull: "#A78BFA",
     accent: "#FF8A50",
     pink: "#F472B6",
+    orange: "#F97316",
   },
+};
+
+/**
+ * Generate rgba() variant from a hex color.
+ * Usage: colorAlpha(tokens.colors.primary, 0.12) → "rgba(76,158,255,0.12)"
+ */
+export function colorAlpha(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+/* ── Pre-computed alpha variants for common usage ─────────────── */
+function buildAlphas(hex) {
+  return {
+    _4: colorAlpha(hex, 0.04),
+    _6: colorAlpha(hex, 0.06),
+    _7: colorAlpha(hex, 0.07),
+    _8: colorAlpha(hex, 0.08),
+    _10: colorAlpha(hex, 0.1),
+    _12: colorAlpha(hex, 0.12),
+    _15: colorAlpha(hex, 0.15),
+    _18: colorAlpha(hex, 0.18),
+    _20: colorAlpha(hex, 0.2),
+    _25: colorAlpha(hex, 0.25),
+    _30: colorAlpha(hex, 0.3),
+    _40: colorAlpha(hex, 0.4),
+  };
+}
+
+tokens.alpha = {
+  primary: buildAlphas(tokens.colors.primary),
+  success: buildAlphas(tokens.colors.success),
+  warning: buildAlphas(tokens.colors.warning),
+  error: buildAlphas(tokens.colors.error),
+  pull: buildAlphas(tokens.colors.pull),
+  accent: buildAlphas(tokens.colors.accent),
+  pink: buildAlphas(tokens.colors.pink),
 };
 
 export const themes = {
