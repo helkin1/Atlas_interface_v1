@@ -3,7 +3,7 @@ import { useTheme } from "../context/theme.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { PATTERN_COLORS, MUSCLE_COLORS, getDayPattern, getDaySets, getDayVol, DAY_NAMES, MO_NAMES } from "../utils/helpers.js";
 import { loadWorkoutLogs, saveWorkoutLogs, getWorkoutLogKey, migrateLegacyWorkoutLog, loadSessionMeta, saveSessionMeta } from "../utils/storage.js";
-import { PatternBadge } from "./shared.jsx";
+import { PatternBadge, cardStyle } from "./shared.jsx";
 import GymMode from "./GymMode.jsx";
 
 function SetPill({ set, idx, logged }) {
@@ -135,7 +135,7 @@ export default function DayView({ day, planId, onBack }) {
 
       {/* Progress bar when there are logs */}
       {hasLogs && (
-        <div style={{ background: t.surface, borderRadius: 12, padding: "12px 18px", marginBottom: 16, display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{ ...cardStyle(t, { padding: "12px 18px", marginBottom: 16 }), display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ flex: 1 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
               <span style={{ fontSize: 12, color: t.textMuted, fontWeight: 500 }}>
@@ -160,7 +160,7 @@ export default function DayView({ day, planId, onBack }) {
         {day.exercises.map((entry, ei) => {
           const ex = EXERCISES[entry.exercise_id]; if (!ex) return null;
           return (
-            <div key={ei} style={{ background: t.surface, borderRadius: 12, padding: 24, boxShadow: t.shadow, marginBottom: 10 }}>
+            <div key={ei} style={{ ...cardStyle(t, { padding: 24, marginBottom: 10 }) }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: t.text }}>{ex.name}</div>

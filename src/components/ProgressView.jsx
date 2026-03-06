@@ -19,6 +19,7 @@ import {
   Tabs,
   EmptyState,
   SectionLabel,
+  cardStyle,
 } from "./shared.jsx";
 
 const TABS = [
@@ -79,14 +80,14 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
       </div>
 
       {barData.length > 0 && (
-        <div style={{ background: t.surface, borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: t.shadow }}>
+        <div style={{ ...cardStyle(t, { padding: 20, marginBottom: 20 }) }}>
           <SectionLabel>Weekly Volume</SectionLabel>
           <BarChart data={barData} width={Math.min(600, barData.length * 80)} height={140} barColor="#4C9EFF" />
         </div>
       )}
 
       {muscleEntries.length > 0 && (
-        <div style={{ background: t.surface, borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: t.shadow }}>
+        <div style={{ ...cardStyle(t, { padding: 20, marginBottom: 20 }) }}>
           <SectionLabel>Muscle Volume Trends</SectionLabel>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
             {muscleEntries.map(([name, data]) => {
@@ -108,7 +109,7 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
       )}
 
       {prList.length > 0 && (
-        <div style={{ background: t.surface, borderRadius: 12, padding: 20, boxShadow: t.shadow }}>
+        <div style={{ ...cardStyle(t, { padding: 20 }) }}>
           <SectionLabel>Personal Records</SectionLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {prList.slice(0, 10).map((pr, i) => (
@@ -172,7 +173,7 @@ function ExercisesTab({ exerciseHistory, prs }) {
           const lastSession = sessions[sessions.length - 1];
 
           return (
-            <div key={exId} style={{ background: t.surface, borderRadius: 12, boxShadow: t.shadow, overflow: "hidden" }}>
+            <div key={exId} style={{ ...cardStyle(t), overflow: "hidden" }}>
               <button
                 onClick={() => setExpanded(isOpen ? null : exId)}
                 style={{
@@ -271,7 +272,7 @@ function HistoryTab({ workoutHistory }) {
       {reversed.map((session, i) => {
         const isOpen = expanded === i;
         return (
-          <div key={i} style={{ background: t.surface, borderRadius: 12, boxShadow: t.shadow, overflow: "hidden" }}>
+          <div key={i} style={{ ...cardStyle(t), overflow: "hidden" }}>
             <button
               onClick={() => setExpanded(isOpen ? null : i)}
               style={{

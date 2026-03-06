@@ -1,7 +1,7 @@
 import { useTheme, themes } from "../context/theme.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { DAY_NAMES, MO_NAMES, PATTERN_COLORS, MUSCLE_COLORS, getDayPattern, getDaySets, getWeekSets, weekMuscleVol, calcGoalPcts, overallGoalPct, goalPctColor } from "../utils/helpers.js";
-import { PatternBadge } from "./shared.jsx";
+import { PatternBadge, cardStyle } from "./shared.jsx";
 
 export default function WeekView({ week, onDay, onBack }) {
   const t = useTheme();
@@ -44,7 +44,7 @@ export default function WeekView({ week, onDay, onBack }) {
       </div>
 
       {/* Exercise breakdown — replaces the goal-bars panel */}
-      <div style={{ background: t.surface, borderRadius: 12, padding: 24, boxShadow: t.shadow }}>
+      <div style={{ ...cardStyle(t, { padding: 24 }) }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 18 }}>Exercise Breakdown</div>
 
         {trainingDays.map((day, di) => {

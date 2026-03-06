@@ -2,11 +2,12 @@ import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useTheme } from "../context/theme.js";
 import { MO_NAMES } from "../utils/helpers.js";
 import ThemeToggle from "../components/ThemeToggle.jsx";
+import VariantSelector from "../components/VariantSelector.jsx";
 import SettingsMenu from "../components/SettingsMenu.jsx";
 import Sidebar from "../components/Sidebar.jsx";
 import ErrorBoundary from "../components/ErrorBoundary.jsx";
 
-export default function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan, onSignOut, onAIInsights, onProfile, profile }) {
+export default function DashboardLayout({ plan, monthData, themeMode, toggleTheme, themeVariant, setThemeVariant, onEditPlan, onSignOut, onAIInsights, onProfile, profile }) {
   const t = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,7 +35,7 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
   const isProgress = location.pathname.startsWith("/progress");
 
   return (
-    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "32px 32px", color: t.text, transition: "color 0.3s" }}>
+    <div style={{ maxWidth: 1400, margin: "0 auto", padding: t.variant === "stark" ? "48px 48px" : "32px 32px", color: t.text, transition: "all 0.3s ease" }}>
       {/* HEADER */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
         <div>
@@ -44,16 +45,28 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
             </div>
           )}
           <div style={{ fontSize: 11, color: t.textDim, marginBottom: 6 }}>Active Plan &middot; {plan.weeks}-Week Mesocycle</div>
-          <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: -0.5, color: t.text }}>{plan.splitName}</h1>
+          <h1 style={{ fontSize: t.fontSize?.h1 ?? 26, fontWeight: t.fontWeight?.black ?? 800, letterSpacing: t.variant === "stark" ? -1.5 : -0.5, color: t.text }}>{plan.splitName}</h1>
           <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: t.alpha.primary._10, color: t.colors.primary }}>{profile?.primaryGoal?.replace(/_/g, " ") || "hypertrophy"}</span>
-            <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: t.alpha.success._10, color: t.colors.success }}>{dateRange}</span>
-            <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: t.alpha.pull._10, color: t.colors.pull }}>progressive overload</span>
+            {[
+              { text: profile?.primaryGoal?.replace(/_/g, " ") || "hypertrophy", bg: t.alpha.primary._10, color: t.colors.primary },
+              { text: dateRange, bg: t.alpha.success._10, color: t.colors.success },
+              { text: "progressive overload", bg: t.alpha.pull._10, color: t.colors.pull },
+            ].map(({ text, bg, color }) => (
+              <span key={text} style={{
+                fontSize: 11, padding: t.variant === "stark" ? "0" : "4px 12px",
+                borderRadius: t.variant === "stark" ? 0 : 20,
+                background: t.variant === "stark" ? "transparent" : t.variant === "glass" ? "rgba(255,255,255,0.06)" : bg,
+                color, fontWeight: t.variant === "stark" ? 400 : 500,
+                backdropFilter: t.variant === "glass" ? "blur(8px)" : "none",
+                border: t.variant === "glass" ? "1px solid rgba(255,255,255,0.08)" : "none",
+                letterSpacing: t.variant === "stark" ? 0.5 : 0,
+              }}>{text}{t.variant === "stark" ? " \u00b7 " : ""}</span>
+            ))}
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {/* Tab navigation */}
-          <div style={{ display: "flex", gap: 2, background: t.surface2, borderRadius: 10, padding: 3 }}>
+          <div style={{ display: "flex", gap: 2, background: t.variant === "glass" ? "rgba(255,255,255,0.06)" : t.variant === "stark" ? "transparent" : t.surface2, borderRadius: t.variant === "stark" ? 0 : 10, padding: 3, backdropFilter: t.variant === "glass" ? "blur(12px)" : "none", border: t.variant === "stark" ? `1px solid ${t.borderLight}` : "none" }}>
             <button onClick={() => navigate("/dashboard")} style={{ fontSize: 12, padding: "6px 16px", borderRadius: 8, border: "none", cursor: "pointer", background: !isProgress ? t.alpha.primary._12 : "transparent", color: !isProgress ? t.colors.primary : t.textDim, fontWeight: !isProgress ? 600 : 400 }}>Dashboard</button>
             <button onClick={() => navigate("/progress")} style={{ fontSize: 12, padding: "6px 16px", borderRadius: 8, border: "none", cursor: "pointer", background: isProgress ? t.alpha.primary._12 : "transparent", color: isProgress ? t.colors.primary : t.textDim, fontWeight: isProgress ? 600 : 400 }}>Progress</button>
           </div>
@@ -67,6 +80,7 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
             </div>
           )}
 
+          <VariantSelector variant={themeVariant} onChange={setThemeVariant} />
           <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
           <SettingsMenu onEditPlan={onEditPlan} onSignOut={onSignOut} onAIInsights={onAIInsights} onProfile={onProfile} />
         </div>
