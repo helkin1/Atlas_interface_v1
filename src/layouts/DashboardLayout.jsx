@@ -46,23 +46,23 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
           <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 3, color: t.textFaint, fontFamily: "mono", marginBottom: 6 }}>Active Plan &middot; {plan.weeks}-Week Mesocycle</div>
           <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: -0.5, color: t.text }}>{plan.splitName}</h1>
           <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(76,158,255,0.1)", color: "#4C9EFF" }}>{profile?.primaryGoal?.replace(/_/g, " ") || "hypertrophy"}</span>
-            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(61,220,132,0.1)", color: "#3DDC84" }}>{dateRange}</span>
-            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(167,139,250,0.1)", color: "#A78BFA" }}>progressive overload</span>
+            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: t.alpha.primary._10, color: t.colors.primary }}>{profile?.primaryGoal?.replace(/_/g, " ") || "hypertrophy"}</span>
+            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: t.alpha.success._10, color: t.colors.success }}>{dateRange}</span>
+            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: t.alpha.pull._10, color: t.colors.pull }}>progressive overload</span>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {/* Tab navigation */}
           <div style={{ display: "flex", gap: 2, background: t.surface2, borderRadius: 8, padding: 2 }}>
-            <button onClick={() => navigate("/dashboard")} style={{ fontSize: 11, fontFamily: "mono", padding: "5px 14px", borderRadius: 6, border: "none", cursor: "pointer", background: !isProgress ? "rgba(76,158,255,0.12)" : "transparent", color: !isProgress ? "#4C9EFF" : t.textDim, fontWeight: !isProgress ? 600 : 400 }}>Dashboard</button>
-            <button onClick={() => navigate("/progress")} style={{ fontSize: 11, fontFamily: "mono", padding: "5px 14px", borderRadius: 6, border: "none", cursor: "pointer", background: isProgress ? "rgba(76,158,255,0.12)" : "transparent", color: isProgress ? "#4C9EFF" : t.textDim, fontWeight: isProgress ? 600 : 400 }}>Progress</button>
+            <button onClick={() => navigate("/dashboard")} style={{ fontSize: 11, fontFamily: "mono", padding: "5px 14px", borderRadius: 6, border: "none", cursor: "pointer", background: !isProgress ? t.alpha.primary._12 : "transparent", color: !isProgress ? t.colors.primary : t.textDim, fontWeight: !isProgress ? 600 : 400 }}>Dashboard</button>
+            <button onClick={() => navigate("/progress")} style={{ fontSize: 11, fontFamily: "mono", padding: "5px 14px", borderRadius: 6, border: "none", cursor: "pointer", background: isProgress ? t.alpha.primary._12 : "transparent", color: isProgress ? t.colors.primary : t.textDim, fontWeight: isProgress ? 600 : 400 }}>Progress</button>
           </div>
 
           {/* Breadcrumb */}
           {!isProgress && (
             <div style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 12, fontFamily: "mono" }}>
-              <button onClick={() => navigate("/dashboard")} style={{ color: viewLevel === "month" ? t.text : "#4C9EFF", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", textDecoration: viewLevel === "month" ? "none" : "underline", textUnderlineOffset: 3 }}>Month</button>
-              {viewLevel !== "month" && curWeek && <><span style={{ color: t.textFaint }}>/</span><button onClick={() => navigate(`/dashboard/week/${weekIdx}`)} style={{ color: viewLevel === "week" ? t.text : "#4C9EFF", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", textDecoration: viewLevel === "week" ? "none" : "underline", textUnderlineOffset: 3 }}>{curWeek.label}</button></>}
+              <button onClick={() => navigate("/dashboard")} style={{ color: viewLevel === "month" ? t.text : t.colors.primary, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", textDecoration: viewLevel === "month" ? "none" : "underline", textUnderlineOffset: 3 }}>Month</button>
+              {viewLevel !== "month" && curWeek && <><span style={{ color: t.textFaint }}>/</span><button onClick={() => navigate(`/dashboard/week/${weekIdx}`)} style={{ color: viewLevel === "week" ? t.text : t.colors.primary, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", textDecoration: viewLevel === "week" ? "none" : "underline", textUnderlineOffset: 3 }}>{curWeek.label}</button></>}
               {viewLevel === "day" && curDay && <><span style={{ color: t.textFaint }}>/</span><span style={{ color: t.text }}>{curDay.label}</span></>}
             </div>
           )}

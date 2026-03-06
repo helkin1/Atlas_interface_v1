@@ -36,7 +36,7 @@ export default function BuilderLayout({
             <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
               {BUILDER_STEPS.map((s, i) => (
                 <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <button onClick={() => i <= builderStep && setBuilderStep(i)} style={{ fontSize: 11, fontFamily: "mono", padding: "4px 10px", borderRadius: 6, cursor: i <= builderStep ? "pointer" : "default", background: i === builderStep ? "rgba(76,158,255,0.1)" : "transparent", border: `1px solid ${i === builderStep ? "#4C9EFF" : i < builderStep ? "rgba(61,220,132,0.3)" : t.border}`, color: i === builderStep ? "#4C9EFF" : i < builderStep ? "#3DDC84" : t.textDim }}>{i < builderStep ? "\u2713" : i + 1}. {s.label}</button>
+                  <button onClick={() => i <= builderStep && setBuilderStep(i)} style={{ fontSize: 11, fontFamily: "mono", padding: "4px 10px", borderRadius: 6, cursor: i <= builderStep ? "pointer" : "default", background: i === builderStep ? t.alpha.primary._10 : "transparent", border: `1px solid ${i === builderStep ? t.colors.primary : i < builderStep ? t.alpha.success._30 : t.border}`, color: i === builderStep ? t.colors.primary : i < builderStep ? t.colors.success : t.textDim }}>{i < builderStep ? "\u2713" : i + 1}. {s.label}</button>
                   {i < BUILDER_STEPS.length - 1 && <span style={{ color: t.textFaint, fontSize: 10 }}>&rarr;</span>}
                 </div>
               ))}
@@ -57,9 +57,9 @@ export default function BuilderLayout({
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 28, paddingTop: 20, borderTop: `1px solid ${t.border}` }}>
               <button onClick={onCancel} style={{ padding: "10px 24px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", background: "transparent", border: `1px solid ${t.borderLight}`, color: t.textMuted }}>{builderStep > 0 ? "\u2190 Back" : "\u2190 Cancel"}</button>
               {builderStep < 3 ? (
-                <button onClick={() => canNext && setBuilderStep(builderStep + 1)} style={{ padding: "10px 28px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: canNext ? "pointer" : "default", background: canNext ? "rgba(76,158,255,0.12)" : t.surface2, border: `1px solid ${canNext ? "#4C9EFF" : t.border}`, color: canNext ? "#4C9EFF" : t.textDim }}>Next: {BUILDER_STEPS[builderStep + 1]?.label} &rarr;</button>
+                <button onClick={() => canNext && setBuilderStep(builderStep + 1)} style={{ padding: "10px 28px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: canNext ? "pointer" : "default", background: canNext ? t.alpha.primary._12 : t.surface2, border: `1px solid ${canNext ? t.colors.primary : t.border}`, color: canNext ? t.colors.primary : t.textDim }}>Next: {BUILDER_STEPS[builderStep + 1]?.label} &rarr;</button>
               ) : (
-                <button onClick={onActivate} style={{ padding: "10px 28px", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", background: "rgba(61,220,132,0.12)", border: "1px solid rgba(61,220,132,0.4)", color: "#3DDC84" }}>{"\u2713"} Activate Plan</button>
+                <button onClick={onActivate} style={{ padding: "10px 28px", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", background: t.alpha.success._12, border: `1px solid ${t.alpha.success._40}`, color: t.colors.success }}>{"\u2713"} Activate Plan</button>
               )}
             </div>
           </div>

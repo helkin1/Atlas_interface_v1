@@ -31,7 +31,7 @@ export function DayRoute({ monthData, plan }) {
   if (day.isRest) {
     return (
       <div>
-        <button onClick={() => navigate(`/dashboard/week/${wi}`)} style={{ fontSize: 12, color: "#4C9EFF", background: "none", border: "none", cursor: "pointer", marginBottom: 16 }}>&larr; Back to Week</button>
+        <button onClick={() => navigate(`/dashboard/week/${wi}`)} style={{ fontSize: 12, color: t.colors.primary, background: "none", border: "none", cursor: "pointer", marginBottom: 16 }}>&larr; Back to Week</button>
         <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 16, padding: 60, textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>😴</div>
           <div style={{ fontSize: 22, fontWeight: 700, color: t.text }}>Rest Day</div>

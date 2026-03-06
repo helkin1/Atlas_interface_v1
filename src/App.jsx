@@ -191,7 +191,7 @@ export default function App() {
         `}</style>
         <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
           <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, color: t.text, fontFamily: "'Outfit', sans-serif" }}>Atlas</div>
-          <div style={{ width: 32, height: 32, border: `2px solid ${t.borderLight}`, borderTopColor: "#4C9EFF", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+          <div style={{ width: 32, height: 32, border: `2px solid ${t.borderLight}`, borderTopColor: t.colors.primary, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
         </div>
       </ThemeContext.Provider>
     );
@@ -222,10 +222,10 @@ export default function App() {
       `}</style>
 
       {demoMode && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center", gap: 12, padding: "8px 16px", background: "rgba(76,158,255,0.15)", backdropFilter: "blur(8px)", borderBottom: `1px solid rgba(76,158,255,0.25)` }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: "#4C9EFF", fontFamily: "'Outfit', sans-serif" }}>Demo Mode</span>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center", gap: 12, padding: "8px 16px", background: t.alpha.primary._15, backdropFilter: "blur(8px)", borderBottom: `1px solid ${t.alpha.primary._25}` }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: t.colors.primary, fontFamily: "'Outfit', sans-serif" }}>Demo Mode</span>
           <span style={{ fontSize: 11, color: t.textMuted }}>Exploring with sample data</span>
-          <button onClick={handleSignOut} style={{ fontSize: 11, padding: "3px 12px", borderRadius: 6, border: "1px solid rgba(76,158,255,0.3)", background: "transparent", color: "#4C9EFF", cursor: "pointer", fontFamily: "'Outfit', sans-serif", fontWeight: 600 }}>Exit Demo</button>
+          <button onClick={handleSignOut} style={{ fontSize: 11, padding: "3px 12px", borderRadius: 6, border: `1px solid ${t.alpha.primary._30}`, background: "transparent", color: t.colors.primary, cursor: "pointer", fontFamily: "'Outfit', sans-serif", fontWeight: 600 }}>Exit Demo</button>
         </div>
       )}
 
