@@ -39,8 +39,8 @@ export default class ErrorBoundary extends Component {
           onClick={() => window.location.reload()}
           style={{
             padding: "10px 28px", borderRadius: 10, fontSize: 13, fontWeight: 600,
-            cursor: "pointer", background: "rgba(76,158,255,0.12)",
-            border: "1px solid #4C9EFF", color: "#4C9EFF",
+            cursor: "pointer", background: "rgba(59,130,246,0.12)",
+            border: "1px solid #3B82F6", color: "#3B82F6",
           }}
         >
           Reload Page

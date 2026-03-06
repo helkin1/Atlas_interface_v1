@@ -9,7 +9,7 @@ export default function ThemeToggle({ mode, onToggle }) {
     }}>
       <div style={{
         width: 20, height: 20, borderRadius: "50%",
-        background: mode === "dark" ? "#4C9EFF" : "#FBBF24",
+        background: mode === "dark" ? "#3B82F6" : "#F59E0B",
         position: "absolute", top: 2, left: mode === "dark" ? 2 : 24,
         transition: "all 0.25s ease", display: "flex", alignItems: "center", justifyContent: "center",
         fontSize: 11,

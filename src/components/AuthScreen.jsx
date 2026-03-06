@@ -68,7 +68,7 @@ export default function AuthScreen({ themeMode, onToggleTheme, onDemoMode }) {
       <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: 380, display: "flex", flexDirection: "column", gap: 14 }}>
 
         {confirmMsg && (
-          <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(61,220,132,0.1)", border: "1px solid rgba(61,220,132,0.3)", color: "#3DDC84", fontSize: 13 }}>
+          <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", color: "#22C55E", fontSize: 13 }}>
             {confirmMsg}
           </div>
         )}
@@ -105,7 +105,7 @@ export default function AuthScreen({ themeMode, onToggleTheme, onDemoMode }) {
             padding: "14px 0",
             borderRadius: 12,
             border: "none",
-            background: "#4C9EFF",
+            background: "#3B82F6",
             color: "#fff",
             fontSize: 15,
             fontWeight: 700,
@@ -121,7 +121,7 @@ export default function AuthScreen({ themeMode, onToggleTheme, onDemoMode }) {
           <button
             type="button"
             onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(null); setConfirmMsg(null); }}
-            style={{ background: "none", border: "none", color: "#4C9EFF", fontSize: 13, cursor: "pointer" }}
+            style={{ background: "none", border: "none", color: "#3B82F6", fontSize: 13, cursor: "pointer" }}
           >
             {mode === "login" ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
           </button>

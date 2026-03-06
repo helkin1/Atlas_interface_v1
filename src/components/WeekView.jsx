@@ -13,7 +13,7 @@ export default function WeekView({ week, onDay, onBack }) {
 
   return (
     <div>
-      <button onClick={onBack} style={{ fontSize: 12, color: "#4C9EFF", background: "none", border: "none", cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>&larr; Back to Month</button>
+      <button onClick={onBack} style={{ fontSize: 12, color: "#3B82F6", background: "none", border: "none", cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>&larr; Back to Month</button>
 
       <h2 style={{ fontSize: 22, fontWeight: 800, color: t.text, marginBottom: 4 }}>{week.label}</h2>
       <div style={{ display: "flex", gap: 12, marginBottom: 24, fontSize: 12, color: t.textDim }}>
@@ -69,7 +69,7 @@ export default function WeekView({ week, onDay, onBack }) {
                     justifyContent: "space-between",
                     alignItems: "center",
                     padding: "7px 10px",
-                    borderRadius: 8,
+                    borderRadius: 14,
                     background: ei % 2 === 0 ? t.surface2 : "transparent",
                     marginBottom: 2,
                   }}>

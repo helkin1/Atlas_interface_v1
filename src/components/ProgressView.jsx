@@ -73,16 +73,16 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
   return (
     <div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 28 }}>
-        <StatCard label="Workouts" value={stats.totalWorkouts} color="#4C9EFF" />
-        <StatCard label="Total Volume" value={formatVolume(stats.totalVolume)} sub="lbs" color="#3DDC84" />
-        <StatCard label="Completion" value={`${stats.avgCompletion}%`} color="#FBBF24" />
-        <StatCard label="Streak" value={stats.streak} sub="sessions" color="#A78BFA" />
+        <StatCard label="Workouts" value={stats.totalWorkouts} color="#3B82F6" />
+        <StatCard label="Total Volume" value={formatVolume(stats.totalVolume)} sub="lbs" color="#22C55E" />
+        <StatCard label="Completion" value={`${stats.avgCompletion}%`} color="#F59E0B" />
+        <StatCard label="Streak" value={stats.streak} sub="sessions" color="#8B5CF6" />
       </div>
 
       {barData.length > 0 && (
         <div style={{ ...cardStyle(t, { padding: 20, marginBottom: 20 }) }}>
           <SectionLabel>Weekly Volume</SectionLabel>
-          <BarChart data={barData} width={Math.min(600, barData.length * 80)} height={140} barColor="#4C9EFF" />
+          <BarChart data={barData} width={Math.min(600, barData.length * 80)} height={140} barColor="#3B82F6" />
         </div>
       )}
 
@@ -100,7 +100,7 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
                     <div style={{ fontSize: 11, color: t.textMuted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
                     <div style={{ fontSize: 10, color: t.textDim }}>{last} sets/wk</div>
                   </div>
-                  <SparkLine data={sparkData} width={80} height={24} color={MUSCLE_COLORS[name] || "#4C9EFF"} />
+                  <SparkLine data={sparkData} width={80} height={24} color={MUSCLE_COLORS[name] || "#3B82F6"} />
                 </div>
               );
             })}
@@ -119,7 +119,7 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
                   <div style={{ fontSize: 12, fontWeight: 600, color: t.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pr.name}</div>
                   <div style={{ fontSize: 10, color: t.textDim }}>{pr.type} &middot; {pr.date ? formatDate(pr.date) : ""}</div>
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#FBBF24" }}>{pr.value}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#F59E0B" }}>{pr.value}</div>
               </div>
             ))}
           </div>
@@ -190,7 +190,7 @@ function ExercisesTab({ exerciseHistory, prs }) {
                   </div>
                 </div>
                 {pr && (
-                  <div style={{ fontSize: 11, color: "#FBBF24", fontWeight: 600 }}>
+                  <div style={{ fontSize: 11, color: "#F59E0B", fontWeight: 600 }}>
                     PR: {pr.weight.value} lbs
                   </div>
                 )}
@@ -204,7 +204,7 @@ function ExercisesTab({ exerciseHistory, prs }) {
                       <div style={{ fontSize: 11, color: t.textDim, marginBottom: 8 }}>Weight Progression</div>
                       <LineChart
                         data={sessions.map(s => ({ x: formatDate(s.date), y: s.topWeight }))}
-                        width={500} height={160} color="#4C9EFF" yLabel="lbs"
+                        width={500} height={160} color="#3B82F6" yLabel="lbs"
                       />
                     </div>
                   )}
@@ -214,7 +214,7 @@ function ExercisesTab({ exerciseHistory, prs }) {
                       <div style={{ fontSize: 11, color: t.textDim, marginBottom: 8 }}>Estimated 1RM</div>
                       <LineChart
                         data={sessions.filter(s => s.est1RM > 0).map(s => ({ x: formatDate(s.date), y: s.est1RM }))}
-                        width={500} height={160} color="#A78BFA" yLabel="lbs"
+                        width={500} height={160} color="#8B5CF6" yLabel="lbs"
                       />
                     </div>
                   )}
@@ -222,12 +222,12 @@ function ExercisesTab({ exerciseHistory, prs }) {
                   {pr && (
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
                       {pr.weight.value > 0 && (
-                        <span style={{ fontSize: 10, padding: "3px 10px", borderRadius: 20, background: "rgba(251,191,36,0.1)", color: "#FBBF24" }}>
+                        <span style={{ fontSize: 10, padding: "3px 10px", borderRadius: 20, background: "rgba(245,158,11,0.1)", color: "#F59E0B" }}>
                           🏆 Best: {pr.weight.value} lbs
                         </span>
                       )}
                       {pr.est1RM.value > 0 && (
-                        <span style={{ fontSize: 10, padding: "3px 10px", borderRadius: 20, background: "rgba(167,139,250,0.1)", color: "#A78BFA" }}>
+                        <span style={{ fontSize: 10, padding: "3px 10px", borderRadius: 20, background: "rgba(139,92,246,0.1)", color: "#8B5CF6" }}>
                           Est. 1RM: {pr.est1RM.value} lbs
                         </span>
                       )}
@@ -289,7 +289,7 @@ function HistoryTab({ workoutHistory }) {
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ width: 60, height: 5, background: t.border, borderRadius: 3, overflow: "hidden" }}>
-                  <div style={{ width: `${session.pct}%`, height: "100%", background: session.pct >= 80 ? "#3DDC84" : session.pct >= 50 ? "#FBBF24" : "#EF4444", borderRadius: 3 }} />
+                  <div style={{ width: `${session.pct}%`, height: "100%", background: session.pct >= 80 ? "#22C55E" : session.pct >= 50 ? "#F59E0B" : "#EF4444", borderRadius: 3 }} />
                 </div>
                 <span style={{ fontSize: 10, color: t.textDim, width: 30, textAlign: "right" }}>{session.pct}%</span>
               </div>
@@ -326,8 +326,8 @@ function HistoryTab({ workoutHistory }) {
                             }
                             const hit = logged.reps >= s.planned.r;
                             const up = logged.w > s.planned.w;
-                            const bg = up ? "rgba(251,191,36,0.12)" : hit ? "rgba(61,220,132,0.12)" : "rgba(239,68,68,0.12)";
-                            const c = up ? "#FBBF24" : hit ? "#3DDC84" : "#EF4444";
+                            const bg = up ? "rgba(245,158,11,0.12)" : hit ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)";
+                            const c = up ? "#F59E0B" : hit ? "#22C55E" : "#EF4444";
                             return (
                               <span key={si} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 6, background: bg, color: c, fontWeight: 600 }}>
                                 {logged.w}×{logged.reps}

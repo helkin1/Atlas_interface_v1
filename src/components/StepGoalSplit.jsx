@@ -5,7 +5,7 @@ import { PLAN_TEMPLATES } from "../data/plan-templates.js";
 import { buildPlanFromPreset, buildPlanFromTemplate } from "../utils/plan-engine.js";
 import { goalPctColor } from "../utils/helpers.js";
 
-const DIFFICULTY_COLORS = { beginner: "#3DDC84", intermediate: "#FBBF24", advanced: "#EF4444" };
+const DIFFICULTY_COLORS = { beginner: "#22C55E", intermediate: "#F59E0B", advanced: "#EF4444" };
 
 export default function StepGoalSplit({ plan, onChange }) {
   const t = useTheme();
@@ -22,7 +22,7 @@ export default function StepGoalSplit({ plan, onChange }) {
           return (
             <button key={key} onClick={() => { const p = buildPlanFromPreset(key); if (p) onChange({ ...p, weeks: plan.weeks || 4 }); }} style={{ background: sel ? `${goalPctColor(100)}08` : t.surface, border: `1px solid ${sel ? goalPctColor(100) + "40" : t.border}`, borderRadius: 12, padding: 24, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontSize: 16, fontWeight: 700, color: sel ? "#3DDC84" : t.text }}>{preset.name}</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: sel ? "#22C55E" : t.text }}>{preset.name}</span>
                 {preset.daysPerWeek > 0 && <span style={{ fontSize: 10, color: t.textDim, padding: "2px 8px", background: t.surface2, borderRadius: 6 }}>{preset.daysPerWeek}&times;/wk</span>}
               </div>
               <p style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.5, marginBottom: 10 }}>{preset.description}</p>
@@ -58,7 +58,7 @@ export default function StepGoalSplit({ plan, onChange }) {
               return (
                 <button key={tmpl.key} onClick={() => { const p = buildPlanFromTemplate(tmpl); if (p) onChange({ ...p, weeks: plan.weeks || 4 }); }} style={{ background: sel ? `${goalPctColor(100)}08` : t.surface, border: `1px solid ${sel ? goalPctColor(100) + "40" : t.border}`, borderRadius: 12, padding: 24, cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                    <span style={{ fontSize: 16, fontWeight: 700, color: sel ? "#3DDC84" : t.text }}>{tmpl.name}</span>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: sel ? "#22C55E" : t.text }}>{tmpl.name}</span>
                     <span style={{ fontSize: 10, color: t.textDim, padding: "2px 8px", background: t.surface2, borderRadius: 6 }}>{tmpl.daysPerWeek}&times;/wk</span>
                   </div>
                   <div style={{ fontSize: 10, color: t.textDim, marginBottom: 8 }}>by {tmpl.author}</div>
@@ -95,7 +95,7 @@ export default function StepGoalSplit({ plan, onChange }) {
             {showWeekPicker && (
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {[2, 3, 4, 5, 6].map(w => (
-                  <button key={w} onClick={() => onChange({ ...plan, weeks: w })} style={{ padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", border: `1px solid ${plan.weeks === w ? "#4C9EFF" : t.borderLight}`, background: plan.weeks === w ? "rgba(76,158,255,0.1)" : "transparent", color: plan.weeks === w ? "#4C9EFF" : t.textMuted }}>
+                  <button key={w} onClick={() => onChange({ ...plan, weeks: w })} style={{ padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", border: `1px solid ${plan.weeks === w ? "#3B82F6" : t.borderLight}`, background: plan.weeks === w ? "rgba(59,130,246,0.1)" : "transparent", color: plan.weeks === w ? "#3B82F6" : t.textMuted }}>
                     {w}w
                   </button>
                 ))}
