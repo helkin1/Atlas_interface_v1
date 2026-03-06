@@ -27,11 +27,11 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
             <GoalRing pct={overall} size={72} strokeWidth={5} label="Weekly Goal" />
             <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "#4C9EFF" }}>{wkSets}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#3B82F6" }}>{wkSets}</div>
                 <div style={{ fontSize: 10, color: t.textDim }}>Sets</div>
               </div>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "#3DDC84" }}>{trainDays}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#22C55E" }}>{trainDays}</div>
                 <div style={{ fontSize: 10, color: t.textDim }}>Train Days</div>
               </div>
             </div>
@@ -67,7 +67,7 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
           <div style={{ flex: 1 }}>
             <GoalRing pct={wkOverall} size={72} strokeWidth={5} label="Week So Far" />
             <div style={{ marginTop: 10, textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#4C9EFF" }}>{getDaySets(curDay)}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#3B82F6" }}>{getDaySets(curDay)}</div>
               <div style={{ fontSize: 10, color: t.textDim }}>Sets Today</div>
             </div>
           </div>
@@ -146,11 +146,11 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
           <GoalRing pct={overall} size={72} strokeWidth={5} label="Avg Weekly" />
           <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#4C9EFF" }}>{totalSets}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#3B82F6" }}>{totalSets}</div>
               <div style={{ fontSize: 10, color: t.textDim }}>Total Sets</div>
             </div>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#3DDC84" }}>{trainDays}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#22C55E" }}>{trainDays}</div>
               <div style={{ fontSize: 10, color: t.textDim }}>Train Days</div>
             </div>
           </div>
@@ -165,9 +165,9 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
         <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Volume Balance</div>
         <div style={{ display: "flex", gap: 8 }}>
           {[
-            { key: "upper", label: "Upper", color: "#4C9EFF" },
-            { key: "lower", label: "Lower", color: "#A78BFA" },
-            { key: "core",  label: "Core",  color: "#FBBF24" },
+            { key: "upper", label: "Upper", color: "#3B82F6" },
+            { key: "lower", label: "Lower", color: "#8B5CF6" },
+            { key: "core",  label: "Core",  color: "#F59E0B" },
           ].map(({ key, label, color }) => {
             const v = regionVol[key];
             const pct = Math.round((v / regionTotal) * 100);
@@ -193,8 +193,8 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
             const sel = weekIdx === i;
             return (
               <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                <span style={{ fontSize: 10, color: sel ? "#4C9EFF" : t.textDim }}>{s}</span>
-                <div style={{ width: "100%", height: `${h}%`, background: sel ? "#4C9EFF" : t.border, borderRadius: 4, minHeight: 4, transition: "all 0.3s" }} />
+                <span style={{ fontSize: 10, color: sel ? "#3B82F6" : t.textDim }}>{s}</span>
+                <div style={{ width: "100%", height: `${h}%`, background: sel ? "#3B82F6" : t.border, borderRadius: 4, minHeight: 4, transition: "all 0.3s" }} />
                 <span style={{ fontSize: 9, color: t.textFaint }}>W{i + 1}</span>
               </div>
             );

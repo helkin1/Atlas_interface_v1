@@ -30,12 +30,12 @@ export default function IntroScreen({ onStart, themeMode, onToggleTheme }) {
       {/* CTA */}
       <button onClick={onStart} style={{
         padding: "16px 48px", borderRadius: 14, border: "none",
-        background: "#4C9EFF", color: "#fff", fontSize: 16, fontWeight: 700,
+        background: "#3B82F6", color: "#fff", fontSize: 16, fontWeight: 700,
         cursor: "pointer", marginBottom: 56, transition: "transform 0.15s, box-shadow 0.15s",
-        boxShadow: "0 4px 24px rgba(76,158,255,0.3)",
+        boxShadow: "0 4px 24px rgba(59,130,246,0.3)",
       }}
-        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 32px rgba(76,158,255,0.4)"; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 24px rgba(76,158,255,0.3)"; }}
+        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 32px rgba(59,130,246,0.4)"; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 24px rgba(59,130,246,0.3)"; }}
       >
         Build Your Plan &rarr;
       </button>

@@ -42,11 +42,11 @@ export default function BuilderSidebar({ plan }) {
           <GoalRing pct={overallScore} size={72} strokeWidth={5} label="Coverage" />
           <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#4C9EFF" }}>{trainDays}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#3B82F6" }}>{trainDays}</div>
               <div style={{ fontSize: 10, color: t.textDim }}>Train Days</div>
             </div>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#FBBF24" }}>{totalExercises}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#F59E0B" }}>{totalExercises}</div>
               <div style={{ fontSize: 10, color: t.textDim }}>Exercises</div>
             </div>
           </div>
@@ -57,7 +57,7 @@ export default function BuilderSidebar({ plan }) {
       <div style={{ background: t.surface, borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: t.shadow }}>
         <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 10 }}>Volume Balance</div>
         <div style={{ display: "flex", gap: 6 }}>
-          {[["upper", "#4C9EFF", "Upper"], ["lower", "#A78BFA", "Lower"], ["core", "#FBBF24", "Core"]].map(([key, color, label]) => {
+          {[["upper", "#3B82F6", "Upper"], ["lower", "#8B5CF6", "Lower"], ["core", "#F59E0B", "Core"]].map(([key, color, label]) => {
             const v = regionVol[key];
             const pct = Math.round((v / regionTotal) * 100);
             return (

@@ -66,7 +66,7 @@ export default function StepExercises({ plan, onChange }) {
         {seq.map((day, seqIdx) => {
           const sel = selectedSeqIdx === seqIdx;
           return (
-            <button key={seqIdx} onClick={() => { setSelectedSeqIdx(seqIdx); setExpandedIdx(null); }} style={{ padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: "pointer", border: `1px solid ${sel ? "#4C9EFF" : t.borderLight}`, background: sel ? "rgba(76,158,255,0.1)" : "transparent", color: sel ? "#4C9EFF" : t.textMuted }}>
+            <button key={seqIdx} onClick={() => { setSelectedSeqIdx(seqIdx); setExpandedIdx(null); }} style={{ padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: "pointer", border: `1px solid ${sel ? "#3B82F6" : t.borderLight}`, background: sel ? "rgba(59,130,246,0.1)" : "transparent", color: sel ? "#3B82F6" : t.textMuted }}>
               {day.label}{day.exercises.length > 0 ? ` (${day.exercises.length})` : ""}
             </button>
           );
@@ -105,7 +105,7 @@ export default function StepExercises({ plan, onChange }) {
                     onDragEnd={() => setDragIdx(null)}
                     style={{
                       background: isExp ? t.surface2 : t.surface3,
-                      border: `1px solid ${dragIdx === ei ? "#4C9EFF" : isExp ? t.borderLight : t.border}`,
+                      border: `1px solid ${dragIdx === ei ? "#3B82F6" : isExp ? t.borderLight : t.border}`,
                       borderRadius: isExp ? "12px 12px 0 0" : 12,
                       padding: "12px 14px",
                       display: "flex", alignItems: "center", gap: 10,
@@ -123,10 +123,10 @@ export default function StepExercises({ plan, onChange }) {
                       </div>
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0, marginRight: 4 }}>
-                      <div style={{ fontSize: 11, color: "#4C9EFF", fontWeight: 600 }}>{sm.count} sets</div>
+                      <div style={{ fontSize: 11, color: "#3B82F6", fontWeight: 600 }}>{sm.count} sets</div>
                       <div style={{ fontSize: 10, color: t.textMuted }}>{sm.repsRange} reps</div>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); setExpandedIdx(isExp ? null : ei); }} style={{ background: isExp ? "rgba(76,158,255,0.1)" : "transparent", border: `1px solid ${isExp ? "#4C9EFF40" : t.borderLight}`, borderRadius: 8, padding: "4px 10px", cursor: "pointer", fontSize: 10, fontWeight: 600, color: isExp ? "#4C9EFF" : t.textDim, whiteSpace: "nowrap" }}>
+                    <button onClick={(e) => { e.stopPropagation(); setExpandedIdx(isExp ? null : ei); }} style={{ background: isExp ? "rgba(59,130,246,0.1)" : "transparent", border: `1px solid ${isExp ? "#3B82F640" : t.borderLight}`, borderRadius: 8, padding: "4px 10px", cursor: "pointer", fontSize: 10, fontWeight: 600, color: isExp ? "#3B82F6" : t.textDim, whiteSpace: "nowrap" }}>
                       {isExp ? "Close" : "Edit Sets"}
                     </button>
                     <button onClick={e => { e.stopPropagation(); removeExercise(ei); }} style={{ background: "none", border: "none", color: "#EF4444", cursor: "pointer", fontSize: 14, padding: "2px 4px", flexShrink: 0 }}>{"\u2715"}</button>
@@ -149,7 +149,7 @@ export default function StepExercises({ plan, onChange }) {
                           {entry.setDetails.length > 1 && <button onClick={() => removeSet(ei, si)} style={{ background: "none", border: "none", color: t.textDim, cursor: "pointer", fontSize: 11 }}>{"\u2715"}</button>}
                         </div>
                       ))}
-                      <button onClick={() => addSet(ei)} style={{ marginTop: 8, marginLeft: 28, fontSize: 11, padding: "5px 14px", borderRadius: 8, background: "transparent", border: `1px dashed ${t.borderLight}`, color: "#4C9EFF", cursor: "pointer" }}>+ Add Set</button>
+                      <button onClick={() => addSet(ei)} style={{ marginTop: 8, marginLeft: 28, fontSize: 11, padding: "5px 14px", borderRadius: 8, background: "transparent", border: `1px dashed ${t.borderLight}`, color: "#3B82F6", cursor: "pointer" }}>+ Add Set</button>
                     </div>
                   )}
                 </div>
@@ -159,15 +159,15 @@ export default function StepExercises({ plan, onChange }) {
             {/* Gap suggestions inside the exercise list */}
             {suggestions.length > 0 && (
               <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${t.border}` }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8 }}><span style={{ color: "#FBBF24" }}>{"\u26A1"}</span> Suggested to fill gaps</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8 }}><span style={{ color: "#F59E0B" }}>{"\u26A1"}</span> Suggested to fill gaps</div>
                 {suggestions.map(s => (
-                  <button key={s.id} onClick={() => addExercise(s.id)} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: "rgba(251,191,36,0.04)", border: "1px dashed rgba(251,191,36,0.25)", borderRadius: 10, padding: 10, marginBottom: 4, cursor: "pointer", textAlign: "left" }}>
-                    <span style={{ fontSize: 14, color: "#3DDC84" }}>+</span>
+                  <button key={s.id} onClick={() => addExercise(s.id)} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: "rgba(245,158,11,0.04)", border: "1px dashed rgba(245,158,11,0.25)", borderRadius: 10, padding: 10, marginBottom: 4, cursor: "pointer", textAlign: "left" }}>
+                    <span style={{ fontSize: 14, color: "#22C55E" }}>+</span>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{s.name}</div>
                       <div style={{ fontSize: 10, color: t.textDim }}>Targets: {s.directMuscles.join(", ")}</div>
                     </div>
-                    {s.isNew && <span style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, background: "rgba(61,220,132,0.1)", color: "#3DDC84" }}>NEW</span>}
+                    {s.isNew && <span style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, background: "rgba(34,197,94,0.1)", color: "#22C55E" }}>NEW</span>}
                   </button>
                 ))}
               </div>
@@ -180,9 +180,9 @@ export default function StepExercises({ plan, onChange }) {
 
             {/* Muscle group filter */}
             <div style={{ display: "flex", gap: 4, marginBottom: 12, flexWrap: "wrap" }}>
-              <button onClick={() => setFilterMuscle("all")} style={{ padding: "5px 10px", borderRadius: 8, fontSize: 10, fontWeight: 600, cursor: "pointer", border: `1px solid ${filterMuscle === "all" ? "#4C9EFF40" : t.borderLight}`, background: filterMuscle === "all" ? "rgba(76,158,255,0.08)" : "transparent", color: filterMuscle === "all" ? "#4C9EFF" : t.textDim }}>All Muscles</button>
+              <button onClick={() => setFilterMuscle("all")} style={{ padding: "5px 10px", borderRadius: 8, fontSize: 10, fontWeight: 600, cursor: "pointer", border: `1px solid ${filterMuscle === "all" ? "#3B82F640" : t.borderLight}`, background: filterMuscle === "all" ? "rgba(59,130,246,0.08)" : "transparent", color: filterMuscle === "all" ? "#3B82F6" : t.textDim }}>All Muscles</button>
               {allMuscles.map(m => (
-                <button key={m} onClick={() => setFilterMuscle(filterMuscle === m ? "all" : m)} style={{ padding: "5px 10px", borderRadius: 8, fontSize: 10, fontWeight: 600, cursor: "pointer", border: `1px solid ${filterMuscle === m ? (MUSCLE_COLORS[m] || "#4C9EFF") + "40" : t.borderLight}`, background: filterMuscle === m ? `${MUSCLE_COLORS[m] || "#4C9EFF"}10` : "transparent", color: filterMuscle === m ? (MUSCLE_COLORS[m] || "#4C9EFF") : t.textDim }}>
+                <button key={m} onClick={() => setFilterMuscle(filterMuscle === m ? "all" : m)} style={{ padding: "5px 10px", borderRadius: 8, fontSize: 10, fontWeight: 600, cursor: "pointer", border: `1px solid ${filterMuscle === m ? (MUSCLE_COLORS[m] || "#3B82F6") + "40" : t.borderLight}`, background: filterMuscle === m ? `${MUSCLE_COLORS[m] || "#3B82F6"}10` : "transparent", color: filterMuscle === m ? (MUSCLE_COLORS[m] || "#3B82F6") : t.textDim }}>
                   {m}
                 </button>
               ))}
@@ -198,7 +198,7 @@ export default function StepExercises({ plan, onChange }) {
                       <div style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{ex.name}</div>
                       <div style={{ fontSize: 10, color: t.textDim }}>{ex.muscles.filter(m => m.role === "direct").map(m => m.name).join(", ")}</div>
                     </div>
-                    {inDay ? <span style={{ fontSize: 10, color: t.textDim }}>Added</span> : <span style={{ fontSize: 14, color: "#3DDC84" }}>+</span>}
+                    {inDay ? <span style={{ fontSize: 10, color: t.textDim }}>Added</span> : <span style={{ fontSize: 14, color: "#22C55E" }}>+</span>}
                   </button>
                 );
               })}

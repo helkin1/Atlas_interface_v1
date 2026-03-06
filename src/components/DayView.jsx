@@ -13,8 +13,8 @@ function SetPill({ set, idx, logged }) {
   const up = isL && logged.w > set.w;
 
   let bc = t.borderLight, bg = "transparent", tc = t.textMuted, icon = "";
-  if (isL && hit && !up) { bc = "#3DDC84"; bg = "rgba(61,220,132,0.06)"; tc = "#3DDC84"; icon = " \u2713"; }
-  else if (isL && up)    { bc = "#FBBF24"; bg = "rgba(251,191,36,0.06)";  tc = "#FBBF24"; icon = " \u2191"; }
+  if (isL && hit && !up) { bc = "#22C55E"; bg = "rgba(34,197,94,0.06)"; tc = "#22C55E"; icon = " \u2713"; }
+  else if (isL && up)    { bc = "#F59E0B"; bg = "rgba(245,158,11,0.06)";  tc = "#F59E0B"; icon = " \u2191"; }
   else if (isL && !hit)  { bc = "#EF4444"; bg = "rgba(239,68,68,0.06)";   tc = "#EF4444"; icon = " \u2717"; }
 
   const dw = isL ? logged.w : set.w;
@@ -22,7 +22,7 @@ function SetPill({ set, idx, logged }) {
 
   return (
     <div style={{
-      border: `1px solid ${bc}`, background: bg, color: tc, borderRadius: 8,
+      border: `1px solid ${bc}`, background: bg, color: tc, borderRadius: 14,
       padding: "8px 12px", fontSize: 12,
       minWidth: 78, textAlign: "center",
     }}>
@@ -107,7 +107,7 @@ export default function DayView({ day, planId, onBack }) {
         />
       )}
 
-      <button onClick={onBack} style={{ fontSize: 12, color: "#4C9EFF", background: "none", border: "none", cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>&larr; Back to Week</button>
+      <button onClick={onBack} style={{ fontSize: 12, color: "#3B82F6", background: "none", border: "none", cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>&larr; Back to Week</button>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
@@ -120,13 +120,13 @@ export default function DayView({ day, planId, onBack }) {
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {hasLogs && (
-            <button onClick={clearLogs} style={{ padding: "10px 16px", borderRadius: 12, border: `1px solid ${t.borderLight}`, background: "transparent", color: t.textDim, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Clear Logs</button>
+            <button onClick={clearLogs} style={{ padding: "10px 16px", borderRadius: 14, border: `1px solid ${t.borderLight}`, background: "transparent", color: t.textDim, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Clear Logs</button>
           )}
           <button
             onClick={startSession}
             style={{
-              padding: "12px 28px", borderRadius: 12, border: "none",
-              background: "#4C9EFF", color: "#fff",
+              padding: "12px 28px", borderRadius: 14, border: "none",
+              background: "#3B82F6", color: "#fff",
               fontSize: 14, fontWeight: 700, cursor: "pointer",
             }}
           >{hasLogs ? "Resume Workout" : "Start Workout"}</button>
@@ -141,10 +141,10 @@ export default function DayView({ day, planId, onBack }) {
               <span style={{ fontSize: 12, color: t.textMuted, fontWeight: 500 }}>
                 Session logged — {completedSets}/{totalSets} sets
               </span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: pct === 100 ? "#3DDC84" : "#4C9EFF" }}>{pct}%</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: pct === 100 ? "#22C55E" : "#3B82F6" }}>{pct}%</span>
             </div>
             <div style={{ height: 4, borderRadius: 2, background: t.surface3, overflow: "hidden" }}>
-              <div style={{ height: "100%", borderRadius: 2, background: pct === 100 ? "#3DDC84" : "#4C9EFF", width: `${pct}%`, transition: "width 0.3s" }} />
+              <div style={{ height: "100%", borderRadius: 2, background: pct === 100 ? "#22C55E" : "#3B82F6", width: `${pct}%`, transition: "width 0.3s" }} />
             </div>
           </div>
           {actualVol > 0 && (

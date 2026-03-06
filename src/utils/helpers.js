@@ -4,14 +4,14 @@ export const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export const MO_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export const PATTERN_COLORS = {
-  push: { bg: "rgba(61,220,132,0.1)", border: "rgba(61,220,132,0.25)", text: "#3DDC84" },
-  pull: { bg: "rgba(167,139,250,0.1)", border: "rgba(167,139,250,0.25)", text: "#A78BFA" },
-  legs: { bg: "rgba(76,158,255,0.1)", border: "rgba(76,158,255,0.25)", text: "#4C9EFF" },
+  push: { bg: "rgba(34,197,94,0.1)", border: "rgba(34,197,94,0.25)", text: "#22C55E" },
+  pull: { bg: "rgba(139,92,246,0.1)", border: "rgba(139,92,246,0.25)", text: "#8B5CF6" },
+  legs: { bg: "rgba(59,130,246,0.1)", border: "rgba(59,130,246,0.25)", text: "#3B82F6" },
 };
 
 export const MUSCLE_COLORS = {
-  Chest: "#3DDC84", Quads: "#4C9EFF", Lats: "#A78BFA", Hamstrings: "#FF8A50",
-  Glutes: "#F472B6", Triceps: "#FBBF24", "Front Delts": "#2DD4BF", Biceps: "#EF4444",
+  Chest: "#22C55E", Quads: "#3B82F6", Lats: "#8B5CF6", Hamstrings: "#FF8A50",
+  Glutes: "#EC4899", Triceps: "#F59E0B", "Front Delts": "#2DD4BF", Biceps: "#EF4444",
   "Side Delts": "#818CF8", "Upper Back": "#34D399", "Rear Delts": "#FB923C",
   Core: "#94A3B8", "Upper Chest": "#6EE7B7", Calves: "#A3A3A3", Traps: "#D4D4D8",
   "Lower Back": "#CA8A04", Forearms: "#78716C", "Rotator Cuff": "#7DD3FC", Brachialis: "#9CA3AF",
@@ -63,7 +63,7 @@ export function getVolumeZone(sets, lm) {
 }
 
 export function getZoneColor(zone) {
-  return { below: "#EF4444", productive: "#3DDC84", high: "#FBBF24", over: "#F472B6", unknown: "#5A6478" }[zone];
+  return { below: "#EF4444", productive: "#22C55E", high: "#F59E0B", over: "#EC4899", unknown: "#5A6478" }[zone];
 }
 
 export function getZoneText(zone) {
@@ -71,8 +71,8 @@ export function getZoneText(zone) {
 }
 
 export function goalPctColor(pct) {
-  if (pct >= 95) return "#3DDC84";
-  if (pct >= 75) return "#FBBF24";
+  if (pct >= 95) return "#22C55E";
+  if (pct >= 75) return "#F59E0B";
   if (pct >= 50) return "#FF8A50";
   return "#EF4444";
 }

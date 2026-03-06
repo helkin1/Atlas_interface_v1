@@ -15,7 +15,7 @@ export default function MonthView({ onWeek, onDay }) {
       {MONTH.map((week, wi) => (
         <div key={wi} style={{ marginBottom: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <button onClick={() => onWeek(wi)} style={{ fontSize: 11, color: "#4C9EFF", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>{week.label}</button>
+            <button onClick={() => onWeek(wi)} style={{ fontSize: 11, color: "#3B82F6", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>{week.label}</button>
             <span style={{ fontSize: 10, color: t.textFaint }}>&middot; {getWeekSets(week)} sets</span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>

@@ -7,8 +7,8 @@ import { MiniBar } from "./shared.jsx";
 /* ── Helpers ──────────────────────────────────────────────────── */
 
 function rpeColor(v) {
-  if (v <= 7) return "#3DDC84";
-  if (v === 8) return "#FBBF24";
+  if (v <= 7) return "#22C55E";
+  if (v === 8) return "#F59E0B";
   if (v === 9) return "#F97316";
   return "#EF4444";
 }
@@ -33,9 +33,9 @@ function InlineRestTimer({ duration = 90, onDone }) {
   return (
     <div>
       <div style={{ height: 3, background: t.surface3, borderRadius: 2, overflow: "hidden", marginBottom: 10 }}>
-        <div style={{ height: "100%", background: done ? "#3DDC84" : "#4C9EFF", width: `${pct}%`, transition: "width 1s linear" }} />
+        <div style={{ height: "100%", background: done ? "#22C55E" : "#3B82F6", width: `${pct}%`, transition: "width 1s linear" }} />
       </div>
-      <div style={{ fontSize: 36, fontWeight: 700, color: done ? "#3DDC84" : remaining <= 10 ? "#EF4444" : t.text, marginBottom: 10 }}>
+      <div style={{ fontSize: 36, fontWeight: 700, color: done ? "#22C55E" : remaining <= 10 ? "#EF4444" : t.text, marginBottom: 10 }}>
         {mins}:{String(secs).padStart(2, "0")}
       </div>
       <div style={{ display: "flex", gap: 6 }}>
@@ -43,7 +43,7 @@ function InlineRestTimer({ duration = 90, onDone }) {
           Skip
         </button>
         {done && (
-          <button onClick={onDone} style={{ flex: 1, padding: "8px", borderRadius: 8, border: "none", background: "#3DDC84", color: "#000", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+          <button onClick={onDone} style={{ flex: 1, padding: "8px", borderRadius: 8, border: "none", background: "#22C55E", color: "#000", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
             Go!
           </button>
         )}
@@ -125,7 +125,7 @@ function GymLogModal({ exercise, setData, idx, onConfirm, onCancel }) {
 
         <div style={{ display: "flex", gap: 10 }}>
           <button onClick={onCancel} style={{ flex: 1, padding: 14, borderRadius: 12, border: `1px solid ${t.borderLight}`, background: "transparent", color: t.textMuted, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
-          <button onClick={() => onConfirm(Number(w), Number(r), rpe)} style={{ flex: 2, padding: 14, borderRadius: 12, border: "none", background: "#4C9EFF", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Log Set</button>
+          <button onClick={() => onConfirm(Number(w), Number(r), rpe)} style={{ flex: 2, padding: 14, borderRadius: 12, border: "none", background: "#3B82F6", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Log Set</button>
         </div>
       </div>
     </div>
@@ -141,8 +141,8 @@ function GymSetPill({ set, idx, logged, onLog }) {
   const up = isL && logged.w > set.w;
 
   let bc = t.borderLight, bg = "transparent", tc = t.textMuted, icon = "";
-  if (isL && hit && !up) { bc = "#3DDC84"; bg = "rgba(61,220,132,0.06)"; tc = "#3DDC84"; icon = " \u2713"; }
-  else if (isL && up)    { bc = "#FBBF24"; bg = "rgba(251,191,36,0.06)";  tc = "#FBBF24"; icon = " \u2191"; }
+  if (isL && hit && !up) { bc = "#22C55E"; bg = "rgba(34,197,94,0.06)"; tc = "#22C55E"; icon = " \u2713"; }
+  else if (isL && up)    { bc = "#F59E0B"; bg = "rgba(245,158,11,0.06)";  tc = "#F59E0B"; icon = " \u2191"; }
   else if (isL && !hit)  { bc = "#EF4444"; bg = "rgba(239,68,68,0.06)";   tc = "#EF4444"; icon = " \u2717"; }
 
   const dw = isL ? logged.w : set.w;
@@ -252,7 +252,7 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
           <div>
             <div style={{ fontSize: 12, color: t.textDim }}>{day.label}</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: pct === 100 ? "#3DDC84" : "#4C9EFF" }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: pct === 100 ? "#22C55E" : "#3B82F6" }}>
               {completedSets}/{totalSets} sets &middot; {pct}%
             </div>
           </div>
@@ -269,7 +269,7 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
         {/* progress bar */}
         <div style={{ height: 2, background: t.surface3, borderRadius: 2, overflow: "hidden" }}>
           <div style={{
-            height: "100%", background: pct === 100 ? "#3DDC84" : "#4C9EFF",
+            height: "100%", background: pct === 100 ? "#22C55E" : "#3B82F6",
             width: `${pct}%`, transition: "width 0.3s",
           }} />
         </div>
@@ -288,13 +288,13 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
 
             return (
               <div key={ei} style={{
-                background: allDone ? "rgba(61,220,132,0.04)" : t.surface,
-                border: `1px solid ${allDone ? "rgba(61,220,132,0.2)" : t.border}`,
+                background: allDone ? "rgba(34,197,94,0.04)" : t.surface,
+                border: `1px solid ${allDone ? "rgba(34,197,94,0.2)" : t.border}`,
                 borderRadius: 14, padding: 20, marginBottom: 10, transition: "all 0.2s",
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
                   <div>
-                    <div style={{ fontSize: 17, fontWeight: 700, color: allDone ? "#3DDC84" : t.text }}>{ex.name}</div>
+                    <div style={{ fontSize: 17, fontWeight: 700, color: allDone ? "#22C55E" : t.text }}>{ex.name}</div>
                     <div style={{ display: "flex", gap: 4, marginTop: 6, flexWrap: "wrap" }}>
                       {ex.muscles.filter((m) => m.role === "direct").map((m) => (
                         <span key={m.name} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 8, background: `${MUSCLE_COLORS[m.name] || "#666"}18`, color: MUSCLE_COLORS[m.name] || "#888" }}>
@@ -303,7 +303,7 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
                       ))}
                     </div>
                   </div>
-                  <div style={{ fontSize: 11, color: allDone ? "#3DDC84" : t.textFaint }}>
+                  <div style={{ fontSize: 11, color: allDone ? "#22C55E" : t.textFaint }}>
                     {loggedCount}/{entry.sets.length}
                   </div>
                 </div>
