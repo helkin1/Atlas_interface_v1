@@ -15,8 +15,8 @@ export default function SettingsMenu({ onEditPlan, onSignOut, onAIInsights, onPr
         <>
           <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 99 }} />
           <div style={{
-            position: "absolute", right: 0, top: 38, background: t.surface, border: `1px solid ${t.border}`,
-            borderRadius: 10, padding: 4, minWidth: 160, zIndex: 100, boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
+            position: "absolute", right: 0, top: 38, background: t.surface, 
+            borderRadius: 12, padding: 6, minWidth: 180, zIndex: 100, boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
           }}>
             {onProfile && (
               <button onClick={() => { setOpen(false); onProfile(); }} style={{

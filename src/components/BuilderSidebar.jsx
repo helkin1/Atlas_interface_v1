@@ -33,41 +33,41 @@ export default function BuilderSidebar({ plan }) {
 
   return (
     <div>
-      <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 16 }}>Live Analysis</div>
+      <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 16 }}>Live Analysis</div>
 
       {/* Muscle diagram + coverage ring */}
-      <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16, marginBottom: 16, display: "flex", alignItems: "center", gap: 16 }}>
+      <div style={{ background: t.surface, borderRadius: 12, padding: 20, marginBottom: 16, display: "flex", alignItems: "center", gap: 16 }}>
         <MuscleDiagram muscleVol={effectiveSets} size={120} />
         <div style={{ flex: 1 }}>
           <GoalRing pct={overallScore} size={72} strokeWidth={5} label="Coverage" />
           <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontFamily: "mono", fontWeight: 700, color: "#4C9EFF" }}>{trainDays}</div>
-              <div style={{ fontSize: 8, color: t.textFaint, fontFamily: "mono", textTransform: "uppercase" }}>Train Days</div>
+              <div style={{ fontSize: 18, fontFamily: "inherit", fontWeight: 700, color: "#4C9EFF" }}>{trainDays}</div>
+              <div style={{ fontSize: 10, color: t.textDim }}>Train Days</div>
             </div>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontFamily: "mono", fontWeight: 700, color: "#FBBF24" }}>{totalExercises}</div>
-              <div style={{ fontSize: 8, color: t.textFaint, fontFamily: "mono", textTransform: "uppercase" }}>Exercises</div>
+              <div style={{ fontSize: 18, fontFamily: "inherit", fontWeight: 700, color: "#FBBF24" }}>{totalExercises}</div>
+              <div style={{ fontSize: 10, color: t.textDim }}>Exercises</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Volume Balance: Upper / Lower / Core */}
-      <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 10 }}>Volume Balance</div>
+      <div style={{ background: t.surface, borderRadius: 12, padding: 16, marginBottom: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 10 }}>Volume Balance</div>
         <div style={{ display: "flex", gap: 6 }}>
           {[["upper", "#4C9EFF", "Upper"], ["lower", "#A78BFA", "Lower"], ["core", "#FBBF24", "Core"]].map(([key, color, label]) => {
             const v = regionVol[key];
             const pct = Math.round((v / regionTotal) * 100);
             return (
               <div key={key} style={{ flex: 1, textAlign: "center" }}>
-                <div style={{ fontSize: 18, fontFamily: "mono", fontWeight: 700, color }}>{Math.round(v)}</div>
+                <div style={{ fontSize: 18, fontFamily: "inherit", fontWeight: 700, color }}>{Math.round(v)}</div>
                 <div style={{ fontSize: 9, color: t.textDim }}>{label}</div>
                 <div style={{ height: 4, background: t.border, borderRadius: 2, marginTop: 6, overflow: "hidden" }}>
                   <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 2, transition: "width 0.3s" }} />
                 </div>
-                <div style={{ fontSize: 9, fontFamily: "mono", color: t.textFaint, marginTop: 3 }}>{pct}%</div>
+                <div style={{ fontSize: 9, fontFamily: "inherit", color: t.textFaint, marginTop: 3 }}>{pct}%</div>
               </div>
             );
           })}
@@ -75,14 +75,14 @@ export default function BuilderSidebar({ plan }) {
       </div>
 
       {/* Weekly Volume (vs Target) */}
-      <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Weekly Volume (vs Target)</div>
+      <div style={{ background: t.surface, borderRadius: 12, padding: 16, marginBottom: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Weekly Volume (vs Target)</div>
         {sorted.slice(0, 14).map(([m, data]) => <MuscleGoalBar key={m} name={m} eff={data.eff} target={data.target} compact />)}
       </div>
 
       {/* Plan Alerts — below weekly volume */}
-      <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 16 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Plan Alerts</div>
+      <div style={{ background: t.surface, borderRadius: 12, padding: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Plan Alerts</div>
         <AlertsPanel alerts={alerts} maxVisible={4} />
       </div>
     </div>

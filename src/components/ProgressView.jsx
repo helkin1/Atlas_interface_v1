@@ -79,14 +79,14 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
       </div>
 
       {barData.length > 0 && (
-        <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 20, marginBottom: 20 }}>
+        <div style={{ background: t.surface, borderRadius: 12, padding: 20, marginBottom: 20 }}>
           <SectionLabel>Weekly Volume</SectionLabel>
           <BarChart data={barData} width={Math.min(600, barData.length * 80)} height={140} barColor="#4C9EFF" />
         </div>
       )}
 
       {muscleEntries.length > 0 && (
-        <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 20, marginBottom: 20 }}>
+        <div style={{ background: t.surface, borderRadius: 12, padding: 20, marginBottom: 20 }}>
           <SectionLabel>Muscle Volume Trends</SectionLabel>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
             {muscleEntries.map(([name, data]) => {
@@ -97,7 +97,7 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
                   <div style={{ width: 8, height: 8, borderRadius: "50%", background: MUSCLE_COLORS[name] || "#666", flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 11, color: t.textMuted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
-                    <div style={{ fontSize: 10, fontFamily: "mono", color: t.textDim }}>{last} sets/wk</div>
+                    <div style={{ fontSize: 10, fontFamily: "inherit", color: t.textDim }}>{last} sets/wk</div>
                   </div>
                   <SparkLine data={sparkData} width={80} height={24} color={MUSCLE_COLORS[name] || "#4C9EFF"} />
                 </div>
@@ -108,7 +108,7 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
       )}
 
       {prList.length > 0 && (
-        <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: 20 }}>
+        <div style={{ background: t.surface, borderRadius: 12, padding: 20 }}>
           <SectionLabel>Personal Records</SectionLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {prList.slice(0, 10).map((pr, i) => (
@@ -118,7 +118,7 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
                   <div style={{ fontSize: 12, fontWeight: 600, color: t.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pr.name}</div>
                   <div style={{ fontSize: 10, color: t.textDim }}>{pr.type} &middot; {pr.date ? formatDate(pr.date) : ""}</div>
                 </div>
-                <div style={{ fontSize: 14, fontFamily: "mono", fontWeight: 700, color: "#FBBF24" }}>{pr.value}</div>
+                <div style={{ fontSize: 14, fontFamily: "inherit", fontWeight: 700, color: "#FBBF24" }}>{pr.value}</div>
               </div>
             ))}
           </div>
@@ -172,7 +172,7 @@ function ExercisesTab({ exerciseHistory, prs }) {
           const lastSession = sessions[sessions.length - 1];
 
           return (
-            <div key={exId} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
+            <div key={exId} style={{ background: t.surface, borderRadius: 12, overflow: "hidden" }}>
               <button
                 onClick={() => setExpanded(isOpen ? null : exId)}
                 style={{
@@ -183,13 +183,13 @@ function ExercisesTab({ exerciseHistory, prs }) {
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: t.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
-                  <div style={{ fontSize: 10, fontFamily: "mono", color: t.textDim, marginTop: 2 }}>
+                  <div style={{ fontSize: 10, fontFamily: "inherit", color: t.textDim, marginTop: 2 }}>
                     {sessions.length} session{sessions.length !== 1 ? "s" : ""}
                     {lastSession ? ` · Last: ${formatDate(lastSession.date)}` : ""}
                   </div>
                 </div>
                 {pr && (
-                  <div style={{ fontSize: 11, fontFamily: "mono", color: "#FBBF24", fontWeight: 600 }}>
+                  <div style={{ fontSize: 11, fontFamily: "inherit", color: "#FBBF24", fontWeight: 600 }}>
                     PR: {pr.weight.value} lbs
                   </div>
                 )}
@@ -200,7 +200,7 @@ function ExercisesTab({ exerciseHistory, prs }) {
                 <div style={{ padding: "0 16px 16px", borderTop: `1px solid ${t.border}` }}>
                   {sessions.length >= 2 && (
                     <div style={{ marginTop: 14, marginBottom: 14 }}>
-                      <div style={{ fontSize: 10, fontFamily: "mono", color: t.textFaint, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Weight Progression</div>
+                      <div style={{ fontSize: 11, color: t.textDim, marginBottom: 8 }}>Weight Progression</div>
                       <LineChart
                         data={sessions.map(s => ({ x: formatDate(s.date), y: s.topWeight }))}
                         width={500} height={160} color="#4C9EFF" yLabel="lbs"
@@ -210,7 +210,7 @@ function ExercisesTab({ exerciseHistory, prs }) {
 
                   {sessions.length >= 2 && sessions.some(s => s.est1RM > 0) && (
                     <div style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 10, fontFamily: "mono", color: t.textFaint, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Estimated 1RM</div>
+                      <div style={{ fontSize: 11, color: t.textDim, marginBottom: 8 }}>Estimated 1RM</div>
                       <LineChart
                         data={sessions.filter(s => s.est1RM > 0).map(s => ({ x: formatDate(s.date), y: s.est1RM }))}
                         width={500} height={160} color="#A78BFA" yLabel="lbs"
@@ -221,24 +221,24 @@ function ExercisesTab({ exerciseHistory, prs }) {
                   {pr && (
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
                       {pr.weight.value > 0 && (
-                        <span style={{ fontSize: 10, fontFamily: "mono", padding: "3px 10px", borderRadius: 20, background: "rgba(251,191,36,0.1)", color: "#FBBF24" }}>
+                        <span style={{ fontSize: 10, fontFamily: "inherit", padding: "3px 10px", borderRadius: 20, background: "rgba(251,191,36,0.1)", color: "#FBBF24" }}>
                           🏆 Best: {pr.weight.value} lbs
                         </span>
                       )}
                       {pr.est1RM.value > 0 && (
-                        <span style={{ fontSize: 10, fontFamily: "mono", padding: "3px 10px", borderRadius: 20, background: "rgba(167,139,250,0.1)", color: "#A78BFA" }}>
+                        <span style={{ fontSize: 10, fontFamily: "inherit", padding: "3px 10px", borderRadius: 20, background: "rgba(167,139,250,0.1)", color: "#A78BFA" }}>
                           Est. 1RM: {pr.est1RM.value} lbs
                         </span>
                       )}
                     </div>
                   )}
 
-                  <div style={{ fontSize: 10, fontFamily: "mono", color: t.textFaint, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Recent Sessions</div>
+                  <div style={{ fontSize: 11, color: t.textDim, marginBottom: 6 }}>Recent Sessions</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                     {sessions.slice(-5).reverse().map((s, i) => (
                       <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 10px", borderRadius: 6, background: t.surface2, fontSize: 11 }}>
-                        <span style={{ fontFamily: "mono", color: t.textDim, width: 50 }}>{formatDate(s.date)}</span>
-                        <span style={{ fontFamily: "mono", color: t.text }}>
+                        <span style={{ fontFamily: "inherit", color: t.textDim, width: 50 }}>{formatDate(s.date)}</span>
+                        <span style={{ fontFamily: "inherit", color: t.text }}>
                           {s.sets.map(set => `${set.w}×${set.reps}`).join(", ")}
                         </span>
                       </div>
@@ -271,7 +271,7 @@ function HistoryTab({ workoutHistory }) {
       {reversed.map((session, i) => {
         const isOpen = expanded === i;
         return (
-          <div key={i} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
+          <div key={i} style={{ background: t.surface, borderRadius: 12, overflow: "hidden" }}>
             <button
               onClick={() => setExpanded(isOpen ? null : i)}
               style={{
@@ -282,7 +282,7 @@ function HistoryTab({ workoutHistory }) {
             >
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>{session.label}</div>
-                <div style={{ fontSize: 10, fontFamily: "mono", color: t.textDim, marginTop: 2 }}>
+                <div style={{ fontSize: 10, fontFamily: "inherit", color: t.textDim, marginTop: 2 }}>
                   {session.weekLabel} &middot; {session.date ? formatDate(session.date) : `Day ${session.dayNum}`}
                 </div>
               </div>
@@ -290,9 +290,9 @@ function HistoryTab({ workoutHistory }) {
                 <div style={{ width: 60, height: 5, background: t.border, borderRadius: 3, overflow: "hidden" }}>
                   <div style={{ width: `${session.pct}%`, height: "100%", background: session.pct >= 80 ? "#3DDC84" : session.pct >= 50 ? "#FBBF24" : "#EF4444", borderRadius: 3 }} />
                 </div>
-                <span style={{ fontSize: 10, fontFamily: "mono", color: t.textDim, width: 30, textAlign: "right" }}>{session.pct}%</span>
+                <span style={{ fontSize: 10, fontFamily: "inherit", color: t.textDim, width: 30, textAlign: "right" }}>{session.pct}%</span>
               </div>
-              <div style={{ fontSize: 11, fontFamily: "mono", color: t.textMuted, width: 60, textAlign: "right" }}>
+              <div style={{ fontSize: 11, fontFamily: "inherit", color: t.textMuted, width: 60, textAlign: "right" }}>
                 {formatVolume(session.totalVolume)}
               </div>
               <span style={{ fontSize: 12, color: t.textDim, transition: "transform 0.2s", transform: isOpen ? "rotate(180deg)" : "rotate(0)" }}>▾</span>
@@ -318,7 +318,7 @@ function HistoryTab({ workoutHistory }) {
                             const logged = s.logged;
                             if (!logged) {
                               return (
-                                <span key={si} style={{ fontSize: 10, fontFamily: "mono", padding: "2px 8px", borderRadius: 6, background: t.border, color: t.textFaint }}>
+                                <span key={si} style={{ fontSize: 10, fontFamily: "inherit", padding: "2px 8px", borderRadius: 6, background: t.border, color: t.textFaint }}>
                                   —
                                 </span>
                               );
@@ -328,7 +328,7 @@ function HistoryTab({ workoutHistory }) {
                             const bg = up ? "rgba(251,191,36,0.12)" : hit ? "rgba(61,220,132,0.12)" : "rgba(239,68,68,0.12)";
                             const c = up ? "#FBBF24" : hit ? "#3DDC84" : "#EF4444";
                             return (
-                              <span key={si} style={{ fontSize: 10, fontFamily: "mono", padding: "2px 8px", borderRadius: 6, background: bg, color: c, fontWeight: 600 }}>
+                              <span key={si} style={{ fontSize: 10, fontFamily: "inherit", padding: "2px 8px", borderRadius: 6, background: bg, color: c, fontWeight: 600 }}>
                                 {logged.w}×{logged.reps}
                               </span>
                             );

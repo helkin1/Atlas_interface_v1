@@ -17,11 +17,11 @@
   --color-pink: #F472B6;
 
   /* ── Colors: Dark theme surfaces ──────────────────────── */
-  --color-dark-bg: #08090C;
-  --color-dark-surface: #11141A;
-  --color-dark-surface2: #151921;
-  --color-dark-surface3: #1C2230;
-  --color-dark-border: #1A1E28;
+  --color-dark-bg: #0F1117;
+  --color-dark-surface: #161920;
+  --color-dark-surface2: #1C2028;
+  --color-dark-surface3: #1C2028;
+  --color-dark-border: #1E2230;
   --color-dark-border-light: #2A3040;
   --color-dark-border-accent: #3A4560;
   --color-dark-text: #E8ECF2;
@@ -52,24 +52,23 @@
   --color-muscle-biceps: #EF4444;
 
   /* ── Border radius ────────────────────────────────────── */
-  --radius-sm: 6px;
-  --radius-md: 10px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
   --radius-lg: 12px;
-  --radius-xl: 14px;
+  --radius-xl: 12px;
   --radius-2xl: 16px;
   --radius-pill: 20px;
   --radius-full: 9999px;
 
   /* ── Font families ────────────────────────────────────── */
   --font-body: 'Outfit', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-mono: 'Outfit', sans-serif;
 
   /* ── Font sizes ───────────────────────────────────────── */
-  --text-2xs: 9px;
   --text-xs: 10px;
   --text-sm: 11px;
-  --text-body: 12px;
-  --text-md: 13px;
+  --text-body: 13px;
+  --text-md: 14px;
   --text-lg: 16px;
   --text-xl: 22px;
   --text-2xl: 26px;

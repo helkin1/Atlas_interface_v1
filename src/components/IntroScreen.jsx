@@ -20,7 +20,7 @@ export default function IntroScreen({ onStart, themeMode, onToggleTheme }) {
 
       {/* Hero */}
       <div style={{ textAlign: "center", maxWidth: 520, marginBottom: 48 }}>
-        <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 5, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Welcome to</div>
+        <div style={{ fontSize: 12, letterSpacing: 3, color: t.textDim, marginBottom: 12 }}>Welcome to</div>
         <h1 style={{ fontSize: 48, fontWeight: 800, letterSpacing: -1.5, color: t.text, marginBottom: 12 }}>Atlas</h1>
         <p style={{ fontSize: 16, color: t.textMuted, lineHeight: 1.6 }}>
           Your intelligent training companion. Build science-based workout programs with real-time volume analysis and progressive overload.
@@ -43,7 +43,7 @@ export default function IntroScreen({ onStart, themeMode, onToggleTheme }) {
       {/* Features grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, maxWidth: 720, width: "100%" }}>
         {FEATURES.map(f => (
-          <div key={f.title} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 14, padding: 20, textAlign: "center" }}>
+          <div key={f.title} style={{ background: t.surface, borderRadius: 12, padding: 24, textAlign: "center" }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>{f.icon}</div>
             <div style={{ fontSize: 12, fontWeight: 700, color: t.text, marginBottom: 4 }}>{f.title}</div>
             <div style={{ fontSize: 10, color: t.textDim, lineHeight: 1.5 }}>{f.desc}</div>

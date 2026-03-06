@@ -57,7 +57,7 @@ export default function AuthScreen({ themeMode, onToggleTheme, onDemoMode }) {
 
       {/* Branding */}
       <div style={{ textAlign: "center", marginBottom: 40 }}>
-        <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 5, color: t.textFaint, fontFamily: "mono", marginBottom: 12 }}>Welcome to</div>
+        <div style={{ fontSize: 12, letterSpacing: 3, color: t.textDim, marginBottom: 12 }}>Welcome to</div>
         <h1 style={{ fontSize: 48, fontWeight: 800, letterSpacing: -1.5, color: t.text, marginBottom: 8 }}>Atlas</h1>
         <p style={{ fontSize: 14, color: t.textMuted }}>
           {mode === "login" ? "Sign in to your account" : "Create your account"}
@@ -130,7 +130,7 @@ export default function AuthScreen({ themeMode, onToggleTheme, onDemoMode }) {
         {/* Divider */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "8px 0" }}>
           <div style={{ flex: 1, height: 1, background: t.borderLight }} />
-          <span style={{ fontSize: 11, color: t.textFaint, textTransform: "uppercase", letterSpacing: 1 }}>or</span>
+          <span style={{ fontSize: 12, color: t.textDim }}>or</span>
           <div style={{ flex: 1, height: 1, background: t.borderLight }} />
         </div>
 

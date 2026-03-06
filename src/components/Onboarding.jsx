@@ -42,7 +42,7 @@ export default function Onboarding({ themeMode, onToggleTheme, onComplete }) {
       </div>
 
       {/* Logo */}
-      <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 5, color: t.textFaint, fontFamily: "mono", marginBottom: 8 }}>Atlas</div>
+      <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 5, color: t.textFaint, fontFamily: "inherit", marginBottom: 8 }}>Atlas</div>
 
       {/* Progress bar */}
       <div style={{ display: "flex", gap: 6, marginBottom: 32, marginTop: 16 }}>
