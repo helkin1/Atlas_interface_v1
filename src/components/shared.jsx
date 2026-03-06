@@ -7,9 +7,10 @@ import { PATTERN_COLORS, MUSCLE_COLORS, goalPctColor, calcGoalPcts } from "../ut
 export function cardStyle(t, overrides = {}) {
   return {
     background: t.surface,
-    borderRadius: t.radius?.lg ?? 20,
+    borderRadius: 12,
+    border: `1px solid ${t.border}`,
     boxShadow: t.shadow,
-    transition: "all 0.25s ease",
+    transition: "all 0.2s ease",
     ...overrides,
   };
 }
@@ -17,14 +18,39 @@ export function cardStyle(t, overrides = {}) {
 export function MiniBar({ name, sets, max }) {
   const t = useTheme();
   const pct = Math.min((sets / Math.max(max, 1)) * 100, 100);
-  const color = MUSCLE_COLORS[name] || "#666";
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-      <span style={{ fontSize: 12, color: t.textMuted, width: 90, textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
-      <div style={{ flex: 1, height: 6, background: t.surface3, borderRadius: 3, overflow: "hidden" }}>
-        <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 3, transition: "width 0.4s" }} />
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <span style={{ 
+        fontSize: 12, 
+        color: t.textMuted, 
+        width: 80, 
+        textAlign: "right", 
+        overflow: "hidden", 
+        textOverflow: "ellipsis", 
+        whiteSpace: "nowrap",
+        fontWeight: 500,
+      }}>
+        {name}
+      </span>
+      <div style={{ flex: 1, height: 4, background: t.surface3, borderRadius: 2, overflow: "hidden" }}>
+        <div style={{ 
+          width: `${pct}%`, 
+          height: "100%", 
+          background: t.text, 
+          opacity: 0.5,
+          borderRadius: 2, 
+          transition: "width 0.3s ease",
+        }} />
       </div>
-      <span style={{ fontSize: 11, color: t.textDim, width: 28, textAlign: "right" }}>{sets % 1 === 0 ? sets : sets.toFixed(1)}</span>
+      <span style={{ 
+        fontSize: 12, 
+        color: t.textDim, 
+        width: 28, 
+        textAlign: "right",
+        fontWeight: 500,
+      }}>
+        {sets % 1 === 0 ? sets : sets.toFixed(1)}
+      </span>
     </div>
   );
 }
@@ -32,23 +58,38 @@ export function MiniBar({ name, sets, max }) {
 export function StatCard({ label, value, sub, color }) {
   const t = useTheme();
   return (
-    <div style={{ ...cardStyle(t, { padding: 22 }) }}>
-      <div style={{ fontSize: 11, color: t.textMuted, letterSpacing: 0.3, marginBottom: 8 }}>{label}</div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: color || t.text }}>{value}</div>
-      {sub && <div style={{ fontSize: 12, color: t.textDim, marginTop: 4 }}>{sub}</div>}
+    <div style={{ ...cardStyle(t, { padding: 20 }) }}>
+      <div style={{ 
+        fontSize: 11, 
+        color: t.textMuted, 
+        fontWeight: 500,
+        textTransform: "uppercase",
+        letterSpacing: "0.05em", 
+        marginBottom: 8,
+      }}>
+        {label}
+      </div>
+      <div style={{ fontSize: 28, fontWeight: 600, color: color || t.text }}>{value}</div>
+      {sub && <div style={{ fontSize: 13, color: t.textDim, marginTop: 6 }}>{sub}</div>}
     </div>
   );
 }
 
 export function PatternBadge({ pattern, size }) {
-  const c = PATTERN_COLORS[pattern]; if (!c) return null;
+  const t = useTheme();
   const lg = size === "md";
   return (
     <span style={{
-      fontSize: lg ? 12 : 10, padding: lg ? "5px 14px" : "3px 10px",
-      borderRadius: 9999, background: c.bg, color: c.text,
-      letterSpacing: 0.3, fontWeight: 600,
-    }}>{pattern}</span>
+      fontSize: lg ? 11 : 10, 
+      padding: lg ? "4px 10px" : "2px 8px",
+      borderRadius: 6, 
+      background: t.surface2, 
+      color: t.textMuted,
+      fontWeight: 500,
+      border: `1px solid ${t.border}`,
+    }}>
+      {pattern}
+    </span>
   );
 }
 
@@ -58,19 +99,36 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label }) {
   const circ = 2 * Math.PI * r;
   const capped = Math.min(pct, 100);
   const offset = circ - (capped / 100) * circ;
-  const color = goalPctColor(pct);
+  const ringColor = pct >= 80 ? t.colors.success : t.text;
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={t.surface3} strokeWidth={strokeWidth} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={strokeWidth}
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={ringColor} strokeWidth={strokeWidth}
           strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-          style={{ transition: "stroke-dashoffset 0.6s ease" }} />
+          style={{ transition: "stroke-dashoffset 0.5s ease" }} />
       </svg>
-      <div style={{ position: "relative", marginTop: -size + 2, height: size - 2, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ fontSize: size > 60 ? 20 : 14, fontWeight: 700, color }}>{pct}%</div>
+      <div style={{ 
+        position: "relative", 
+        marginTop: -size + 2, 
+        height: size - 2, 
+        display: "flex", 
+        flexDirection: "column", 
+        alignItems: "center", 
+        justifyContent: "center",
+      }}>
+        <div style={{ fontSize: size > 60 ? 18 : 14, fontWeight: 600, color: ringColor }}>{pct}%</div>
       </div>
-      {label && <div style={{ fontSize: 10, color: t.textDim, letterSpacing: 0.3, marginTop: 2 }}>{label}</div>}
+      {label && (
+        <div style={{ 
+          fontSize: 11, 
+          color: t.textDim, 
+          fontWeight: 500,
+          marginTop: 4,
+        }}>
+          {label}
+        </div>
+      )}
     </div>
   );
 }
@@ -78,17 +136,40 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label }) {
 export function MuscleGoalBar({ name, eff, target, compact }) {
   const t = useTheme();
   const pct = target > 0 ? Math.round((eff / target) * 100) : 0;
-  const barPct = Math.min(pct, 115);
-  const color = goalPctColor(pct);
-  const mc = MUSCLE_COLORS[name] || "#666";
+  const barPct = Math.min(pct, 100);
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: compact ? 6 : 8, marginBottom: compact ? 3 : 5 }}>
-      <span style={{ fontSize: compact ? 10 : 11, color: t.textMuted, width: compact ? 75 : 90, textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
-      <div style={{ flex: 1, height: compact ? 5 : 8, background: t.surface3, borderRadius: 4, overflow: "hidden", position: "relative" }}>
-        <div style={{ width: `${Math.min(barPct, 100)}%`, height: "100%", background: `${mc}90`, borderRadius: 4, transition: "width 0.4s" }} />
-        <div style={{ position: "absolute", right: 0, top: 0, width: 2, height: "100%", background: `${t.textFaint}80` }} />
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <span style={{ 
+        fontSize: 12, 
+        color: t.textMuted, 
+        width: 75, 
+        textAlign: "right", 
+        overflow: "hidden", 
+        textOverflow: "ellipsis", 
+        whiteSpace: "nowrap",
+        fontWeight: 500,
+      }}>
+        {name}
+      </span>
+      <div style={{ flex: 1, height: 4, background: t.surface3, borderRadius: 2, overflow: "hidden" }}>
+        <div style={{ 
+          width: `${barPct}%`, 
+          height: "100%", 
+          background: pct >= 80 ? t.colors.success : t.text, 
+          opacity: pct >= 80 ? 1 : 0.5,
+          borderRadius: 2, 
+          transition: "width 0.3s ease",
+        }} />
       </div>
-      <span style={{ fontSize: compact ? 10 : 11, fontWeight: 600, color, width: compact ? 30 : 34, textAlign: "right" }}>{pct}%</span>
+      <span style={{ 
+        fontSize: 12, 
+        fontWeight: 600, 
+        color: pct >= 80 ? t.colors.success : t.text, 
+        width: 36, 
+        textAlign: "right",
+      }}>
+        {pct}%
+      </span>
     </div>
   );
 }

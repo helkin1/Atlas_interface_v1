@@ -187,12 +187,12 @@ export default function App() {
     return (
       <ThemeContext.Provider value={t}>
         <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-          body { background: ${t.bg}; transition: background 0.3s; }
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+          body { background: ${t.bg}; transition: background 0.2s ease; }
         `}</style>
         <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
-          <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, color: t.text, fontFamily: "'Outfit', sans-serif" }}>Atlas</div>
-          <div style={{ width: 32, height: 32, border: `2px solid ${t.borderLight}`, borderTopColor: t.colors.primary, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+          <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: -0.5, color: t.text, fontFamily: "'Inter', sans-serif" }}>Atlas</div>
+          <div style={{ width: 24, height: 24, border: `2px solid ${t.border}`, borderTopColor: t.text, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
         </div>
       </ThemeContext.Provider>
     );
@@ -203,8 +203,8 @@ export default function App() {
     return (
       <ThemeContext.Provider value={t}>
         <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-          body { background: ${t.bg}; transition: background 0.3s; }
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+          body { background: ${t.bg}; transition: background 0.2s ease; }
         `}</style>
         <AuthScreen themeMode={themeMode} onToggleTheme={toggleTheme} onDemoMode={handleDemoMode} />
       </ThemeContext.Provider>
@@ -216,17 +216,43 @@ export default function App() {
     <ThemeContext.Provider value={t}>
       <PlanDataContext.Provider value={monthData}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-        body { background: ${t.bg}; transition: background 0.3s; }
-        [style*="fontFamily: \\"mono\\""], [style*="font-family: mono"] { font-family: 'JetBrains Mono', monospace !important; }
-        ::-webkit-scrollbar-thumb { background: ${t.borderLight}; border-radius: 4px; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { background: ${t.bg}; transition: background 0.2s ease; }
+        ::-webkit-scrollbar-thumb { background: ${t.border}; border-radius: 3px; }
       `}</style>
 
       {demoMode && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center", gap: 12, padding: "8px 16px", background: t.alpha.primary._15, backdropFilter: "blur(8px)", borderBottom: `1px solid ${t.alpha.primary._25}` }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: t.colors.primary, fontFamily: "'Outfit', sans-serif" }}>Demo Mode</span>
-          <span style={{ fontSize: 11, color: t.textMuted }}>Exploring with sample data</span>
-          <button onClick={handleSignOut} style={{ fontSize: 11, padding: "3px 12px", borderRadius: 6, border: `1px solid ${t.alpha.primary._30}`, background: "transparent", color: t.colors.primary, cursor: "pointer", fontFamily: "'Outfit', sans-serif", fontWeight: 600 }}>Exit Demo</button>
+        <div style={{ 
+          position: "fixed", 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          zIndex: 9999, 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center", 
+          gap: 12, 
+          padding: "10px 16px", 
+          background: t.surface2, 
+          borderBottom: `1px solid ${t.border}`,
+        }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>Demo Mode</span>
+          <span style={{ fontSize: 12, color: t.textMuted }}>Exploring with sample data</span>
+          <button 
+            onClick={handleSignOut} 
+            style={{ 
+              fontSize: 12, 
+              padding: "4px 12px", 
+              borderRadius: 6, 
+              border: `1px solid ${t.border}`, 
+              background: "transparent", 
+              color: t.textMuted, 
+              cursor: "pointer", 
+              fontWeight: 500,
+            }}
+          >
+            Exit Demo
+          </button>
         </div>
       )}
 

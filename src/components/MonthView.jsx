@@ -5,34 +5,151 @@ import { DAY_NAMES, MO_NAMES, PATTERN_COLORS, getDayPattern, getDaySets, getWeek
 export default function MonthView({ onWeek, onDay }) {
   const t = useTheme();
   const MONTH = usePlanData();
+  
   return (
     <div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4, marginBottom: 8 }}>
+      {/* Day headers */}
+      <div style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(7, 1fr)", 
+        gap: 8, 
+        marginBottom: 16,
+        paddingBottom: 12,
+        borderBottom: `1px solid ${t.border}`,
+      }}>
         {DAY_NAMES.map((d) => (
-          <div key={d} style={{ textAlign: "center", fontSize: 11, color: t.textDim, padding: "4px 0" }}>{d}</div>
+          <div key={d} style={{ 
+            textAlign: "center", 
+            fontSize: 12, 
+            fontWeight: 500,
+            color: t.textMuted, 
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+          }}>
+            {d}
+          </div>
         ))}
       </div>
+
+      {/* Weeks */}
       {MONTH.map((week, wi) => (
-        <div key={wi} style={{ marginBottom: 8 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <button onClick={() => onWeek(wi)} style={{ fontSize: 11, color: "#3B82F6", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>{week.label}</button>
-            <span style={{ fontSize: 10, color: t.textFaint }}>&middot; {getWeekSets(week)} sets</span>
+        <div key={wi} style={{ marginBottom: 24 }}>
+          {/* Week header */}
+          <div style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "space-between",
+            marginBottom: 12,
+          }}>
+            <button 
+              onClick={() => onWeek(wi)} 
+              style={{ 
+                fontSize: 14, 
+                fontWeight: 600,
+                color: t.text, 
+                background: "none", 
+                border: "none", 
+                cursor: "pointer",
+                padding: "4px 0",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              {week.label}
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.5 }}>
+                <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <span style={{ 
+              fontSize: 12, 
+              color: t.textDim,
+              fontWeight: 500,
+            }}>
+              {getWeekSets(week)} sets
+            </span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
+
+          {/* Day cards */}
+          <div style={{ 
+            display: "grid", 
+            gridTemplateColumns: "repeat(7, 1fr)", 
+            gap: 8,
+          }}>
             {week.days.map((day, di) => {
               const pat = getDayPattern(day);
-              const pc = pat ? PATTERN_COLORS[pat] : null;
+              const isRest = day.isRest;
+              
               return (
-                <button key={di} onClick={() => !day.isRest && onDay(wi, di)} style={{
-                  background: day.isRest ? (t === themes.dark ? "#0C0E13" : "#EAEBEE") : pc ? pc.bg : t.surface,
-                  border: `1px solid ${day.isRest ? t.border : pc ? pc.border : t.border}`,
-                  borderRadius: 10, padding: "12px 6px", cursor: day.isRest ? "default" : "pointer",
-                  textAlign: "center", opacity: day.isRest ? 0.35 : 1, minHeight: 80,
-                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, transition: "all 0.15s",
-                }}>
-                  <div style={{ fontSize: 9, color: t.textDim }}>{MO_NAMES[day.date.getMonth()]} {day.date.getDate()}</div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: day.isRest ? t.textFaint : pc ? pc.text : t.text }}>{day.isRest ? "Rest" : day.label}</div>
-                  {!day.isRest && <div style={{ fontSize: 9, color: t.textDim }}>{getDaySets(day)} sets</div>}
+                <button 
+                  key={di} 
+                  onClick={() => !isRest && onDay(wi, di)} 
+                  style={{
+                    background: isRest ? t.surface2 : t.surface,
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 12, 
+                    padding: "14px 8px", 
+                    cursor: isRest ? "default" : "pointer",
+                    textAlign: "center", 
+                    opacity: isRest ? 0.5 : 1, 
+                    minHeight: 88,
+                    display: "flex", 
+                    flexDirection: "column", 
+                    alignItems: "center", 
+                    justifyContent: "center", 
+                    gap: 6, 
+                    transition: "all 0.15s ease",
+                    boxShadow: isRest ? "none" : t.shadow,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isRest) {
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow = t.shadowLg;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isRest) {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = t.shadow;
+                    }
+                  }}
+                >
+                  <span style={{ 
+                    fontSize: 11, 
+                    color: t.textDim,
+                    fontWeight: 400,
+                  }}>
+                    {MO_NAMES[day.date.getMonth()]} {day.date.getDate()}
+                  </span>
+                  <span style={{ 
+                    fontSize: 14, 
+                    fontWeight: 600, 
+                    color: isRest ? t.textFaint : t.text,
+                  }}>
+                    {isRest ? "Rest" : day.label}
+                  </span>
+                  {!isRest && (
+                    <span style={{ 
+                      fontSize: 11, 
+                      color: t.textMuted,
+                      fontWeight: 500,
+                    }}>
+                      {getDaySets(day)} sets
+                    </span>
+                  )}
+                  {!isRest && pat && (
+                    <span style={{
+                      fontSize: 10,
+                      padding: "2px 8px",
+                      borderRadius: 4,
+                      background: t.surface2,
+                      color: t.textDim,
+                      fontWeight: 500,
+                      marginTop: 2,
+                    }}>
+                      {pat}
+                    </span>
+                  )}
                 </button>
               );
             })}

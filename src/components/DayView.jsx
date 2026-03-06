@@ -12,22 +12,77 @@ function SetPill({ set, idx, logged }) {
   const hit = isL && logged.reps >= set.r;
   const up = isL && logged.w > set.w;
 
-  let bc = t.borderLight, bg = "transparent", tc = t.textMuted, icon = "";
-  if (isL && hit && !up) { bc = "#22C55E"; bg = "rgba(34,197,94,0.06)"; tc = "#22C55E"; icon = " \u2713"; }
-  else if (isL && up)    { bc = "#F59E0B"; bg = "rgba(245,158,11,0.06)";  tc = "#F59E0B"; icon = " \u2191"; }
-  else if (isL && !hit)  { bc = "#EF4444"; bg = "rgba(239,68,68,0.06)";   tc = "#EF4444"; icon = " \u2717"; }
+  let borderColor = t.border;
+  let bgColor = t.surface2;
+  let textColor = t.textMuted;
+  let statusIcon = null;
+  
+  if (isL && hit && !up) { 
+    borderColor = t.colors.success; 
+    bgColor = `${t.colors.success}10`; 
+    textColor = t.colors.success;
+    statusIcon = (
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+  }
+  else if (isL && up) { 
+    borderColor = t.colors.warning; 
+    bgColor = `${t.colors.warning}10`; 
+    textColor = t.colors.warning;
+    statusIcon = (
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M6 9V3M6 3L3 6M6 3L9 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+  }
+  else if (isL && !hit) { 
+    borderColor = t.colors.error; 
+    bgColor = `${t.colors.error}10`; 
+    textColor = t.colors.error;
+    statusIcon = (
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+  }
 
   const dw = isL ? logged.w : set.w;
   const dr = isL ? logged.reps : set.r;
 
   return (
     <div style={{
-      border: `1px solid ${bc}`, background: bg, color: tc, borderRadius: 14,
-      padding: "8px 12px", fontSize: 12,
-      minWidth: 78, textAlign: "center",
+      border: `1px solid ${borderColor}`, 
+      background: bgColor, 
+      color: textColor, 
+      borderRadius: 8,
+      padding: "10px 14px", 
+      fontSize: 13,
+      minWidth: 80, 
+      textAlign: "center",
+      transition: "all 0.15s ease",
     }}>
-      <div style={{ fontSize: 10, opacity: 0.6, marginBottom: 2 }}>Set {idx + 1}</div>
-      {dw > 0 ? `${dw} \u00d7 ${dr}` : `BW \u00d7 ${dr}`}{icon}
+      <div style={{ 
+        fontSize: 10, 
+        opacity: 0.7, 
+        marginBottom: 4,
+        fontWeight: 500,
+        textTransform: "uppercase",
+        letterSpacing: "0.05em",
+      }}>
+        Set {idx + 1}
+      </div>
+      <div style={{ 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "center", 
+        gap: 6,
+        fontWeight: 600,
+      }}>
+        {dw > 0 ? `${dw} x ${dr}` : `BW x ${dr}`}
+        {statusIcon}
+      </div>
     </div>
   );
 }
@@ -107,75 +162,260 @@ export default function DayView({ day, planId, onBack }) {
         />
       )}
 
-      <button onClick={onBack} style={{ fontSize: 12, color: "#3B82F6", background: "none", border: "none", cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>&larr; Back to Week</button>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+      {/* Back button */}
+      <button 
+        onClick={onBack} 
+        style={{ 
+          fontSize: 13, 
+          color: t.textMuted, 
+          background: "none", 
+          border: "none", 
+          cursor: "pointer", 
+          marginBottom: 20, 
+          display: "flex", 
+          alignItems: "center", 
+          gap: 8,
+          padding: "8px 0",
+          fontWeight: 500,
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        Back to Week
+      </button>
+
+      {/* Header */}
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "flex-start", 
+        marginBottom: 32,
+      }}>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
-            <h2 style={{ fontSize: 22, fontWeight: 800, color: t.text }}>{day.label}</h2>
-            {pat && <PatternBadge pattern={pat} size="md" />}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+            <h2 style={{ 
+              fontSize: 28, 
+              fontWeight: 600, 
+              color: t.text,
+              letterSpacing: -0.5,
+              margin: 0,
+            }}>
+              {day.label}
+            </h2>
+            {pat && (
+              <span style={{
+                fontSize: 11,
+                padding: "4px 10px",
+                borderRadius: 6,
+                background: t.surface2,
+                color: t.textMuted,
+                fontWeight: 500,
+                border: `1px solid ${t.border}`,
+              }}>
+                {pat}
+              </span>
+            )}
           </div>
-          <div style={{ fontSize: 13, color: t.textDim }}>
-            {DAY_NAMES[day.date.getDay()]}, {MO_NAMES[day.date.getMonth()]} {day.date.getDate()} &middot; {day.exercises.length} exercises &middot; {totalSets} sets &middot; {getDayVol(day).toLocaleString()} lbs
-          </div>
+          <p style={{ 
+            fontSize: 14, 
+            color: t.textDim, 
+            margin: 0,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}>
+            <span>{DAY_NAMES[day.date.getDay()]}, {MO_NAMES[day.date.getMonth()]} {day.date.getDate()}</span>
+            <span style={{ color: t.border }}>|</span>
+            <span>{day.exercises.length} exercises</span>
+            <span style={{ color: t.border }}>|</span>
+            <span>{totalSets} sets</span>
+            <span style={{ color: t.border }}>|</span>
+            <span>{getDayVol(day).toLocaleString()} lbs</span>
+          </p>
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           {hasLogs && (
-            <button onClick={clearLogs} style={{ padding: "10px 16px", borderRadius: 14, border: `1px solid ${t.borderLight}`, background: "transparent", color: t.textDim, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Clear Logs</button>
+            <button 
+              onClick={clearLogs} 
+              style={{ 
+                padding: "10px 16px", 
+                borderRadius: 8, 
+                border: `1px solid ${t.border}`, 
+                background: "transparent", 
+                color: t.textMuted, 
+                fontSize: 13, 
+                fontWeight: 500, 
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+            >
+              Clear Logs
+            </button>
           )}
           <button
             onClick={startSession}
             style={{
-              padding: "12px 28px", borderRadius: 14, border: "none",
-              background: "#3B82F6", color: "#fff",
-              fontSize: 14, fontWeight: 700, cursor: "pointer",
+              padding: "12px 24px", 
+              borderRadius: 8, 
+              border: "none",
+              background: t.ctaBg, 
+              color: t.ctaText,
+              fontSize: 14, 
+              fontWeight: 600, 
+              cursor: "pointer",
+              transition: "all 0.15s ease",
             }}
-          >{hasLogs ? "Resume Workout" : "Start Workout"}</button>
+          >
+            {hasLogs ? "Resume Workout" : "Start Workout"}
+          </button>
         </div>
       </div>
 
       {/* Progress bar when there are logs */}
       {hasLogs && (
-        <div style={{ ...cardStyle(t, { padding: "12px 18px", marginBottom: 16 }), display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{ 
+          background: t.surface,
+          border: `1px solid ${t.border}`,
+          borderRadius: 12,
+          padding: "16px 20px", 
+          marginBottom: 24,
+          boxShadow: t.shadow,
+          display: "flex", 
+          alignItems: "center", 
+          gap: 20,
+        }}>
           <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-              <span style={{ fontSize: 12, color: t.textMuted, fontWeight: 500 }}>
-                Session logged — {completedSets}/{totalSets} sets
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "space-between", 
+              alignItems: "center", 
+              marginBottom: 8,
+            }}>
+              <span style={{ fontSize: 13, color: t.textMuted, fontWeight: 500 }}>
+                Session progress
               </span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: pct === 100 ? "#22C55E" : "#3B82F6" }}>{pct}%</span>
+              <span style={{ 
+                fontSize: 14, 
+                fontWeight: 600, 
+                color: pct === 100 ? t.colors.success : t.text,
+              }}>
+                {completedSets}/{totalSets} sets ({pct}%)
+              </span>
             </div>
-            <div style={{ height: 4, borderRadius: 2, background: t.surface3, overflow: "hidden" }}>
-              <div style={{ height: "100%", borderRadius: 2, background: pct === 100 ? "#22C55E" : "#3B82F6", width: `${pct}%`, transition: "width 0.3s" }} />
+            <div style={{ 
+              height: 6, 
+              borderRadius: 3, 
+              background: t.surface3, 
+              overflow: "hidden",
+            }}>
+              <div style={{ 
+                height: "100%", 
+                borderRadius: 3, 
+                background: pct === 100 ? t.colors.success : t.text, 
+                width: `${pct}%`, 
+                transition: "width 0.3s ease",
+              }} />
             </div>
           </div>
           {actualVol > 0 && (
-            <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{actualVol.toLocaleString()}</div>
-              <div style={{ fontSize: 9, color: t.textFaint }}>LBS VOL</div>
+            <div style={{ 
+              textAlign: "right", 
+              flexShrink: 0,
+              paddingLeft: 20,
+              borderLeft: `1px solid ${t.border}`,
+            }}>
+              <div style={{ fontSize: 18, fontWeight: 600, color: t.text }}>{actualVol.toLocaleString()}</div>
+              <div style={{ fontSize: 11, color: t.textFaint, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>lbs volume</div>
             </div>
           )}
         </div>
       )}
 
-      <div>
+      {/* Exercise cards */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {day.exercises.map((entry, ei) => {
-          const ex = EXERCISES[entry.exercise_id]; if (!ex) return null;
+          const ex = EXERCISES[entry.exercise_id]; 
+          if (!ex) return null;
           return (
-            <div key={ei} style={{ ...cardStyle(t, { padding: 24, marginBottom: 10 }) }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+            <div 
+              key={ei} 
+              style={{ 
+                background: t.surface,
+                border: `1px solid ${t.border}`,
+                borderRadius: 12,
+                boxShadow: t.shadow,
+                overflow: "hidden",
+              }}
+            >
+              {/* Exercise header */}
+              <div style={{ 
+                padding: "16px 20px",
+                borderBottom: `1px solid ${t.border}`,
+                display: "flex", 
+                justifyContent: "space-between", 
+                alignItems: "center",
+              }}>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: t.text }}>{ex.name}</div>
-                  <div style={{ display: "flex", gap: 4, marginTop: 6, flexWrap: "wrap" }}>
-                    {ex.muscles.filter((m) => m.role === "direct").map((m) => <span key={m.name} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 8, background: `${MUSCLE_COLORS[m.name] || "#666"}18`, color: MUSCLE_COLORS[m.name] || "#888" }}>{m.name}</span>)}
-                    {ex.muscles.filter((m) => m.role !== "direct").map((m) => <span key={m.name} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 8, background: `${t.textFaint}20`, color: t.textDim }}>{m.name}</span>)}
+                  <h3 style={{ 
+                    fontSize: 15, 
+                    fontWeight: 600, 
+                    color: t.text,
+                    margin: 0,
+                    marginBottom: 8,
+                  }}>
+                    {ex.name}
+                  </h3>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {ex.muscles.filter((m) => m.role === "direct").map((m) => (
+                      <span 
+                        key={m.name} 
+                        style={{ 
+                          fontSize: 11, 
+                          padding: "3px 8px", 
+                          borderRadius: 4, 
+                          background: t.surface2,
+                          color: t.textMuted,
+                          fontWeight: 500,
+                        }}
+                      >
+                        {m.name}
+                      </span>
+                    ))}
+                    {ex.muscles.filter((m) => m.role !== "direct").map((m) => (
+                      <span 
+                        key={m.name} 
+                        style={{ 
+                          fontSize: 11, 
+                          padding: "3px 8px", 
+                          borderRadius: 4, 
+                          background: t.surface2,
+                          color: t.textFaint,
+                          fontWeight: 500,
+                        }}
+                      >
+                        {m.name}
+                      </span>
+                    ))}
                   </div>
                 </div>
-                <span style={{ fontSize: 10, color: t.textFaint }}>{entry.sets.length} sets</span>
+                <span style={{ 
+                  fontSize: 12, 
+                  color: t.textDim,
+                  fontWeight: 500,
+                }}>
+                  {entry.sets.length} sets
+                </span>
               </div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {entry.sets.map((s, si) => {
-                  const key = `${ei}_${si}`;
-                  return <SetPill key={si} set={s} idx={si} logged={logged[key]} />;
-                })}
+              
+              {/* Sets */}
+              <div style={{ padding: 16 }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {entry.sets.map((s, si) => {
+                    const key = `${ei}_${si}`;
+                    return <SetPill key={si} set={s} idx={si} logged={logged[key]} />;
+                  })}
+                </div>
               </div>
             </div>
           );
