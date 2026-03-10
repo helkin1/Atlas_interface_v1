@@ -3,11 +3,13 @@
 -- Run this in the Supabase SQL Editor (Dashboard > SQL Editor)
 -- ============================================================
 
--- 1. Profiles (theme preference, created on signup)
+-- 1. Profiles (theme preference + onboarding/profile data, created on signup)
 create table if not exists profiles (
   id uuid references auth.users on delete cascade primary key,
   theme text default 'dark',
-  created_at timestamptz default now()
+  profile_data jsonb default null,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
 );
 
 -- 2. Plans (one active plan per user, stored as JSONB)
@@ -87,3 +89,12 @@ $$ language plpgsql security definer;
 create or replace trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- ============================================================
+-- Migration: add profile_data column (run on existing databases)
+-- ============================================================
+-- If you already have the profiles table without profile_data, run:
+--
+--   ALTER TABLE profiles ADD COLUMN IF NOT EXISTS profile_data jsonb DEFAULT null;
+--   ALTER TABLE profiles ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now();
+--

@@ -49,6 +49,8 @@ export default function App() {
       setAuthUser(user);
 
       if (user && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
+        // Show loading spinner while cloud data syncs (prevents flash of onboarding)
+        setAuthReady(false);
         // Pull cloud data on sign-in AND on session restore (e.g. page refresh)
         const cloudTheme = await pullFromCloud(user.id);
         if (cloudTheme) setThemeMode(cloudTheme);
