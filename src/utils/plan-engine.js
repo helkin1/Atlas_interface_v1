@@ -32,8 +32,8 @@ export function buildMonthFromPlan(plan) {
   const weeks = plan.weeks || 4;
   const progressRate = plan.progressRate || 2.5;
   const startDate = parseStartDate(plan.startDate) || new Date();
-  // Align to next Monday if today
-  if (!plan.startDate) { const dayOff = (8 - startDate.getDay()) % 7 || 7; startDate.setDate(startDate.getDate() + dayOff); }
+  // Align to this week's Monday (so the current week is always visible)
+  if (!plan.startDate) { const dayBack = (startDate.getDay() + 6) % 7; startDate.setDate(startDate.getDate() - dayBack); }
 
   return Array.from({ length: weeks }, (_, wi) => {
     const overloadFactor = 1 + wi * (progressRate / 100);

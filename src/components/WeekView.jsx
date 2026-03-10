@@ -5,6 +5,8 @@ import { PatternBadge, cardStyle } from "./shared.jsx";
 
 export default function WeekView({ week, onDay, onBack }) {
   const t = useTheme();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const mv = weekMuscleVol(week);
   const goalPcts = calcGoalPcts(mv);
   const overall = overallGoalPct(goalPcts);
@@ -77,22 +79,27 @@ export default function WeekView({ week, onDay, onBack }) {
         {week.days.map((day, di) => {
           const pat = getDayPattern(day);
           const isRest = day.isRest;
-          
+          const dayDate = new Date(day.date);
+          dayDate.setHours(0, 0, 0, 0);
+          const isPast = dayDate < today;
+          const isToday = dayDate.getTime() === today.getTime();
+          const dimmed = isRest || isPast;
+
           return (
-            <button 
-              key={di} 
-              onClick={() => !isRest && onDay(di)} 
+            <button
+              key={di}
+              onClick={() => !isRest && onDay(di)}
               style={{
-                background: isRest ? t.surface2 : t.surface,
-                border: `1px solid ${t.border}`,
-                borderRadius: 12, 
-                padding: 16, 
+                background: isToday ? (t.surface3 || t.surface2) : dimmed ? t.surface2 : t.surface,
+                border: isToday ? `2px solid ${t.colors?.primary || "#6366F1"}` : `1px solid ${t.border}`,
+                borderRadius: 12,
+                padding: 16,
                 cursor: isRest ? "default" : "pointer",
-                textAlign: "left", 
-                opacity: isRest ? 0.5 : 1, 
-                minHeight: 140, 
+                textAlign: "left",
+                opacity: dimmed && !isToday ? 0.5 : 1,
+                minHeight: 140,
                 transition: "all 0.15s ease",
-                boxShadow: isRest ? "none" : t.shadow,
+                boxShadow: isToday ? `0 0 0 1px ${t.colors?.primary || "#6366F1"}22` : dimmed ? "none" : t.shadow,
                 display: "flex",
                 flexDirection: "column",
               }}
@@ -105,7 +112,7 @@ export default function WeekView({ week, onDay, onBack }) {
               onMouseLeave={(e) => {
                 if (!isRest) {
                   e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = t.shadow;
+                  e.currentTarget.style.boxShadow = isToday ? `0 0 0 1px ${t.colors?.primary || "#6366F1"}22` : dimmed ? "none" : t.shadow;
                 }
               }}
             >
