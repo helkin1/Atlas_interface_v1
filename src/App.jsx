@@ -64,9 +64,13 @@ export default function App() {
         }
 
         // Pull cloud data on sign-in AND on session restore (e.g. page refresh)
-        const cloudTheme = await pullFromCloud(user.id);
-        if (cloudTheme) setThemeMode(cloudTheme);
-        if (hasSavedPlan()) await pushToCloud(user.id);
+        try {
+          const cloudTheme = await pullFromCloud(user.id);
+          if (cloudTheme) setThemeMode(cloudTheme);
+          if (hasSavedPlan()) await pushToCloud(user.id);
+        } catch (err) {
+          console.warn("[atlas] cloud sync failed, continuing with local data:", err);
+        }
         const freshPlan = ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN)));
         setPlan(freshPlan);
         setMonthData(buildMonthFromPlan(freshPlan));
