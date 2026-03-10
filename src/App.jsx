@@ -4,7 +4,7 @@ import { themes, ThemeContext, resolveThemeKey } from "./context/theme.js";
 import { PlanDataContext } from "./context/plan-data.js";
 import { buildMonthFromPlan, DEFAULT_PLAN, clonePlan, ensurePlanId } from "./utils/plan-engine.js";
 import { loadPlan, savePlan, loadTheme, saveTheme, hasSavedPlan, pullFromCloud, pushToCloud, loadProfile, saveProfile, isOnboardingComplete, seedDemoData, isDemoMode, exitDemoMode } from "./utils/storage.js";
-import { onAuthStateChange, signOut } from "./lib/supabase.js";
+import { onAuthStateChange, signOut, updateUserMetadata } from "./lib/supabase.js";
 
 import DashboardLayout from "./layouts/DashboardLayout.jsx";
 import BuilderLayout from "./layouts/BuilderLayout.jsx";
@@ -20,6 +20,7 @@ import ProfilePage from "./components/ProfilePage.jsx";
 export default function App() {
   const [authUser, setAuthUser] = useState(undefined); // undefined = loading, null = logged out, object = logged in
   const [authReady, setAuthReady] = useState(false);
+  const [onboardingDone, setOnboardingDone] = useState(() => isOnboardingComplete());
   const [demoMode, setDemoMode] = useState(() => isDemoMode());
   const [themeMode, setThemeMode] = useState(() => loadTheme("dark"));
   const [plan, setPlan] = useState(() => ensurePlanId(loadPlan(clonePlan(DEFAULT_PLAN))));
@@ -51,6 +52,17 @@ export default function App() {
       if (user && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
         // Show loading spinner while cloud data syncs (prevents flash of onboarding)
         setAuthReady(false);
+
+        // Check onboarding flag from Supabase user metadata (survives across devices/browsers)
+        const metaDone = user.user_metadata?.onboarding_completed === true;
+        const localDone = isOnboardingComplete();
+        setOnboardingDone(metaDone || localDone);
+
+        // If localStorage knows onboarding is done but metadata doesn't, migrate the flag
+        if (localDone && !metaDone) {
+          updateUserMetadata({ onboarding_completed: true });
+        }
+
         // Pull cloud data on sign-in AND on session restore (e.g. page refresh)
         const cloudTheme = await pullFromCloud(user.id);
         if (cloudTheme) setThemeMode(cloudTheme);
@@ -59,6 +71,9 @@ export default function App() {
         setPlan(freshPlan);
         setMonthData(buildMonthFromPlan(freshPlan));
         setUserProfile(loadProfile());
+
+        // Re-check after cloud pull (cloud may have restored profile data)
+        setOnboardingDone(metaDone || isOnboardingComplete());
       }
 
       setAuthReady(true);
@@ -83,6 +98,7 @@ export default function App() {
     setDemoMode(true);
     setAuthUser({ id: "demo", email: "demo@atlas.app" });
     setUserProfile(profile);
+    setOnboardingDone(true);
     const freshPlan = ensurePlanId(plan);
     setPlan(freshPlan);
     setMonthData(buildMonthFromPlan(freshPlan));
@@ -167,6 +183,9 @@ export default function App() {
   const handleOnboardingComplete = (profile) => {
     saveProfile(profile);
     setUserProfile(profile);
+    setOnboardingDone(true);
+    // Persist flag to Supabase user metadata so it survives across devices/browsers
+    updateUserMetadata({ onboarding_completed: true });
     // Send user to dashboard (or builder if no plan exists)
     if (hasSavedPlan()) {
       navigate("/dashboard");
@@ -261,7 +280,7 @@ export default function App() {
       <div style={demoMode ? { paddingTop: 40 } : undefined}>
       <Routes>
         <Route path="/" element={
-          !isOnboardingComplete()
+          !onboardingDone
             ? <Navigate to="/onboarding" replace />
             : hasSavedPlan()
               ? <Navigate to="/dashboard" replace />
@@ -269,7 +288,7 @@ export default function App() {
         } />
 
         <Route path="/onboarding" element={
-          isOnboardingComplete()
+          onboardingDone
             ? <Navigate to={hasSavedPlan() ? "/dashboard" : "/"} replace />
             : <Onboarding themeMode={themeMode} onToggleTheme={toggleTheme} onComplete={handleOnboardingComplete} />
         } />

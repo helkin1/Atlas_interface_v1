@@ -41,6 +41,12 @@ export function getUser() {
   return supabase.auth.getUser();
 }
 
+export async function updateUserMetadata(meta) {
+  if (!supabase) return;
+  const { error } = await supabase.auth.updateUser({ data: meta });
+  if (error) console.warn("[atlas] updateUserMetadata:", error.message);
+}
+
 export function onAuthStateChange(callback) {
   if (!supabase) {
     // Fire callback once with no session so the app can still render
