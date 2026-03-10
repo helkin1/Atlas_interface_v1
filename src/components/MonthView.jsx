@@ -5,6 +5,8 @@ import { DAY_NAMES, MO_NAMES, PATTERN_COLORS, getDayPattern, getDaySets, getWeek
 export default function MonthView({ onWeek, onDay }) {
   const t = useTheme();
   const MONTH = usePlanData();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   
   return (
     <div>
@@ -79,27 +81,32 @@ export default function MonthView({ onWeek, onDay }) {
             {week.days.map((day, di) => {
               const pat = getDayPattern(day);
               const isRest = day.isRest;
-              
+              const dayDate = new Date(day.date);
+              dayDate.setHours(0, 0, 0, 0);
+              const isPast = dayDate < today;
+              const isToday = dayDate.getTime() === today.getTime();
+              const dimmed = isRest || isPast;
+
               return (
-                <button 
-                  key={di} 
-                  onClick={() => !isRest && onDay(wi, di)} 
+                <button
+                  key={di}
+                  onClick={() => !isRest && onDay(wi, di)}
                   style={{
-                    background: isRest ? t.surface2 : t.surface,
-                    border: `1px solid ${t.border}`,
-                    borderRadius: 12, 
-                    padding: "14px 8px", 
+                    background: isToday ? (t.surface3 || t.surface2) : dimmed ? t.surface2 : t.surface,
+                    border: isToday ? `2px solid ${t.colors?.primary || "#6366F1"}` : `1px solid ${t.border}`,
+                    borderRadius: 12,
+                    padding: "14px 8px",
                     cursor: isRest ? "default" : "pointer",
-                    textAlign: "center", 
-                    opacity: isRest ? 0.5 : 1, 
+                    textAlign: "center",
+                    opacity: dimmed && !isToday ? 0.5 : 1,
                     minHeight: 88,
-                    display: "flex", 
-                    flexDirection: "column", 
-                    alignItems: "center", 
-                    justifyContent: "center", 
-                    gap: 6, 
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 6,
                     transition: "all 0.15s ease",
-                    boxShadow: isRest ? "none" : t.shadow,
+                    boxShadow: isToday ? `0 0 0 1px ${t.colors?.primary || "#6366F1"}22` : dimmed ? "none" : t.shadow,
                   }}
                   onMouseEnter={(e) => {
                     if (!isRest) {
@@ -110,7 +117,7 @@ export default function MonthView({ onWeek, onDay }) {
                   onMouseLeave={(e) => {
                     if (!isRest) {
                       e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow = t.shadow;
+                      e.currentTarget.style.boxShadow = isToday ? `0 0 0 1px ${t.colors?.primary || "#6366F1"}22` : dimmed ? "none" : t.shadow;
                     }
                   }}
                 >
