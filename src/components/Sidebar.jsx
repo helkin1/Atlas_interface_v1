@@ -263,7 +263,7 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
             );
           })}
         </div>
-        <p style={{ fontSize: 11, color: t.textDim, marginTop: 12, textAlign: "center", margin: 0, marginTop: 12 }}>
+        <p style={{ fontSize: 11, color: t.textDim, marginTop: 12, textAlign: "center", margin: 0 }}>
           avg weekly effective sets per region
         </p>
       </SidebarCard>
