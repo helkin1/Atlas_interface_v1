@@ -4,7 +4,8 @@
 // Architecture: docs/atlas-architecture-v1.md
 // ============================================================
 
-import { EXERCISES, VOLUME_LANDMARKS } from "../data/exercise-data.js";
+import { EXERCISES } from "../data/exercise-data.js";
+import { VOLUME_LANDMARKS } from "../data/rules-knowledge-base.js";
 import { calcGoalPcts, overallGoalPct, getVolumeZone } from "./helpers.js";
 
 // ── Primary muscles: flag prominently if undertrained ────────

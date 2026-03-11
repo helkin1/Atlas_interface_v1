@@ -1,4 +1,5 @@
-import { EXERCISES, VOLUME_LANDMARKS } from "../data/exercise-data.js";
+import { EXERCISES } from "../data/exercise-data.js";
+import { VOLUME_LANDMARKS } from "../data/rules-knowledge-base.js";
 
 export const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export const MO_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

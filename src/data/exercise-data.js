@@ -919,33 +919,13 @@ Object.entries(ALIASES).forEach(([alias, target]) => {
 
 
 // ============================================================
-// VOLUME LANDMARKS — weekly sets per muscle group
+// VOLUME LANDMARKS — now sourced from rules-knowledge-base.js
+// Re-exported here for backward compatibility with all consumers.
+// See rules-knowledge-base.js for rationale, citations, and
+// confidence levels behind each value.
 // ============================================================
 
-export const VOLUME_LANDMARKS = {
-  Chest:          { mev: 8,  mav: 16, mrv: 22 },
-  "Upper Chest":  { mev: 4,  mav: 8,  mrv: 12 },
-  Lats:           { mev: 8,  mav: 16, mrv: 22 },
-  "Upper Back":   { mev: 8,  mav: 16, mrv: 22 },
-  "Front Delts":  { mev: 4,  mav: 8,  mrv: 14 },
-  "Side Delts":   { mev: 8,  mav: 16, mrv: 22 },
-  "Rear Delts":   { mev: 6,  mav: 12, mrv: 18 },
-  Triceps:        { mev: 6,  mav: 12, mrv: 18 },
-  Biceps:         { mev: 6,  mav: 12, mrv: 18 },
-  Quads:          { mev: 8,  mav: 16, mrv: 22 },
-  Hamstrings:     { mev: 6,  mav: 12, mrv: 18 },
-  Glutes:         { mev: 4,  mav: 10, mrv: 16 },
-  Calves:         { mev: 6,  mav: 12, mrv: 18 },
-  Core:           { mev: 4,  mav: 10, mrv: 16 },
-  "Lower Back":   { mev: 2,  mav: 6,  mrv: 10 },
-  Traps:          { mev: 4,  mav: 10, mrv: 16 },
-  Forearms:       { mev: 2,  mav: 8,  mrv: 14 },
-  "Rotator Cuff": { mev: 2,  mav: 6,  mrv: 10 },
-  Brachialis:     { mev: 2,  mav: 6,  mrv: 10 },
-  Obliques:       { mev: 4,  mav: 10, mrv: 16 },
-  "Hip Flexors":  { mev: 2,  mav: 6,  mrv: 10 },
-  Adductors:      { mev: 4,  mav: 8,  mrv: 14 },
-};
+export { VOLUME_LANDMARKS } from "./rules-knowledge-base.js";
 
 
 // ============================================================

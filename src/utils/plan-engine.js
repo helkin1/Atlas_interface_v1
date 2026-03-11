@@ -1,6 +1,9 @@
 import { EXERCISES, EXERCISE_DEFAULTS, getExDefault } from "../data/exercise-data.js";
 import { SPLIT_PRESETS } from "../data/split-presets.js";
 import { calcGoalPcts } from "./helpers.js";
+import { getPlanEngineThresholds } from "../data/rules-knowledge-base.js";
+
+const PLAN_THRESHOLDS = getPlanEngineThresholds();
 
 export function createPlanId() {
   return `plan_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -87,7 +90,7 @@ export function buildPlanFromPreset(key) {
     trainingSequence,
     cycleLength: preset.cycleLength || trainingSequence.length,
     weeks: 4,
-    progressRate: 2.5,
+    progressRate: PLAN_THRESHOLDS.progressRate,
   };
 }
 
@@ -108,7 +111,7 @@ export function buildPlanFromTemplate(template) {
     trainingSequence,
     cycleLength: trainingSequence.length,
     weeks: 4,
-    progressRate: 2.5,
+    progressRate: PLAN_THRESHOLDS.progressRate,
   };
 }
 
@@ -148,7 +151,7 @@ export function getGapSuggestions(weekTemplate, count = 3) {
     });
   });
   const goals = calcGoalPcts(vol);
-  const gaps = Object.entries(goals).filter(([, d]) => d.pct < 80).sort((a, b) => a[1].pct - b[1].pct);
+  const gaps = Object.entries(goals).filter(([, d]) => d.pct < PLAN_THRESHOLDS.gapThreshold * 100).sort((a, b) => a[1].pct - b[1].pct);
   if (!gaps.length) return [];
   const underserved = gaps.slice(0, 5).map(([m]) => m);
   const alreadyUsed = new Set();
