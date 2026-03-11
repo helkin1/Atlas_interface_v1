@@ -56,29 +56,21 @@ All rules live in `src/data/rules-knowledge-base.js`.
 
 ---
 
-### 2. Readiness Score Weights
+### 2. ~~Readiness Score Weights~~ — RESOLVED
 
 | Field | Value |
 |-------|-------|
 | **Rule ID** | `readiness_score_weights` |
-| **Current values** | plan quality = 35%, execution consistency = 40%, progression trend = 25% |
-| **Confidence** | placeholder |
+| **Previous values** | plan quality = 35%, execution consistency = 40%, progression trend = 25% |
+| **New values** | plan quality = 30%, execution consistency = 50%, progression trend = 20% |
+| **Confidence** | ~~placeholder~~ → **researched** |
+| **Resolved** | 2026-03-11 |
 
-**What it controls:** Produces the 0–100 "Readiness Score" shown on the dashboard — the primary number users see to judge their overall training quality.
+**Research summary:** Comprehensive literature review confirmed adherence/execution as the dominant predictor of training outcomes. Helms' Muscle & Strength Pyramid places adherence as the base. BJSM 2023 Bayesian meta-analysis (178 studies) found all protocols produce gains — adherence determines realization. Progressive overload roughly doubles hypertrophy magnitude but is partially redundant with adherence (a co-factor). 70% adherence is a critical threshold (Scott et al.).
 
-**Why it's critical:** This is the most visible single number in the app. If execution is underweighted, a user with a perfect plan but 50% adherence still sees a decent score and doesn't get the signal to show up more consistently.
+**Full research:** `.docs/research-summaries/readiness-score-weights.md`
 
-**What to research:**
-- Adherence-outcome correlation studies: how much does consistency predict hypertrophy/strength results vs plan design?
-- Is there research on which factor (plan quality, adherence, progressive overload) is the strongest predictor of outcomes?
-- Behavioral science: what weighting motivates users to improve the *right* thing?
-
-**What "wrong" looks like:**
-- User at 50% adherence with a perfect plan:
-  - Current weighting → score ≈ 58 (signals improvement needed)
-  - If plan overweighted (60/20/20) → score ≈ 72 (masks inconsistency problem)
-
-**Files affected:** `intelligence-engine.js`
+**Files affected:** `rules-knowledge-base.js`, `intelligence-engine.js`
 
 ---
 
@@ -234,7 +226,7 @@ Total workout celebration triggers. Whether milestone spacing affects user reten
 | Priority | Rule | Impact if Wrong | Research Effort |
 |----------|------|-----------------|-----------------|
 | **CRITICAL** | Contribution weights (1.0/0.5/0.25) | Corrupts ALL volume calculations | High — needs EMG + outcome data |
-| **CRITICAL** | Readiness score weights (35/40/25) | Misleading primary dashboard metric | Medium — adherence-outcome studies |
+| ~~**CRITICAL**~~ | ~~Readiness score weights (35/40/25)~~ → **RESOLVED (30/50/20)** | ~~Misleading primary dashboard metric~~ | ~~Medium~~ |
 | **HIGH** | Volume adherence bands (50/80/120%) | False or missed warnings | Medium — dose-response literature |
 | **HIGH** | Strength trend ±5% | False plateau/regression alerts | Medium — 1RM reliability data |
 | **HIGH** | Gap detection 80% MAV | Over/under-suggesting exercises | Low — sensitivity analysis |

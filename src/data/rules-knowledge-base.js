@@ -460,14 +460,19 @@ const RULES = [
     category: "readiness",
     description: "Component weights for composite readiness score",
     values: {
-      withData: { plan: 0.35, execution: 0.40, progression: 0.25 },
+      withData: { plan: 0.30, execution: 0.50, progression: 0.20 },
       noData: { plan: 1.0, execution: 0, progression: 0 },
     },
-    rationale: "When no execution data exists, plan quality is the only measurable signal. With data, execution consistency is weighted highest because adherence is the strongest predictor of outcomes. Plan quality and progression trend round out the picture.",
-    sources: [],
-    confidence: "placeholder",
-    lastReviewed: null,
-    notes: "Weights are heuristic. Could be informed by adherence-outcome correlation studies.",
+    rationale: "Execution/adherence is the dominant predictor of training outcomes (Helms pyramid base, BJSM 2023 meta-analysis of 178 studies). All reasonable programs produce gains; adherence determines whether gains are realized. Progression is a meaningful co-factor (~2x hypertrophy effect) but partially redundant with adherence. 70% adherence is a critical threshold (Scott et al.).",
+    sources: [
+      { ref: "Helms, E., Morgan, A., Valdez, A. — The Muscle and Strength Pyramids. Adherence as pyramid base.", type: "expert_framework", url: "https://muscleandstrengthpyramids.com/", year: 2019 },
+      { ref: "Currier, B.S. et al. (2023). Resistance training prescription for muscle strength and hypertrophy: a Bayesian network meta-analysis. Br J Sports Med, PMC10579494", type: "meta_analysis", url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10579494/", year: 2023 },
+      { ref: "Lally, P. et al. (2010). How are habits formed: Modelling habit formation in the real world. European Journal of Social Psychology, 40(6), 998-1009", type: "peer_reviewed", url: "https://onlinelibrary.wiley.com/doi/10.1002/ejsp.674", year: 2010 },
+      { ref: "Scott, J.M. et al. — Exercise Relative Dose Intensity and adherence threshold of 70%. PMC12376820", type: "peer_reviewed", url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12376820/", year: 2024 },
+    ],
+    confidence: "researched",
+    lastReviewed: "2026-03-11",
+    notes: "Research summary: .docs/research-summaries/readiness-score-weights.md. Future work: define sub-calculations within each component, explore context-sensitive multipliers (e.g., higher execution weight during first 66 days).",
   },
 
   // ════════════════════════════════════════════════════════════
@@ -712,7 +717,7 @@ export function getDeloadParams() {
 export function getReadinessWeights() {
   const rule = RULES.find(r => r.id === "readiness_score_weights");
   return rule?.values ?? {
-    withData: { plan: 0.35, execution: 0.40, progression: 0.25 },
+    withData: { plan: 0.30, execution: 0.50, progression: 0.20 },
     noData: { plan: 1.0, execution: 0, progression: 0 },
   };
 }

@@ -12,7 +12,7 @@ This document lists every configurable value used by Atlas intelligence engines,
 | Volume Landmarks | 22 | 0 | 13 | 9 |
 | Progression Thresholds | 7 | 4 | 2 | 1 |
 | Deload Parameters | 3 | 3 | 0 | 0 |
-| Readiness Score | 1 | 0 | 0 | 1 |
+| Readiness Score | 1 | 1 | 0 | 0 |
 | Volume Adherence | 1 | 0 | 0 | 1 |
 | Strength Trends | 1 | 0 | 0 | 1 |
 | Contribution Weights | 1 | 0 | 0 | 0 |
@@ -568,15 +568,21 @@ This document lists every configurable value used by Atlas intelligence engines,
 ### Component weights for composite readiness score
 
 - **ID:** `readiness_score_weights`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Researched
+- **Last Reviewed:** 2026-03-11
 - **Values:**
-  - withData: {"plan":0.35,"execution":0.4,"progression":0.25}
+  - withData: {"plan":0.30,"execution":0.50,"progression":0.20}
   - noData: {"plan":1,"execution":0,"progression":0}
 
-**Rationale:** When no execution data exists, plan quality is the only measurable signal. With data, execution consistency is weighted highest because adherence is the strongest predictor of outcomes. Plan quality and progression trend round out the picture.
+**Rationale:** Execution/adherence is the dominant predictor of training outcomes (Helms pyramid base, BJSM 2023 meta-analysis of 178 studies). All reasonable programs produce gains; adherence determines whether gains are realized. Progression is a meaningful co-factor (~2x hypertrophy effect) but partially redundant with adherence. 70% adherence is a critical threshold (Scott et al.).
 
-**Notes:** Weights are heuristic. Could be informed by adherence-outcome correlation studies.
+**Sources:**
+- Helms, E., Morgan, A., Valdez, A. — The Muscle and Strength Pyramids (Expert Framework, 2019) — [link](https://muscleandstrengthpyramids.com/)
+- Currier, B.S. et al. (2023). Resistance training prescription for muscle strength and hypertrophy: a Bayesian network meta-analysis. Br J Sports Med, PMC10579494 (Meta-Analysis, 2023) — [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC10579494/)
+- Lally, P. et al. (2010). How are habits formed. European Journal of Social Psychology, 40(6), 998-1009 (Peer-Reviewed Study, 2010) — [link](https://onlinelibrary.wiley.com/doi/10.1002/ejsp.674)
+- Scott, J.M. et al. — Exercise Relative Dose Intensity and 70% adherence threshold. PMC12376820 (Peer-Reviewed Study, 2024) — [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC12376820/)
+
+**Notes:** Full research summary at `.docs/research-summaries/readiness-score-weights.md`. Future work: define sub-calculations within each component, explore context-sensitive multipliers.
 
 ---
 
@@ -730,7 +736,7 @@ The following rules are currently set to **placeholder** confidence and need res
 - [ ] `volume_landmarks_hip_flexors` — Weekly volume landmarks for Hip Flexors
 - [ ] `volume_landmarks_adductors` — Weekly volume landmarks for Adductors
 - [ ] `progression_close_to_target_buffer` — How many reps below target is still considered 'close' (maintain rather than reduce)
-- [ ] `readiness_score_weights` — Component weights for composite readiness score
+- [x] `readiness_score_weights` — Component weights for composite readiness score (RESOLVED 2026-03-11: 30/50/20)
 - [ ] `volume_adherence_thresholds` — Ratio thresholds for classifying actual vs planned volume adherence
 - [ ] `strength_trend_thresholds` — Percentage change thresholds for classifying strength progression direction
 - [ ] `insight_streak_milestones` — Workout streak counts that trigger celebration insights
