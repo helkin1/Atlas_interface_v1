@@ -509,15 +509,18 @@ const RULES = [
   {
     id: "contribution_weights",
     category: "contribution",
-    description: "Multipliers for calculating effective sets based on muscle role in an exercise",
+    description: "Default multipliers for calculating effective sets based on muscle role in an exercise. Individual exercises in exercise-data.js may override these defaults with exercise-specific values (e.g., 0.3 for hamstrings in hip thrusts).",
     values: { direct: 1.0, partial: 0.5, minimal: 0.25 },
-    rationale: "A primary mover receives full set credit. A secondary mover receives half credit (significant but not maximal stimulus). A tertiary mover receives quarter credit (activated but not meaningfully challenged). These ratios are widely used in volume-tracking systems.",
+    rationale: "The 0.5 'half-set' rule for secondary movers is the most widely used practical value in fractional set counting. Pelland et al. (2024) tested three volume quantification methods (total, fractional at 0.5, direct-only) across 67 studies and found the fractional method had the strongest relative evidence for predicting hypertrophy (Bayes Factor = 9.48). Their exploratory analysis estimated indirect sets contribute ~32% of a direct set for hypertrophy, but the 0.5 model still provided the best overall fit. Henselmans advocates 0.5 explicitly: '6 sets of rows = 3 sets of effective biceps work.' The 0.25 minimal weight represents tertiary/stabilizer muscles with limited hypertrophic stimulus.",
     sources: [
-      { ref: "Israetel, M. — Renaissance Periodization volume tracking methodology", type: "expert_recommendation", year: 2023 },
+      { ref: "Pelland, J.C. et al. — The Resistance Training Dose Response: Meta-Regressions Exploring the Effects of Weekly Volume and Frequency on Muscle Hypertrophy and Strength Gains", type: "meta_analysis", year: 2024, doi: "10.1007/s40279-025-02344-w" },
+      { ref: "Henselmans, M. — How to count training volume and design a sensible training split", type: "expert_recommendation", year: 2023, url: "https://mennohenselmans.com/how-to-count-training-volume-design-training-split/" },
+      { ref: "Outlift / Nuckols, G. — Hypertrophy Training Volume: How Many Sets to Build Muscle?", type: "expert_recommendation", year: 2023, url: "https://outlift.com/hypertrophy-training-volume/" },
+      { ref: "Stronger by Science — What Does EMG Amplitude Tell Us About Muscle Hypertrophy?", type: "review_article", year: 2023, url: "https://www.strongerbyscience.com/emg-amplitude-tell-us-muscle-hypertrophy/" },
     ],
-    confidence: "placeholder",
-    lastReviewed: null,
-    notes: "The exact ratios (0.5 and 0.25) are conventions, not empirically derived. EMG data could inform more precise values per exercise.",
+    confidence: "research_supported",
+    lastReviewed: "2026-03-11",
+    notes: "Default 0.5 is the best-fit fractional model per Pelland et al. Individual exercises override this where biomechanics warrant lower values: hamstrings from hip-dominant exercises (hip thrust, glute bridge, swings) use 0.3 because hams are not lengthened under load; core from compound stabilization (front squat, single-leg RDL) uses 0.3 because isometric bracing does not drive hypertrophy like dynamic work. See exercise-data.js for all per-exercise overrides.",
   },
 
   // ════════════════════════════════════════════════════════════

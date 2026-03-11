@@ -15,10 +15,10 @@ This document lists every configurable value used by Atlas intelligence engines,
 | Readiness Score | 1 | 0 | 0 | 1 |
 | Volume Adherence | 1 | 0 | 0 | 1 |
 | Strength Trends | 1 | 0 | 0 | 1 |
-| Contribution Weights | 1 | 0 | 0 | 1 |
+| Contribution Weights | 1 | 0 | 0 | 0 |
 | Insight Milestones & Detection | 3 | 0 | 0 | 3 |
 | Plan Engine | 2 | 0 | 1 | 1 |
-| **Total** | **41** | **7** | **16** | **18** |
+| **Total** | **41** | **7** | **16** | **17** |
 
 ---
 
@@ -617,22 +617,25 @@ This document lists every configurable value used by Atlas intelligence engines,
 
 ## Contribution Weights
 
-### Multipliers for calculating effective sets based on muscle role in an exercise
+### Default multipliers for calculating effective sets based on muscle role in an exercise. Individual exercises in exercise-data.js may override these defaults with exercise-specific values (e.g., 0.3 for hamstrings in hip thrusts).
 
 - **ID:** `contribution_weights`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** research_supported
+- **Last Reviewed:** 2026-03-11
 - **Values:**
   - direct: 1
   - partial: 0.5
   - minimal: 0.25
 
-**Rationale:** A primary mover receives full set credit. A secondary mover receives half credit (significant but not maximal stimulus). A tertiary mover receives quarter credit (activated but not meaningfully challenged). These ratios are widely used in volume-tracking systems.
+**Rationale:** The 0.5 'half-set' rule for secondary movers is the most widely used practical value in fractional set counting. Pelland et al. (2024) tested three volume quantification methods (total, fractional at 0.5, direct-only) across 67 studies and found the fractional method had the strongest relative evidence for predicting hypertrophy (Bayes Factor = 9.48). Their exploratory analysis estimated indirect sets contribute ~32% of a direct set for hypertrophy, but the 0.5 model still provided the best overall fit. Henselmans advocates 0.5 explicitly: '6 sets of rows = 3 sets of effective biceps work.' The 0.25 minimal weight represents tertiary/stabilizer muscles with limited hypertrophic stimulus.
 
-**Notes:** The exact ratios (0.5 and 0.25) are conventions, not empirically derived. EMG data could inform more precise values per exercise.
+**Notes:** Default 0.5 is the best-fit fractional model per Pelland et al. Individual exercises override this where biomechanics warrant lower values: hamstrings from hip-dominant exercises (hip thrust, glute bridge, swings) use 0.3 because hams are not lengthened under load; core from compound stabilization (front squat, single-leg RDL) uses 0.3 because isometric bracing does not drive hypertrophy like dynamic work. See exercise-data.js for all per-exercise overrides.
 
 **Sources:**
-- Israetel, M. — Renaissance Periodization volume tracking methodology (Expert Recommendation, 2023)
+- Pelland, J.C. et al. — The Resistance Training Dose Response: Meta-Regressions Exploring the Effects of Weekly Volume and Frequency on Muscle Hypertrophy and Strength Gains (Meta-Analysis, 2024)
+- Henselmans, M. — How to count training volume and design a sensible training split (Expert Recommendation, 2023) — [link](https://mennohenselmans.com/how-to-count-training-volume-design-training-split/)
+- Outlift / Nuckols, G. — Hypertrophy Training Volume: How Many Sets to Build Muscle? (Expert Recommendation, 2023) — [link](https://outlift.com/hypertrophy-training-volume/)
+- Stronger by Science — What Does EMG Amplitude Tell Us About Muscle Hypertrophy? (review_article, 2023) — [link](https://www.strongerbyscience.com/emg-amplitude-tell-us-muscle-hypertrophy/)
 
 ---
 
@@ -730,7 +733,6 @@ The following rules are currently set to **placeholder** confidence and need res
 - [ ] `readiness_score_weights` — Component weights for composite readiness score
 - [ ] `volume_adherence_thresholds` — Ratio thresholds for classifying actual vs planned volume adherence
 - [ ] `strength_trend_thresholds` — Percentage change thresholds for classifying strength progression direction
-- [ ] `contribution_weights` — Multipliers for calculating effective sets based on muscle role in an exercise
 - [ ] `insight_streak_milestones` — Workout streak counts that trigger celebration insights
 - [ ] `insight_workout_milestones` — Total workout counts that trigger celebration insights
 - [ ] `insight_detection_thresholds` — Thresholds for detecting stalls, regressions, and consistency issues
