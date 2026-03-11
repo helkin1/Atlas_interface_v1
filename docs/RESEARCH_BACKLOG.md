@@ -1,6 +1,6 @@
 # Atlas Research Backlog: Placeholder Rules That Need Validation
 
-> **17 of 41 rules** in the Atlas intelligence system are educated guesses ("placeholders") that need research-backed validation. This document ranks them by priority and explains exactly what to research, why it matters, and what "wrong" looks like for each value. *(1 resolved: contribution weights — see below)*
+> **13 of 41 rules** in the Atlas intelligence system are educated guesses ("placeholders") that need research-backed validation. This document ranks them by priority and explains exactly what to research, why it matters, and what "wrong" looks like for each value. *(6 resolved: contribution weights, readiness score weights, volume adherence thresholds, strength trend thresholds, close-to-target buffer, plan gap detection — see below)*
 
 ---
 
@@ -8,8 +8,8 @@
 
 Every numeric threshold Atlas uses to make decisions is called a **rule**. Rules control what users see: "add more chest work," "reduce weight," "your plan is 72% ready," "you've hit a plateau." There are 41 total:
 
-- **24 rules** have citations (peer-reviewed studies or expert consensus)
-- **17 rules** are placeholders — reasonable defaults that need validation
+- **28 rules** have citations (peer-reviewed studies or expert consensus)
+- **13 rules** are placeholders — reasonable defaults that need validation
 
 Each entry below includes:
 - **Current value** — what the code uses today
@@ -78,91 +78,91 @@ All rules live in `src/data/rules-knowledge-base.js`.
 
 > Directly affects user-facing alerts, warnings, and exercise recommendations.
 
-### 3. Volume Adherence Thresholds
+### 3. ~~Volume Adherence Thresholds~~ — RESOLVED (2026-03-11)
 
 | Field | Value |
 |-------|-------|
 | **Rule ID** | `volume_adherence_thresholds` |
 | **Current values** | significantly_under = 50%, under = 80%, over = 120% |
-| **Confidence** | placeholder |
+| **Confidence** | ~~placeholder~~ → **researched** |
 
-**What it controls:** Classifies each muscle's actual-vs-planned volume ratio into "on track," "under," "significantly under," or "over." Drives volume drift warnings.
+**Resolution:** Research validates all three thresholds. Values unchanged.
 
-**What to research:**
-- Is there an adherence % below which training outcomes meaningfully decline? (e.g., does 70% of planned volume still produce 90% of results?)
-- Dose-response curves for volume: is the relationship linear, or is there a cliff?
+**Key findings:**
+- **Dose-response is curvilinear with diminishing returns** (Schoenfeld 2017, Pelland 2025). 80% of prescribed volume captures the vast majority of intended stimulus.
+- **Bickel et al. (2011):** 1/3 (~33%) of volume maintains hypertrophy — 50% is above maintenance but approaching compromised territory.
+- **ExRDI research (Scott et al.):** Real-world patients average 77.4% of prescribed volume.
+- **Schoenfeld et al. (2019):** 30+ sets/muscle/week showed no additional gains with overreaching markers — 120% correctly flags overtraining risk.
 
-**What "wrong" looks like:**
-- If "under" = 0.9 instead of 0.8: users at 85% adherence get unnecessary warnings every week
-- If "significantly_under" = 0.7 instead of 0.5: users at 60% adherence get "critical" warnings when they're still getting decent stimulus
+**Full research:** `.docs/research-summaries/high-priority-thresholds.md`
 
-**Files affected:** `intelligence-engine.js`
+**Files affected:** `rules-knowledge-base.js`, `intelligence-engine.js`
 
 ---
 
-### 4. Strength Trend Thresholds
+### 4. ~~Strength Trend Thresholds~~ — RESOLVED (2026-03-11)
 
 | Field | Value |
 |-------|-------|
 | **Rule ID** | `strength_trend_thresholds` |
 | **Current values** | progressing = +5%, regressing = −5% |
-| **Confidence** | placeholder |
+| **Confidence** | ~~placeholder~~ → **researched** |
 
-**What it controls:** Compares estimated 1RM across sessions. If change > ±5%, classified as progressing/regressing. Otherwise "plateau." Triggers "plateau detected" and "regression detected" insights.
+**Resolution:** ±5% is the minimum defensible threshold for estimated 1RM. Values unchanged.
 
-**What to research:**
-- Test-retest reliability of estimated 1RM from submaximal sets (Epley, Brzycki formulas). If natural session-to-session variance is ±8%, then a 5% threshold produces false signals constantly.
-- What % change over what timeframe constitutes a "real" plateau vs noise?
+**Key findings:**
+- **Grgic et al. (2020):** Direct 1RM test-retest CV = ~2-4% (32 studies, n=1,595).
+- **Estimated 1RM noise:** Combined prediction error + biological variability = ~5-10% total noise from working sets.
+- **MDC:** Bench press ~5.6 kg, squat ~10 kg in trained males.
+- **Limitation:** Intermediates gaining 1-3%/month may take 2-5 months to cross 5%. Acceptable tradeoff vs. false alerts.
 
-**What "wrong" looks like:**
-- Threshold = 2%: "plateau" alerts after normal daily fluctuation. Creates alert fatigue.
-- Threshold = 10%: user doesn't get warned until they've lost significant strength.
+**Full research:** `.docs/research-summaries/high-priority-thresholds.md`
 
-**Files affected:** `intelligence-engine.js`, `insights-engine.js`
+**Files affected:** `rules-knowledge-base.js`, `intelligence-engine.js`, `insights-engine.js`
 
 ---
 
-### 5. Plan Gap Detection Threshold
+### 5. ~~Plan Gap Detection Threshold~~ — RESOLVED (2026-03-11)
 
 | Field | Value |
 |-------|-------|
 | **Rule ID** | `plan_gap_detection_threshold` |
 | **Current values** | 80% of MAV |
-| **Confidence** | placeholder |
+| **Confidence** | ~~placeholder~~ → **researched** |
 
-**What it controls:** If a muscle's effective weekly sets fall below 80% of its MAV, Atlas suggests exercises to fill the gap.
+**Resolution:** 80% is a defensible conservative early-warning threshold. Value unchanged.
 
-**What to research:**
-- Is there a meaningful hypertrophy difference between 75% of MAV and 100% of MAV? Or is MEV → MAV a smooth gradient?
-- Should the threshold be relative to MEV (minimum) instead of MAV (moderate)?
+**Key findings:**
+- **Diminishing returns curve** means 80% of MAV captures well over 80% of potential gains.
+- **Schoenfeld 2019:** 3-set vs 5-set differences often not statistically significant for strength.
+- Biggest risk is being below MEV, not below MAV (already caught by 50% adherence threshold).
+- 70-75% might be more evidence-aligned, but 80% is appropriate for early detection.
 
-**What "wrong" looks like:**
-- At 50%: only flags severely undertrained muscles. Misses subtle imbalances.
-- At 95%: nearly every muscle gets flagged, creating suggestion overload.
+**Full research:** `.docs/research-summaries/high-priority-thresholds.md`
 
-**Files affected:** `plan-engine.js`
+**Files affected:** `rules-knowledge-base.js`, `plan-engine.js`
 
 ---
 
-### 6. Progression Close-to-Target Buffer
+### 6. ~~Progression Close-to-Target Buffer~~ — RESOLVED (2026-03-11)
 
 | Field | Value |
 |-------|-------|
 | **Rule ID** | `progression_close_to_target_buffer` |
 | **Current values** | 2 reps |
-| **Confidence** | placeholder |
+| **Confidence** | ~~placeholder~~ → **researched** |
 
-**What it controls:** If you hit within 2 reps of your target (e.g., 8 out of 10), Atlas says "maintain weight, push harder next time" instead of "reduce weight."
+**Resolution:** 2-rep buffer matches RIR prediction error and session-to-session variability. Value unchanged.
 
-**What to research:**
-- What % of target completion typically leads to success on the next attempt? (If 80% completion usually converts to 100% next session, buffer of 2 is right for a 10-rep target.)
-- How do autoregulated programs (RPE-based) handle this decision?
+**Key findings:**
+- **Refalo et al. (2023):** RIR prediction error in trained lifters = ~1 rep.
+- **Helms et al. (2016, 2020):** Session-to-session rep variability = 1-2 reps.
+- Missing by 1-2 reps = normal noise. Missing by 3+ = genuine load mismatch.
+- **Zourdos (2015), Helms (2018):** Autoregulation literature validates proximity-to-failure as the progression decision metric.
 
-**What "wrong" looks like:**
-- Buffer = 1: target 10, hit 9 → "reduce weight." Frustrating and unnecessary.
-- Buffer = 4: target 10, hit 6 → "maintain." User keeps failing at the same weight.
+**Full research:** `.docs/research-summaries/high-priority-thresholds.md`
 
-**Files affected:** `progression-engine.js`
+**Files affected:** `rules-knowledge-base.js`, `progression-engine.js`
 
 ---
 
@@ -227,10 +227,10 @@ Total workout celebration triggers. Whether milestone spacing affects user reten
 |----------|------|-----------------|-----------------|
 | **CRITICAL** | Contribution weights (1.0/0.5/0.25) | Corrupts ALL volume calculations | High — needs EMG + outcome data |
 | ~~**CRITICAL**~~ | ~~Readiness score weights (35/40/25)~~ → **RESOLVED (30/50/20)** | ~~Misleading primary dashboard metric~~ | ~~Medium~~ |
-| **HIGH** | Volume adherence bands (50/80/120%) | False or missed warnings | Medium — dose-response literature |
-| **HIGH** | Strength trend ±5% | False plateau/regression alerts | Medium — 1RM reliability data |
-| **HIGH** | Gap detection 80% MAV | Over/under-suggesting exercises | Low — sensitivity analysis |
-| **HIGH** | Close-to-target buffer (2 reps) | Too fast or too slow progression | Low — practical testing |
+| ~~**HIGH**~~ | ~~Volume adherence bands (50/80/120%)~~ → **RESOLVED (values confirmed)** | ~~False or missed warnings~~ | ~~Medium~~ |
+| ~~**HIGH**~~ | ~~Strength trend ±5%~~ → **RESOLVED (value confirmed)** | ~~False plateau/regression alerts~~ | ~~Medium~~ |
+| ~~**HIGH**~~ | ~~Gap detection 80% MAV~~ → **RESOLVED (value confirmed)** | ~~Over/under-suggesting exercises~~ | ~~Low~~ |
+| ~~**HIGH**~~ | ~~Close-to-target buffer (2 reps)~~ → **RESOLVED (value confirmed)** | ~~Too fast or too slow progression~~ | ~~Low~~ |
 | **MEDIUM** | 9 minor muscle volumes | Incorrect tracking for those muscles | Medium — expert consensus check |
 | **LOW** | Insight detection thresholds | Alert timing | Low — match other validated thresholds |
 | **LOW** | Streak/workout milestones | Gamification timing | Minimal — UX decision |

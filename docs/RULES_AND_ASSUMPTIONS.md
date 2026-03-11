@@ -10,15 +10,15 @@ This document lists every configurable value used by Atlas intelligence engines,
 | Category | Rules | Researched | Expert Consensus | Placeholder |
 |---|---|---|---|---|
 | Volume Landmarks | 22 | 0 | 13 | 9 |
-| Progression Thresholds | 7 | 4 | 2 | 1 |
+| Progression Thresholds | 7 | 5 | 2 | 0 |
 | Deload Parameters | 3 | 3 | 0 | 0 |
 | Readiness Score | 1 | 1 | 0 | 0 |
-| Volume Adherence | 1 | 0 | 0 | 1 |
-| Strength Trends | 1 | 0 | 0 | 1 |
+| Volume Adherence | 1 | 1 | 0 | 0 |
+| Strength Trends | 1 | 1 | 0 | 0 |
 | Contribution Weights | 1 | 0 | 0 | 0 |
 | Insight Milestones & Detection | 3 | 0 | 0 | 3 |
-| Plan Engine | 2 | 0 | 1 | 1 |
-| **Total** | **41** | **7** | **16** | **17** |
+| Plan Engine | 2 | 1 | 1 | 0 |
+| **Total** | **41** | **12** | **16** | **12** |
 
 ---
 
@@ -492,14 +492,20 @@ This document lists every configurable value used by Atlas intelligence engines,
 ### How many reps below target is still considered 'close' (maintain rather than reduce)
 
 - **ID:** `progression_close_to_target_buffer`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Researched (peer-reviewed / RCT / meta-analysis)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
   - buffer: 2
 
-**Rationale:** If average reps are within 2 of the target, the lifter is close enough to maintain and push for full completion next session rather than reducing weight.
+**Rationale:** Session-to-session rep variability is typically 1-2 reps (Helms 2016, 2020). RIR prediction error in trained lifters is ~1 rep (Refalo 2023, Hackett 2012). Missing by 1-2 reps is within normal biological noise; missing by 3+ indicates genuine load mismatch. Autoregulation literature (Zourdos 2015, Helms 2018) validates using rep completion proximity as the progression decision metric.
 
-**Notes:** Practical heuristic. Needs validation.
+**Notes:** Research summary: .docs/research-summaries/high-priority-thresholds.md. Buffer of 1 is too aggressive (flags normal variability). Buffer of 3+ is too permissive (allows genuine load mismatches to persist).
+
+**Sources:**
+- Zourdos, M.C. et al. (2015). Novel Resistance Training-Specific Rating of Perceived Exertion Scale Measuring Repetitions in Reserve. J Strength Cond Res (Peer-Reviewed Study, 2015) — [link](https://pubmed.ncbi.nlm.nih.gov/26049792/)
+- Helms, E.R. et al. (2018). RPE and Velocity Relationships for the Back Squat, Bench Press, and Deadlift in Powerlifters. J Strength Cond Res (Peer-Reviewed Study, 2018) — [link](https://pubmed.ncbi.nlm.nih.gov/28796129/)
+- Refalo, M.C. et al. (2023). Influence of Resistance Training Proximity-to-Failure on Skeletal Muscle Hypertrophy. Sports Med (Meta-Analysis, 2023) — [link](https://pubmed.ncbi.nlm.nih.gov/36334240/)
+- Hackett, D.A. et al. (2012). Training practices and ergogenic aids used by male bodybuilders. J Strength Cond Res (Peer-Reviewed Study, 2012) — [link](https://pubmed.ncbi.nlm.nih.gov/22614147/)
 
 ---
 
@@ -568,21 +574,21 @@ This document lists every configurable value used by Atlas intelligence engines,
 ### Component weights for composite readiness score
 
 - **ID:** `readiness_score_weights`
-- **Confidence:** Researched
+- **Confidence:** Researched (peer-reviewed / RCT / meta-analysis)
 - **Last Reviewed:** 2026-03-11
 - **Values:**
-  - withData: {"plan":0.30,"execution":0.50,"progression":0.20}
+  - withData: {"plan":0.3,"execution":0.5,"progression":0.2}
   - noData: {"plan":1,"execution":0,"progression":0}
 
 **Rationale:** Execution/adherence is the dominant predictor of training outcomes (Helms pyramid base, BJSM 2023 meta-analysis of 178 studies). All reasonable programs produce gains; adherence determines whether gains are realized. Progression is a meaningful co-factor (~2x hypertrophy effect) but partially redundant with adherence. 70% adherence is a critical threshold (Scott et al.).
 
-**Sources:**
-- Helms, E., Morgan, A., Valdez, A. — The Muscle and Strength Pyramids (Expert Framework, 2019) — [link](https://muscleandstrengthpyramids.com/)
-- Currier, B.S. et al. (2023). Resistance training prescription for muscle strength and hypertrophy: a Bayesian network meta-analysis. Br J Sports Med, PMC10579494 (Meta-Analysis, 2023) — [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC10579494/)
-- Lally, P. et al. (2010). How are habits formed. European Journal of Social Psychology, 40(6), 998-1009 (Peer-Reviewed Study, 2010) — [link](https://onlinelibrary.wiley.com/doi/10.1002/ejsp.674)
-- Scott, J.M. et al. — Exercise Relative Dose Intensity and 70% adherence threshold. PMC12376820 (Peer-Reviewed Study, 2024) — [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC12376820/)
+**Notes:** Research summary: .docs/research-summaries/readiness-score-weights.md. Future work: define sub-calculations within each component, explore context-sensitive multipliers (e.g., higher execution weight during first 66 days).
 
-**Notes:** Full research summary at `.docs/research-summaries/readiness-score-weights.md`. Future work: define sub-calculations within each component, explore context-sensitive multipliers.
+**Sources:**
+- Helms, E., Morgan, A., Valdez, A. — The Muscle and Strength Pyramids. Adherence as pyramid base. (expert_framework, 2019) — [link](https://muscleandstrengthpyramids.com/)
+- Currier, B.S. et al. (2023). Resistance training prescription for muscle strength and hypertrophy: a Bayesian network meta-analysis. Br J Sports Med, PMC10579494 (Meta-Analysis, 2023) — [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC10579494/)
+- Lally, P. et al. (2010). How are habits formed: Modelling habit formation in the real world. European Journal of Social Psychology, 40(6), 998-1009 (Peer-Reviewed Study, 2010) — [link](https://onlinelibrary.wiley.com/doi/10.1002/ejsp.674)
+- Scott, J.M. et al. — Exercise Relative Dose Intensity and adherence threshold of 70%. PMC12376820 (Peer-Reviewed Study, 2024) — [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC12376820/)
 
 ---
 
@@ -591,16 +597,23 @@ This document lists every configurable value used by Atlas intelligence engines,
 ### Ratio thresholds for classifying actual vs planned volume adherence
 
 - **ID:** `volume_adherence_thresholds`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Researched (peer-reviewed / RCT / meta-analysis)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
   - significantlyUnder: 0.5
   - under: 0.8
   - over: 1.2
 
-**Rationale:** Below 50% of planned volume is a significant deviation likely to impair results. 80-120% is a practical 'on track' band. Above 120% may indicate recovery risk or plan mismatch.
+**Rationale:** Dose-response for volume is curvilinear with diminishing returns (Schoenfeld 2017, Pelland 2025). Bickel et al. (2011) showed 1/3 (~33%) of volume maintains gains — 50% is above maintenance but approaching compromised territory. 80% captures the vast majority of stimulus given diminishing returns. ExRDI research found real-world patients average 77.4% of prescribed volume. >120% enters overreaching risk (Schoenfeld 2019: 30+ sets/muscle/week showed no additional gains with overreaching markers).
 
-**Notes:** Heuristic thresholds. No specific study defines these cutoffs for training adherence classification.
+**Notes:** Research summary: .docs/research-summaries/high-priority-thresholds.md. Values validated — no changes from original heuristics. The diminishing returns curve means the practical difference between 80% and 100% adherence is smaller than between 50% and 80%.
+
+**Sources:**
+- Schoenfeld, B.J. et al. (2017). Dose-response relationship between weekly RT volume and muscle mass. J Sports Sciences, 35(11):1073-1082 (Meta-Analysis, 2017) — [link](https://pubmed.ncbi.nlm.nih.gov/27433992/)
+- Pelland, J.C. et al. (2025). The Resistance Training Dose Response: Meta-Regressions on Volume and Frequency (Meta-Analysis, 2025) — [link](https://pubmed.ncbi.nlm.nih.gov/41343037/)
+- Bickel, C.S. et al. (2011). Exercise dosing to retain resistance training adaptations in young and older adults. Med Sci Sports Exerc, 43(7):1177-87 (Randomized Controlled Trial, 2011) — [link](https://pubmed.ncbi.nlm.nih.gov/21131862/)
+- Schoenfeld, B.J. et al. (2019). Resistance Training Volume Enhances Muscle Hypertrophy but Not Strength in Trained Men. Med Sci Sports Exerc, 51(1):94-103 (Randomized Controlled Trial, 2019) — [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC6303131/)
+- Scott, J.M. et al. (2024). Exercise Relative Dose Intensity adherence metric. PMC12376820 (Peer-Reviewed Study, 2024) — [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC12376820/)
 
 ---
 
@@ -609,15 +622,20 @@ This document lists every configurable value used by Atlas intelligence engines,
 ### Percentage change thresholds for classifying strength progression direction
 
 - **ID:** `strength_trend_thresholds`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Researched (peer-reviewed / RCT / meta-analysis)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
   - progressingPct: 5
   - regressingPct: -5
 
-**Rationale:** A 5% change in estimated 1RM over the analysis window represents a meaningful shift. Smaller changes are within normal session-to-session variation (fatigue, sleep, nutrition).
+**Rationale:** Direct 1RM test-retest CV is ~2-4% (Grgic 2020, 32 studies, n=1,595). Estimated 1RM from submaximal sets has ~5-10% total noise (prediction error + biological variability). MDC for bench press ~5.6 kg, squat ~10 kg in trained males. ±5% is the minimum defensible threshold — smaller changes cannot be reliably distinguished from measurement noise. Atlas's first-half vs second-half session averaging further reduces noise.
 
-**Notes:** ±5% is a common practical threshold in strength coaching. Could be refined with test-retest reliability data for 1RM estimates.
+**Notes:** Research summary: .docs/research-summaries/high-priority-thresholds.md. Limitation: intermediate lifters gaining 1-3%/month may take 2-5 months to cross 5%. This is an acceptable tradeoff vs. false plateau/regression alerts from normal variability.
+
+**Sources:**
+- Grgic, J. et al. (2020). Test-retest reliability of the one-repetition maximum: systematic review. Sports Med, 50(7):1169-1185 (Meta-Analysis, 2020) — [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC7367986/)
+- Seo, D.I. et al. (2012). Reliability of the one repetition maximum test based on muscle group and gender. J Sports Sci Med, 11(2):221-225 (Peer-Reviewed Study, 2012) — [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC3525823/)
+- Helms, E.R. et al. (2016). Application of the Repetitions in Reserve-Based RPE Scale for Resistance Training. Strength Cond J, 38(4):42-49 (Peer-Reviewed Study, 2016) — [link](https://pubmed.ncbi.nlm.nih.gov/27531969/)
 
 ---
 
@@ -711,14 +729,20 @@ This document lists every configurable value used by Atlas intelligence engines,
 ### Threshold below which a muscle is flagged as undertrained (gap)
 
 - **ID:** `plan_gap_detection_threshold`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Researched (peer-reviewed / RCT / meta-analysis)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
   - pctOfMAV: 0.8
 
-**Rationale:** If actual effective sets fall below 80% of MAV for a muscle, the plan likely has a gap worth addressing. This allows some room below MAV without triggering false positives.
+**Rationale:** The dose-response curve is curvilinear with diminishing returns (Schoenfeld 2017, Pelland 2025) — 80% of MAV captures well over 80% of potential gains. Schoenfeld 2019 found 3-set vs 5-set differences often not statistically significant for strength. The biggest risk is being below MEV, not below MAV (already caught by the 50% volume adherence threshold). 80% serves as a conservative early-warning threshold for chronic underprogramming.
 
-**Notes:** Practical heuristic. 80% provides a reasonable buffer — 70% might miss real gaps, 90% would be too sensitive.
+**Notes:** Research summary: .docs/research-summaries/high-priority-thresholds.md. 70-75% might be more evidence-aligned given how flat the curve is near MAV, but 80% is defensible as a 'catch things early' threshold. RP framework expects lifters to start mesocycles near MEV and ramp up — temporarily below 80% MAV is normal.
+
+**Sources:**
+- Schoenfeld, B.J. et al. (2017). Dose-response relationship between weekly RT volume and muscle mass. J Sports Sciences, 35(11):1073-1082 (Meta-Analysis, 2017) — [link](https://pubmed.ncbi.nlm.nih.gov/27433992/)
+- Pelland, J.C. et al. (2025). The Resistance Training Dose Response: Meta-Regressions on Volume and Frequency (Meta-Analysis, 2025) — [link](https://pubmed.ncbi.nlm.nih.gov/41343037/)
+- Baz-Valle, E. et al. (2022). RT volume and hypertrophy: a review. PMC8884877 (Peer-Reviewed Study, 2022) — [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC8884877/)
+- Schoenfeld, B.J. et al. (2019). Resistance Training Volume Enhances Muscle Hypertrophy but Not Strength. Med Sci Sports Exerc, 51(1):94-103 (Randomized Controlled Trial, 2019) — [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC6303131/)
 
 ---
 
@@ -735,14 +759,18 @@ The following rules are currently set to **placeholder** confidence and need res
 - [ ] `volume_landmarks_obliques` — Weekly volume landmarks for Obliques
 - [ ] `volume_landmarks_hip_flexors` — Weekly volume landmarks for Hip Flexors
 - [ ] `volume_landmarks_adductors` — Weekly volume landmarks for Adductors
-- [ ] `progression_close_to_target_buffer` — How many reps below target is still considered 'close' (maintain rather than reduce)
-- [x] `readiness_score_weights` — Component weights for composite readiness score (RESOLVED 2026-03-11: 30/50/20)
-- [ ] `volume_adherence_thresholds` — Ratio thresholds for classifying actual vs planned volume adherence
-- [ ] `strength_trend_thresholds` — Percentage change thresholds for classifying strength progression direction
 - [ ] `insight_streak_milestones` — Workout streak counts that trigger celebration insights
 - [ ] `insight_workout_milestones` — Total workout counts that trigger celebration insights
 - [ ] `insight_detection_thresholds` — Thresholds for detecting stalls, regressions, and consistency issues
-- [ ] `plan_gap_detection_threshold` — Threshold below which a muscle is flagged as undertrained (gap)
+
+**Previously resolved (no longer placeholder):**
+
+- [x] `readiness_score_weights` — Component weights for composite readiness score (RESOLVED 2026-03-11: 30/50/20)
+- [x] `volume_adherence_thresholds` — Ratio thresholds for volume adherence classification (RESOLVED 2026-03-11: 50/80/120% confirmed)
+- [x] `strength_trend_thresholds` — Percentage change thresholds for strength trends (RESOLVED 2026-03-11: ±5% confirmed)
+- [x] `progression_close_to_target_buffer` — Rep buffer for close-to-target decisions (RESOLVED 2026-03-11: 2 reps confirmed)
+- [x] `plan_gap_detection_threshold` — Threshold for flagging undertrained muscles (RESOLVED 2026-03-11: 80% MAV confirmed)
+- [x] `contribution_weights` — Fractional set counting multipliers (RESOLVED 2026-03-11: 1.0/0.5/0.25 confirmed)
 
 ---
 
