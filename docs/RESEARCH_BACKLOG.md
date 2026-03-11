@@ -1,6 +1,6 @@
 # Atlas Research Backlog: Placeholder Rules That Need Validation
 
-> **13 of 41 rules** in the Atlas intelligence system are educated guesses ("placeholders") that need research-backed validation. This document ranks them by priority and explains exactly what to research, why it matters, and what "wrong" looks like for each value. *(6 resolved: contribution weights, readiness score weights, volume adherence thresholds, strength trend thresholds, close-to-target buffer, plan gap detection — see below)*
+> **4 of 41 rules** in the Atlas intelligence system are educated guesses ("placeholders") that need research-backed validation. This document ranks them by priority and explains exactly what to research, why it matters, and what "wrong" looks like for each value. *(15 resolved: contribution weights, readiness score weights, volume adherence thresholds, strength trend thresholds, close-to-target buffer, plan gap detection, and 9 minor muscle volume landmarks — see below)*
 
 ---
 
@@ -166,23 +166,29 @@ All rules live in `src/data/rules-knowledge-base.js`.
 
 ---
 
-## Priority Tier 3: MEDIUM
+## Priority Tier 3: MEDIUM — ALL RESOLVED (2026-03-11)
 
-> Volume landmarks for 9 minor muscle groups with no citations. Affects tracking, gap detection, and alerts for those specific muscles.
+> Volume landmarks for 9 minor muscle groups. All 9 researched against RP Strength data, biomechanics literature, and prehab guidelines. 7 updated, 2 validated as-is.
 
-| # | Muscle | Current MEV/MAV/MRV | Risk if Wrong | Research Approach |
-|---|--------|---------------------|---------------|-------------------|
-| 7 | **Traps** | 4 / 10 / 16 | Israetel says MEV=0 with compounds. Current MEV of 4 may cause false "undertrained" alerts. | Check Israetel trap landmarks; EMG data on trap activation in deadlifts/rows. |
-| 8 | **Core** (rectus abdominis) | 4 / 10 / 16 | Limited controlled research on direct ab volume for hypertrophy. | Look for ab training volume studies; check if compounds provide sufficient stimulus. |
-| 9 | **Obliques** | 4 / 10 / 16 | Indirect stimulus from compound bracing is hard to quantify. | Check anti-rotation/rotational training research. |
-| 10 | **Adductors** | 4 / 8 / 14 | Wide-stance squat contribution is uncertain. | EMG data on adductor activation in squat variations. |
-| 11 | **Lower Back** (erectors) | 2 / 6 / 10 | **Safety concern** — overestimating MRV risks injury. Conservative values may be fine as-is. | Validate low MRV is appropriate; check injury literature. |
-| 12 | **Forearms** | 2 / 8 / 14 | Most users don't program direct forearm work. | Check if any coach has forearm-specific volume recommendations. |
-| 13 | **Brachialis** | 2 / 6 / 10 | Usually trained with biceps; separate tracking may be unnecessary. | Validate whether separate tracking adds value. |
-| 14 | **Rotator Cuff** | 2 / 6 / 10 | Prehab-focused, not hypertrophy. Current values seem reasonable. | Check physical therapy literature for prehab volume. |
-| 15 | **Hip Flexors** | 2 / 6 / 10 | Rarely directly trained. | Validate indirect contribution from leg raises/squats. |
+### 7–15. ~~Minor Muscle Volume Landmarks~~ — RESOLVED (2026-03-11)
 
-**Files affected (all 9):** `rules-knowledge-base.js`, `science-engine.js`, `intelligence-engine.js`
+| # | Muscle | Old MEV/MAV/MRV | New MEV/MAV/MRV | Changed? |
+|---|--------|-----------------|-----------------|----------|
+| 7 | ~~**Traps**~~ | 4/10/16 | **0/12/20** | Yes — all 3. RP: MEV=0, MAV=12-20, MRV=26. |
+| 8 | ~~**Core**~~ | 4/10/16 | **0/16/25** | Yes — all 3. RP: MEV=0, MAV=16-20, MRV=25. |
+| 9 | ~~**Obliques**~~ | 4/10/16 | **0/8/16** | Yes — MEV, MAV. Extrapolated from RP abs guide. |
+| 10 | ~~**Adductors**~~ | 4/8/14 | **0/8/14** | Yes — MEV. Kubo: squats grow adductors ~6.2%. |
+| 11 | ~~**Lower Back**~~ | 2/6/10 | 2/6/10 | No — safety-first validated. |
+| 12 | ~~**Forearms**~~ | 2/8/14 | **0/6/12** | Yes — all 3. RP: MEV=0, low volume tolerance. |
+| 13 | ~~**Brachialis**~~ | 2/6/10 | **0/6/10** | Yes — MEV. Trained as biceps synergist. |
+| 14 | ~~**Rotator Cuff**~~ | 2/6/10 | 2/6/10 | No — prehab validated (AAOS 6-12 sets/wk). |
+| 15 | ~~**Hip Flexors**~~ | 2/6/10 | **0/6/10** | Yes — MEV. Rarely trained directly. |
+
+**Key principle:** MEV=0 for muscles that receive adequate indirect stimulus from compounds. This eliminates false "undertrained" alerts. MAV/MRV adjusted to conservative end of RP ranges where Atlas effective set counting already includes indirect volume.
+
+**Full research:** `.docs/research-summaries/medium-priority-volume-landmarks.md`
+
+**Files affected:** `rules-knowledge-base.js`
 
 ---
 
@@ -231,6 +237,6 @@ Total workout celebration triggers. Whether milestone spacing affects user reten
 | ~~**HIGH**~~ | ~~Strength trend ±5%~~ → **RESOLVED (value confirmed)** | ~~False plateau/regression alerts~~ | ~~Medium~~ |
 | ~~**HIGH**~~ | ~~Gap detection 80% MAV~~ → **RESOLVED (value confirmed)** | ~~Over/under-suggesting exercises~~ | ~~Low~~ |
 | ~~**HIGH**~~ | ~~Close-to-target buffer (2 reps)~~ → **RESOLVED (value confirmed)** | ~~Too fast or too slow progression~~ | ~~Low~~ |
-| **MEDIUM** | 9 minor muscle volumes | Incorrect tracking for those muscles | Medium — expert consensus check |
+| ~~**MEDIUM**~~ | ~~9 minor muscle volumes~~ → **RESOLVED (7 updated, 2 validated)** | ~~Incorrect tracking for those muscles~~ | ~~Medium~~ |
 | **LOW** | Insight detection thresholds | Alert timing | Low — match other validated thresholds |
 | **LOW** | Streak/workout milestones | Gamification timing | Minimal — UX decision |

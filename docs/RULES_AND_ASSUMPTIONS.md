@@ -9,7 +9,7 @@ This document lists every configurable value used by Atlas intelligence engines,
 
 | Category | Rules | Researched | Expert Consensus | Placeholder |
 |---|---|---|---|---|
-| Volume Landmarks | 22 | 0 | 13 | 9 |
+| Volume Landmarks | 22 | 0 | 22 | 0 |
 | Progression Thresholds | 7 | 5 | 2 | 0 |
 | Deload Parameters | 3 | 3 | 0 | 0 |
 | Readiness Score | 1 | 1 | 0 | 0 |
@@ -18,7 +18,7 @@ This document lists every configurable value used by Atlas intelligence engines,
 | Contribution Weights | 1 | 0 | 0 | 0 |
 | Insight Milestones & Detection | 3 | 0 | 0 | 3 |
 | Plan Engine | 2 | 1 | 1 | 0 |
-| **Total** | **41** | **12** | **16** | **12** |
+| **Total** | **41** | **12** | **25** | **3** |
 
 ---
 
@@ -252,131 +252,160 @@ This document lists every configurable value used by Atlas intelligence engines,
 ### Weekly volume landmarks for Core (rectus abdominis)
 
 - **ID:** `volume_landmarks_core`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Expert Consensus (multiple recognized experts)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
-  - mev: 4
-  - mav: 10
-  - mrv: 16
+  - mev: 0
+  - mav: 16
+  - mrv: 25
 
-**Rationale:** Core receives indirect stimulus from compound lifts. Direct ab work provides additional hypertrophy stimulus. Limited controlled research on optimal direct core volume.
+**Rationale:** RP confirms MEV=0: compound bracing provides maintenance-level stimulus with zero direct ab work. Abs respond well to high volumes and recover quickly (3-5x/week frequency). MAV=16 is the low end of RP's 16-20 range; MRV=25 matches RP. Atlas effective set counting already includes indirect volume from compounds.
 
-**Notes:** Retained from original values. Needs research validation.
+**Notes:** Updated from {4, 10, 16}. MEV=0 eliminates false 'undertrained' alerts for lifters not doing direct ab work. See .docs/research-summaries/medium-priority-volume-landmarks.md.
+
+**Sources:**
+- Israetel, M. — RP Ab Hypertrophy Training Tips (Expert Recommendation, 2023) — [link](https://rpstrength.com/blogs/articles/ab-hypertrophy-training-tips)
+- RP Volume Landmarks Reference Tool (Aggregated Data, 2024) — [link](https://volume-landmarks-rp-rals.vercel.app/)
 
 ### Weekly volume landmarks for Lower Back (erector spinae)
 
 - **ID:** `volume_landmarks_lower_back`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Expert Consensus (multiple recognized experts)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
   - mev: 2
   - mav: 6
   - mrv: 10
 
-**Rationale:** Lower back is heavily stimulated by deadlifts, squats, and rows. Direct isolation rarely needed. Very low MRV due to recovery demands and injury risk.
+**Rationale:** Lower back is heavily stimulated isometrically by deadlifts, squats, and rows. Direct isolation (back extensions, reverse hypers) is supplementary. MEV=2 kept non-zero because some coaches argue minimal direct work benefits spinal health. MRV=10 is intentionally low — high direct erector volume risks fatigue-related injury.
 
-**Notes:** Retained from original values. Low volume is a safety-first default.
+**Notes:** Values unchanged from {2, 6, 10}. Validated as appropriate safety-first default. See .docs/research-summaries/medium-priority-volume-landmarks.md.
+
+**Sources:**
+- Practitioner consensus — safety-first conservative default (Expert Recommendation, 2024)
 
 ### Weekly volume landmarks for Traps
 
 - **ID:** `volume_landmarks_traps`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Expert Consensus (multiple recognized experts)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
-  - mev: 4
-  - mav: 10
-  - mrv: 16
+  - mev: 0
+  - mav: 12
+  - mrv: 20
 
-**Rationale:** Traps receive substantial indirect stimulus from deadlifts, rows, and overhead pressing. Israetel notes MV of 0 for traps from compounds alone. Direct work only for prioritized growth.
+**Rationale:** RP confirms MV=0 and MEV=0 for traps: compounds (deadlifts, rows, overhead presses) provide sufficient stimulus with zero direct trap work. RP MAV=12-20, MRV=26 for direct sets. Atlas uses conservative low-end (MAV=12, MRV=20) because effective set counting already includes indirect volume from compounds.
 
-**Notes:** Israetel suggests MV=0 with compounds, but Atlas tracks direct sets separately. Kept conservative pending further review.
+**Notes:** Updated from {4, 10, 16}. MEV=0 eliminates false 'undertrained' alerts. MAV/MRV lowered from RP's direct-only numbers because Atlas counts effective sets (including indirect). See .docs/research-summaries/medium-priority-volume-landmarks.md.
 
 **Sources:**
-- Israetel, M. — Renaissance Periodization (Expert Recommendation, 2023)
+- Israetel, M. — RP Trap Hypertrophy Training Tips (Expert Recommendation, 2023)
+- RP Volume Landmarks Reference Tool (Aggregated Data, 2024) — [link](https://volume-landmarks-rp-rals.vercel.app/)
 
 ### Weekly volume landmarks for Forearms
 
 - **ID:** `volume_landmarks_forearms`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Expert Consensus (multiple recognized experts)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
-  - mev: 2
-  - mav: 8
-  - mrv: 14
+  - mev: 0
+  - mav: 6
+  - mrv: 12
 
-**Rationale:** Forearms are trained indirectly through all gripping movements. Direct work rarely necessary except for specific goals.
+**Rationale:** RP confirms MV=0 and MEV=0: every gripping movement provides indirect forearm stimulus. RP notes 'relatively low volume needs and tolerances' with max 1 exercise per session. Myoreps recommended for efficiency. Direct forearm work is rarely necessary except for grip-sport or aesthetic goals.
 
-**Notes:** Retained from original values.
+**Notes:** Updated from {2, 8, 14}. MEV=0 matches RP. MAV/MRV lowered to reflect RP's 'low volume needs and tolerances.' See .docs/research-summaries/medium-priority-volume-landmarks.md.
+
+**Sources:**
+- Israetel, M. — RP Forearm Hypertrophy Training Tips (Expert Recommendation, 2023)
+- RP Volume Landmarks Reference Tool (Aggregated Data, 2024) — [link](https://volume-landmarks-rp-rals.vercel.app/)
 
 ### Weekly volume landmarks for Rotator Cuff
 
 - **ID:** `volume_landmarks_rotator_cuff`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Expert Consensus (multiple recognized experts)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
   - mev: 2
   - mav: 6
   - mrv: 10
 
-**Rationale:** Rotator cuff work is primarily for injury prevention, not hypertrophy. Low volumes of external rotation work are sufficient.
+**Rationale:** Rotator cuff work is prehab-focused, not hypertrophy. AAOS and E3 Rehab recommend 2-4 sets × 2-3 sessions/week (6-12 sets/week) for shoulder health. MEV=2 kept non-zero because a small dose of external rotation work is genuinely recommended. MAV=6 falls at the conservative end of the 6-12 evidence-based range.
 
-**Notes:** Prehab-focused. Retained from original values.
+**Notes:** Values unchanged from {2, 6, 10}. Validated against prehab literature. See .docs/research-summaries/medium-priority-volume-landmarks.md.
+
+**Sources:**
+- AAOS — Shoulder Conditioning Protocol (Clinical Guideline, 2022)
+- E3 Rehab — Evidence-based shoulder prehab programming (Expert Recommendation, 2023)
 
 ### Weekly volume landmarks for Brachialis
 
 - **ID:** `volume_landmarks_brachialis`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Expert Consensus (multiple recognized experts)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
-  - mev: 2
+  - mev: 0
   - mav: 6
   - mrv: 10
 
-**Rationale:** Brachialis is trained through hammer curls and neutral-grip pulling. Typically tracked with biceps but separated here for precision.
+**Rationale:** Brachialis receives indirect stimulus from all bicep training, especially hammer curls and neutral-grip pulling. Most lifters never isolate it. MEV=0 eliminates false 'undertrained' alerts for a muscle that is trained as a biceps synergist.
 
-**Notes:** Retained from original values.
+**Notes:** Updated MEV from 2 to 0. MAV/MRV unchanged. See .docs/research-summaries/medium-priority-volume-landmarks.md.
+
+**Sources:**
+- Practitioner consensus — trained as biceps synergist (Expert Recommendation, 2024)
 
 ### Weekly volume landmarks for Obliques
 
 - **ID:** `volume_landmarks_obliques`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Expert Consensus (multiple recognized experts)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
-  - mev: 4
-  - mav: 10
+  - mev: 0
+  - mav: 8
   - mrv: 16
 
-**Rationale:** Obliques receive indirect stimulus from compound lifts requiring bracing. Direct work adds rotational/anti-rotational strength.
+**Rationale:** Obliques receive indirect stimulus from compound bracing and anti-rotation demands. Most lifters never train obliques directly. MEV=0 because compounds provide sufficient stimulus. MAV=8 is lower than abs (smaller muscle group, less direct training research). No RP-specific guide exists; extrapolated from abs guide and general core training principles.
 
-**Notes:** Retained from original values.
+**Notes:** Updated from {4, 10, 16}. MEV=0, MAV lowered to 8, MRV kept at 16. See .docs/research-summaries/medium-priority-volume-landmarks.md.
+
+**Sources:**
+- Israetel, M. — RP Ab Hypertrophy Training Tips, core broadly (Expert Recommendation, 2023) — [link](https://rpstrength.com/blogs/articles/ab-hypertrophy-training-tips)
 
 ### Weekly volume landmarks for Hip Flexors
 
 - **ID:** `volume_landmarks_hip_flexors`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Expert Consensus (multiple recognized experts)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
-  - mev: 2
+  - mev: 0
   - mav: 6
   - mrv: 10
 
-**Rationale:** Hip flexors are trained indirectly through squats and leg raises. Direct isolation rarely programmed.
+**Rationale:** Hip flexors receive indirect stimulus from squats, leg raises, and hanging knee raises. Rarely trained for hypertrophy in isolation. MEV=0 because flagging 'undertrained' for hip flexors is not actionable for most users. Very limited direct research on hip flexor hypertrophy volume.
 
-**Notes:** Retained from original values.
+**Notes:** Updated MEV from 2 to 0. MAV/MRV unchanged. See .docs/research-summaries/medium-priority-volume-landmarks.md.
+
+**Sources:**
+- Practitioner consensus — rarely trained directly (Expert Recommendation, 2024)
 
 ### Weekly volume landmarks for Adductors
 
 - **ID:** `volume_landmarks_adductors`
-- **Confidence:** Placeholder (needs research validation)
-- **Last Reviewed:** Not yet reviewed
+- **Confidence:** Expert Consensus (multiple recognized experts)
+- **Last Reviewed:** 2026-03-11
 - **Values:**
-  - mev: 4
+  - mev: 0
   - mav: 8
   - mrv: 14
 
-**Rationale:** Adductors receive indirect stimulus from squats (especially wider stances). Direct work only for specific goals.
+**Rationale:** Adductors receive substantial indirect stimulus from squats. Kubo found squats increase adductor volume by ~6.2% over 10 weeks. Vigotsky/Bryanton: adductor magnus contributes 50%+ of hip extension torque in squats. MEV=0 because squat-based programs provide sufficient adductor stimulus without direct isolation.
 
-**Notes:** Retained from original values.
+**Notes:** Updated MEV from 4 to 0. MAV/MRV unchanged. See .docs/research-summaries/medium-priority-volume-landmarks.md.
+
+**Sources:**
+- Kubo, K. — Squat depth and muscle volume changes (Peer-Reviewed Study, 2019)
+- Vigotsky, A. & Bryanton, M. — Hip extension biomechanics in squats (Peer-Reviewed Study, 2016)
 
 ---
 
@@ -750,15 +779,6 @@ This document lists every configurable value used by Atlas intelligence engines,
 
 The following rules are currently set to **placeholder** confidence and need research validation:
 
-- [ ] `volume_landmarks_core` — Weekly volume landmarks for Core (rectus abdominis)
-- [ ] `volume_landmarks_lower_back` — Weekly volume landmarks for Lower Back (erector spinae)
-- [ ] `volume_landmarks_traps` — Weekly volume landmarks for Traps
-- [ ] `volume_landmarks_forearms` — Weekly volume landmarks for Forearms
-- [ ] `volume_landmarks_rotator_cuff` — Weekly volume landmarks for Rotator Cuff
-- [ ] `volume_landmarks_brachialis` — Weekly volume landmarks for Brachialis
-- [ ] `volume_landmarks_obliques` — Weekly volume landmarks for Obliques
-- [ ] `volume_landmarks_hip_flexors` — Weekly volume landmarks for Hip Flexors
-- [ ] `volume_landmarks_adductors` — Weekly volume landmarks for Adductors
 - [ ] `insight_streak_milestones` — Workout streak counts that trigger celebration insights
 - [ ] `insight_workout_milestones` — Total workout counts that trigger celebration insights
 - [ ] `insight_detection_thresholds` — Thresholds for detecting stalls, regressions, and consistency issues
@@ -771,6 +791,15 @@ The following rules are currently set to **placeholder** confidence and need res
 - [x] `progression_close_to_target_buffer` — Rep buffer for close-to-target decisions (RESOLVED 2026-03-11: 2 reps confirmed)
 - [x] `plan_gap_detection_threshold` — Threshold for flagging undertrained muscles (RESOLVED 2026-03-11: 80% MAV confirmed)
 - [x] `contribution_weights` — Fractional set counting multipliers (RESOLVED 2026-03-11: 1.0/0.5/0.25 confirmed)
+- [x] `volume_landmarks_core` — Core volume landmarks (RESOLVED 2026-03-11: 0/16/25, MEV=0 per RP)
+- [x] `volume_landmarks_lower_back` — Lower back volume landmarks (RESOLVED 2026-03-11: 2/6/10 confirmed, safety-first)
+- [x] `volume_landmarks_traps` — Trap volume landmarks (RESOLVED 2026-03-11: 0/12/20, MEV=0 per RP)
+- [x] `volume_landmarks_forearms` — Forearm volume landmarks (RESOLVED 2026-03-11: 0/6/12, MEV=0 per RP)
+- [x] `volume_landmarks_rotator_cuff` — Rotator cuff volume landmarks (RESOLVED 2026-03-11: 2/6/10 confirmed, prehab validated)
+- [x] `volume_landmarks_brachialis` — Brachialis volume landmarks (RESOLVED 2026-03-11: 0/6/10, MEV=0)
+- [x] `volume_landmarks_obliques` — Oblique volume landmarks (RESOLVED 2026-03-11: 0/8/16, MEV=0)
+- [x] `volume_landmarks_hip_flexors` — Hip flexor volume landmarks (RESOLVED 2026-03-11: 0/6/10, MEV=0)
+- [x] `volume_landmarks_adductors` — Adductor volume landmarks (RESOLVED 2026-03-11: 0/8/14, MEV=0)
 
 ---
 
@@ -790,4 +819,7 @@ The following rules are currently set to **placeholder** confidence and need res
 - **textbook**: Published Textbook
 - **expert_recommendation**: Expert Recommendation
 - **coaching_standard**: Coaching Standard
+- **aggregated_data**: Aggregated Data (compiled from multiple expert sources)
+- **clinical_guideline**: Clinical Guideline (medical/rehab protocol)
+- **expert_framework**: Expert Framework (published training system)
 

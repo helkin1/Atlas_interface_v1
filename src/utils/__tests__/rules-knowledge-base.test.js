@@ -42,7 +42,7 @@ describe("Rules Knowledge Base", () => {
     });
 
     it("every source has a valid type", () => {
-      const validTypes = ["meta_analysis", "rct", "peer_reviewed", "textbook", "expert_recommendation", "coaching_standard", "review_article"];
+      const validTypes = ["meta_analysis", "rct", "peer_reviewed", "textbook", "expert_recommendation", "coaching_standard", "review_article", "aggregated_data", "clinical_guideline", "expert_framework"];
       getAllRules().forEach((rule) => {
         rule.sources.forEach((source) => {
           expect(validTypes, `Rule "${rule.id}" source has invalid type "${source.type}"`).toContain(source.type);
