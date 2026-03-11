@@ -16,7 +16,16 @@ import {
   getOverviewStats,
 } from "./progress-engine.js";
 import { getGapSuggestions } from "./plan-engine.js";
-import { VOLUME_LANDMARKS } from "../data/exercise-data.js";
+import {
+  VOLUME_LANDMARKS,
+  getReadinessWeights,
+  getAdherenceThresholds,
+  getStrengthTrendThresholds,
+} from "../data/rules-knowledge-base.js";
+
+const READINESS_WEIGHTS = getReadinessWeights();
+const ADHERENCE = getAdherenceThresholds();
+const STRENGTH_THRESHOLDS = getStrengthTrendThresholds();
 
 // ── Readiness score: how well-designed is the plan + how consistently executed ──
 
@@ -42,9 +51,7 @@ function computeReadinessScore(planAnalysis, completion, weeklyTrend) {
 
   // Weighted composite: plan design matters most early, execution matters more over time
   const hasData = completedWeeks.length > 0;
-  const weights = hasData
-    ? { plan: 0.35, execution: 0.40, progression: 0.25 }
-    : { plan: 1.0, execution: 0, progression: 0 };
+  const weights = hasData ? READINESS_WEIGHTS.withData : READINESS_WEIGHTS.noData;
 
   const score = Math.round(
     planScore * weights.plan +
@@ -80,9 +87,9 @@ function computeVolumeAdherence(planAnalysis, muscleTrend) {
     const ratio = plannedSets > 0 ? Math.round((avgActual / plannedSets) * 100) / 100 : 0;
 
     let status = "on_track";
-    if (ratio < 0.5) status = "significantly_under";
-    else if (ratio < 0.8) status = "under";
-    else if (ratio > 1.2) status = "over";
+    if (ratio < ADHERENCE.significantlyUnder) status = "significantly_under";
+    else if (ratio < ADHERENCE.under) status = "under";
+    else if (ratio > ADHERENCE.over) status = "over";
 
     adherence[muscle] = {
       planned: Math.round(plannedSets * 10) / 10,
@@ -119,8 +126,8 @@ function computeStrengthTrends(exerciseHistory) {
     let changePct = 0;
     if (first > 0) {
       changePct = Math.round(((second - first) / first) * 100);
-      if (changePct >= 5) direction = "progressing";
-      else if (changePct <= -5) direction = "regressing";
+      if (changePct >= STRENGTH_THRESHOLDS.progressingPct) direction = "progressing";
+      else if (changePct <= STRENGTH_THRESHOLDS.regressingPct) direction = "regressing";
     }
 
     trends[exId] = {

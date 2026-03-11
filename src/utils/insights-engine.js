@@ -5,7 +5,9 @@
 // Architecture: docs/atlas-architecture-v1.md (Loop 3)
 // ============================================================
 
-import { VOLUME_LANDMARKS } from "../data/exercise-data.js";
+import { VOLUME_LANDMARKS, getInsightMilestones } from "../data/rules-knowledge-base.js";
+
+const MILESTONES = getInsightMilestones();
 
 // ── Insight categories ──────────────────────────────────────
 
@@ -62,9 +64,8 @@ function detectNewPRs(report, previousPRs) {
 function detectStreakMilestones(report) {
   const insights = [];
   const streak = report.progress?.overview?.streak || 0;
-  const milestones = [3, 5, 7, 10, 14, 21, 28];
 
-  if (milestones.includes(streak)) {
+  if (MILESTONES.streakMilestones.includes(streak)) {
     insights.push({
       id: `streak_${streak}`,
       category: CATEGORY.CELEBRATION,
@@ -82,9 +83,8 @@ function detectStreakMilestones(report) {
 function detectWorkoutMilestones(report) {
   const insights = [];
   const total = report.progress?.overview?.totalWorkouts || 0;
-  const milestones = [1, 5, 10, 25, 50, 75, 100, 150, 200];
 
-  if (milestones.includes(total)) {
+  if (MILESTONES.workoutMilestones.includes(total)) {
     insights.push({
       id: `milestone_${total}`,
       category: CATEGORY.CELEBRATION,
@@ -106,7 +106,7 @@ function detectStalls(report) {
   const trends = report.intelligence?.strengthTrends || {};
 
   Object.entries(trends).forEach(([exId, trend]) => {
-    if (trend.direction === "plateau" && trend.sessions >= 3) {
+    if (trend.direction === "plateau" && trend.sessions >= MILESTONES.detection.stallSessions) {
       insights.push({
         id: `stall_${exId}`,
         category: CATEGORY.WARNING,
@@ -119,7 +119,7 @@ function detectStalls(report) {
       });
     }
 
-    if (trend.direction === "regressing" && trend.sessions >= 3) {
+    if (trend.direction === "regressing" && trend.sessions >= MILESTONES.detection.regressionSessions) {
       insights.push({
         id: `regression_${exId}`,
         category: CATEGORY.WARNING,
@@ -181,7 +181,7 @@ function detectConsistencyIssues(report) {
 
   if (pct === undefined || pct === null) return insights;
 
-  if (pct < 50 && report.progress.completion.trainingDays >= 4) {
+  if (pct < MILESTONES.detection.consistencyLow && report.progress.completion.trainingDays >= MILESTONES.detection.consistencyMinDays) {
     insights.push({
       id: "consistency_low",
       category: CATEGORY.WARNING,
@@ -191,7 +191,7 @@ function detectConsistencyIssues(report) {
       metric: "completion",
       value: pct,
     });
-  } else if (pct >= 90 && report.progress.completion.completedDays >= 4) {
+  } else if (pct >= MILESTONES.detection.consistencyHigh && report.progress.completion.completedDays >= MILESTONES.detection.consistencyMinDays) {
     insights.push({
       id: "consistency_high",
       category: CATEGORY.CELEBRATION,

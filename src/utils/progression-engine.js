@@ -6,18 +6,11 @@
 // ============================================================
 
 import { EXERCISES } from "../data/exercise-data.js";
+import { getProgressionRules, getDeloadParams } from "../data/rules-knowledge-base.js";
 
-// ── Progression rules by rep range ──────────────────────────
-
-// Standard double progression: hit top of rep range → increase weight
-const PROGRESSION_RULES = {
-  // Strength range (1-5 reps)
-  strength: { minReps: 1, maxReps: 5, weightIncrementBarbell: 5, weightIncrementOther: 5, repIncrement: 1 },
-  // Hypertrophy range (6-12 reps)
-  hypertrophy: { minReps: 6, maxReps: 12, weightIncrementBarbell: 5, weightIncrementOther: 2.5, repIncrement: 1 },
-  // Endurance range (13+ reps)
-  endurance: { minReps: 13, maxReps: 20, weightIncrementBarbell: 5, weightIncrementOther: 2.5, repIncrement: 2 },
-};
+// ── Progression rules by rep range (sourced from knowledge base) ──
+const PROGRESSION_RULES = getProgressionRules();
+const DELOAD = getDeloadParams();
 
 function getRepRange(targetReps) {
   if (targetReps <= 5) return PROGRESSION_RULES.strength;
@@ -123,7 +116,7 @@ export function suggestProgression({ exerciseId, plannedSets, lastSessionSets, r
   }
 
   // 2. Completed all sets but didn't hit all rep targets → increase reps next time
-  if (perf.completed && !perf.hitAllTargets && perf.avgReps >= targetReps - 2) {
+  if (perf.completed && !perf.hitAllTargets && perf.avgReps >= targetReps - DELOAD.closeToTargetBuffer) {
     return {
       action: "maintain",
       sets: plannedSets.map(s => ({ r: s.r, w: s.w })),
@@ -134,7 +127,7 @@ export function suggestProgression({ exerciseId, plannedSets, lastSessionSets, r
   // 3. Didn't complete all sets → possible fatigue or weight too heavy
   if (!perf.completed && perf.setsCompleted > 0) {
     // Only completed some sets
-    if (perf.avgReps < targetReps * 0.6) {
+    if (perf.avgReps < targetReps * DELOAD.struggleThreshold) {
       // Struggling significantly → reduce weight
       const newWeight = roundToNearest(Math.max(0, targetWeight - increment), increment);
       return {
@@ -152,15 +145,15 @@ export function suggestProgression({ exerciseId, plannedSets, lastSessionSets, r
     };
   }
 
-  // 4. Stalled for 3+ sessions → suggest a micro-change
-  if (consecutiveSuccesses === 0 && recentSessions.length >= 3) {
+  // 4. Stalled for N+ sessions → suggest a micro-change
+  if (consecutiveSuccesses === 0 && recentSessions.length >= DELOAD.stallSessionCount) {
     return {
       action: "deload_suggestion",
       sets: plannedSets.map(s => ({
-        r: Math.min(s.r + 2, range.maxReps),
-        w: roundToNearest(Math.max(0, targetWeight * 0.9), increment),
+        r: Math.min(s.r + DELOAD.deloadRepBoost, range.maxReps),
+        w: roundToNearest(Math.max(0, targetWeight * (1 - DELOAD.weightReductionPct)), increment),
       })),
-      reason: "No progress over 3+ sessions. Try a brief deload: reduce weight 10% and increase reps to build back stronger.",
+      reason: `No progress over ${DELOAD.stallSessionCount}+ sessions. Try a brief deload: reduce weight ${Math.round(DELOAD.weightReductionPct * 100)}% and increase reps to build back stronger.`,
     };
   }
 
