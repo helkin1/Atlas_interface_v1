@@ -1,6 +1,6 @@
 # Atlas Research Backlog: Placeholder Rules That Need Validation
 
-> **18 of 41 rules** in the Atlas intelligence system are educated guesses ("placeholders") that need research-backed validation. This document ranks them by priority and explains exactly what to research, why it matters, and what "wrong" looks like for each value.
+> **17 of 41 rules** in the Atlas intelligence system are educated guesses ("placeholders") that need research-backed validation. This document ranks them by priority and explains exactly what to research, why it matters, and what "wrong" looks like for each value. *(1 resolved: contribution weights — see below)*
 
 ---
 
@@ -8,8 +8,8 @@
 
 Every numeric threshold Atlas uses to make decisions is called a **rule**. Rules control what users see: "add more chest work," "reduce weight," "your plan is 72% ready," "you've hit a plateau." There are 41 total:
 
-- **23 rules** have citations (peer-reviewed studies or expert consensus)
-- **18 rules** are placeholders — reasonable defaults that need validation
+- **24 rules** have citations (peer-reviewed studies or expert consensus)
+- **17 rules** are placeholders — reasonable defaults that need validation
 
 Each entry below includes:
 - **Current value** — what the code uses today
@@ -26,28 +26,33 @@ All rules live in `src/data/rules-knowledge-base.js`.
 
 > Wrong values here corrupt downstream calculations across the entire system.
 
-### 1. Contribution Weights
+### 1. ~~Contribution Weights~~ — RESOLVED (2026-03-11)
 
 | Field | Value |
 |-------|-------|
 | **Rule ID** | `contribution_weights` |
-| **Current values** | direct = 1.0, partial = 0.5, minimal = 0.25 |
-| **Confidence** | placeholder |
+| **Default values** | direct = 1.0, partial = 0.5, minimal = 0.25 |
+| **Confidence** | `research_supported` |
 
-**What it controls:** Every time Atlas counts "how many sets did you do for chest this week," it multiplies raw sets by these weights based on a muscle's role in the exercise. Bench press = 1.0× for chest, 0.5× for triceps, 0.5× for front delts. These multipliers feed into *every* volume calculation: gap detection, alerts, readiness score, plan quality.
+**Resolution:** Research confirms the 0.5 "half-set" rule as the best practical default for fractional set counting.
 
-**Why it's the #1 priority:** If 0.5 should actually be 0.3, then every secondary muscle's volume is overstated by 67%. Atlas would tell users "your triceps are fine" when they're actually undertrained. This is a multiplier on all other calculations — errors compound.
+**Key findings:**
+- **Pelland et al. (2024)** — Meta-regression of 67 studies (2,058 subjects). The fractional method (indirect × 0.5) had the strongest relative evidence for predicting hypertrophy. Exploratory analysis estimated indirect sets at ~32% of direct, but 0.5 provided best overall model fit.
+- **Henselmans** — Explicitly advocates 0.5: "6 sets of rows = 3 sets of effective biceps work."
+- **Outlift/Nuckols** — "Bench press stimulates about twice as much growth in the chest as in the triceps." Recommends 0.5.
+- **RP/Israetel** — Does not use fractional counting; adjusts volume landmarks instead. Not directly comparable.
 
-**What to research:**
-- EMG activation studies comparing primary vs secondary muscle activation during compound lifts (e.g., bench press triceps EMG vs isolation triceps extension EMG)
-- Hypertrophy outcome studies: does a set of bench grow triceps at 50% the rate of a set of tricep extensions? Or 30%? Or 70%?
-- RP/Israetel's "counting rules" for partial contributions (he's discussed this in videos/articles)
+**Changes made:**
+- Default 0.5/0.25 confirmed and kept as KB default
+- 12 exercise-specific overrides applied in `exercise-data.js` where biomechanics warrant lower values:
+  - Hamstrings from hip-dominant exercises (hip thrust, glute bridge, KB swing, rack pull) → 0.3 (hams not lengthened under load)
+  - Back extension / reverse hyper → hamstrings 0.4 (decent stretch but LB/glute dominant)
+  - Cable pull-through → hamstrings 0.4 (more hinge ROM than hip thrust)
+  - Core from compound stabilization (front squat, single-leg RDL, KB swing) → 0.3 (isometric bracing ≠ dynamic hypertrophy)
+  - Reverse lunge → hamstrings downgraded to minimal 0.25 (stabilizer only)
+  - Rack pull → glutes 0.4 (reduced ROM), hamstrings downgraded to minimal 0.25
 
-**What "wrong" looks like:**
-- If partial should be 0.3 (not 0.5): users who only do compounds get told their arms are fine when they actually need direct work
-- If partial should be 0.7 (not 0.5): users get told to add arm isolation when compounds are already covering it
-
-**Files affected:** `science-engine.js`, `helpers.js`, `plan-engine.js`, `progress-engine.js`, `intelligence-engine.js`
+**Files changed:** `exercise-data.js`, `rules-knowledge-base.js`
 
 ---
 

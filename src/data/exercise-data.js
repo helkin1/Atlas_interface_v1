@@ -430,8 +430,8 @@ export const EXERCISE_DATABASE = [
       { name: "Traps", role: "direct", contribution: 1.0 },
       { name: "Upper Back", role: "direct", contribution: 1.0 },
       { name: "Lower Back", role: "direct", contribution: 1.0 },
-      { name: "Glutes", role: "partial", contribution: 0.5 },
-      { name: "Hamstrings", role: "partial", contribution: 0.5 },
+      { name: "Glutes", role: "partial", contribution: 0.4 },
+      { name: "Hamstrings", role: "minimal", contribution: 0.25 },
     ]
   },
 
@@ -516,7 +516,7 @@ export const EXERCISE_DATABASE = [
     muscles: [
       { name: "Quads", role: "direct", contribution: 1.0 },
       { name: "Glutes", role: "partial", contribution: 0.5 },
-      { name: "Core", role: "partial", contribution: 0.5 },
+      { name: "Core", role: "partial", contribution: 0.3 },
     ]
   },
   {
@@ -569,7 +569,7 @@ export const EXERCISE_DATABASE = [
     muscles: [
       { name: "Quads", role: "direct", contribution: 1.0 },
       { name: "Glutes", role: "direct", contribution: 1.0 },
-      { name: "Hamstrings", role: "partial", contribution: 0.5 },
+      { name: "Hamstrings", role: "minimal", contribution: 0.25 },
       { name: "Core", role: "minimal", contribution: 0.25 },
     ]
   },
@@ -659,21 +659,21 @@ export const EXERCISE_DATABASE = [
     name: "Hip Thrust", pattern: "legs", equipment: "Barbell",
     muscles: [
       { name: "Glutes", role: "direct", contribution: 1.0 },
-      { name: "Hamstrings", role: "partial", contribution: 0.5 },
+      { name: "Hamstrings", role: "partial", contribution: 0.3 },
     ]
   },
   {
     name: "Glute Bridge", pattern: "legs", equipment: "Bodyweight",
     muscles: [
       { name: "Glutes", role: "direct", contribution: 1.0 },
-      { name: "Hamstrings", role: "partial", contribution: 0.5 },
+      { name: "Hamstrings", role: "partial", contribution: 0.3 },
     ]
   },
   {
     name: "Cable Pull-Through", pattern: "legs", equipment: "Cable",
     muscles: [
       { name: "Glutes", role: "direct", contribution: 1.0 },
-      { name: "Hamstrings", role: "partial", contribution: 0.5 },
+      { name: "Hamstrings", role: "partial", contribution: 0.4 },
       { name: "Lower Back", role: "minimal", contribution: 0.25 },
     ]
   },
@@ -710,15 +710,15 @@ export const EXERCISE_DATABASE = [
     muscles: [
       { name: "Hamstrings", role: "direct", contribution: 1.0 },
       { name: "Glutes", role: "direct", contribution: 1.0 },
-      { name: "Core", role: "partial", contribution: 0.5 },
+      { name: "Core", role: "partial", contribution: 0.3 },
     ]
   },
   {
     name: "Kettlebell Swing", pattern: "legs", equipment: "Dumbbells",
     muscles: [
       { name: "Glutes", role: "direct", contribution: 1.0 },
-      { name: "Hamstrings", role: "partial", contribution: 0.5 },
-      { name: "Core", role: "partial", contribution: 0.5 },
+      { name: "Hamstrings", role: "partial", contribution: 0.3 },
+      { name: "Core", role: "partial", contribution: 0.3 },
       { name: "Lower Back", role: "minimal", contribution: 0.25 },
     ]
   },
@@ -850,7 +850,7 @@ export const EXERCISE_DATABASE = [
     muscles: [
       { name: "Lower Back", role: "direct", contribution: 1.0 },
       { name: "Glutes", role: "partial", contribution: 0.5 },
-      { name: "Hamstrings", role: "partial", contribution: 0.5 },
+      { name: "Hamstrings", role: "partial", contribution: 0.4 },
     ]
   },
   {
@@ -858,7 +858,7 @@ export const EXERCISE_DATABASE = [
     muscles: [
       { name: "Lower Back", role: "direct", contribution: 1.0 },
       { name: "Glutes", role: "direct", contribution: 1.0 },
-      { name: "Hamstrings", role: "partial", contribution: 0.5 },
+      { name: "Hamstrings", role: "partial", contribution: 0.4 },
     ]
   },
   {

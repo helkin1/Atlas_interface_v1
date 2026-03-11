@@ -35,14 +35,14 @@ describe("Rules Knowledge Base", () => {
     });
 
     it("every rule has a valid confidence level", () => {
-      const validLevels = ["researched", "expert_consensus", "placeholder"];
+      const validLevels = ["researched", "research_supported", "expert_consensus", "placeholder"];
       getAllRules().forEach((rule) => {
         expect(validLevels, `Rule "${rule.id}" has invalid confidence "${rule.confidence}"`).toContain(rule.confidence);
       });
     });
 
     it("every source has a valid type", () => {
-      const validTypes = ["meta_analysis", "rct", "peer_reviewed", "textbook", "expert_recommendation", "coaching_standard"];
+      const validTypes = ["meta_analysis", "rct", "peer_reviewed", "textbook", "expert_recommendation", "coaching_standard", "review_article"];
       getAllRules().forEach((rule) => {
         rule.sources.forEach((source) => {
           expect(validTypes, `Rule "${rule.id}" source has invalid type "${source.type}"`).toContain(source.type);
