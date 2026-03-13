@@ -6,7 +6,7 @@ import DayView from "../components/DayView.jsx";
 
 export function MonthRoute() {
   const navigate = useNavigate();
-  return <MonthView onWeek={(wi) => navigate(`/dashboard/week/${wi}`)} onDay={(wi, di) => navigate(`/dashboard/week/${wi}/day/${di}`)} />;
+  return <MonthView onWeek={(wi) => navigate(`/plan/week/${wi}`)} onDay={(wi, di) => navigate(`/plan/week/${wi}/day/${di}`)} />;
 }
 
 export function WeekRoute({ monthData }) {
@@ -14,14 +14,14 @@ export function WeekRoute({ monthData }) {
   const navigate = useNavigate();
   const wi = parseInt(weekIdx, 10);
   const week = monthData[wi];
-  if (!week) return <Navigate to="/dashboard" replace />;
+  if (!week) return <Navigate to="/plan" replace />;
   return (
     <WeekView
       week={week}
-      onDay={(di) => navigate(`/dashboard/week/${wi}/day/${di}`)}
-      onBack={() => navigate("/dashboard")}
-      onPrevWeek={wi > 0 ? () => navigate(`/dashboard/week/${wi - 1}`) : null}
-      onNextWeek={wi < monthData.length - 1 ? () => navigate(`/dashboard/week/${wi + 1}`) : null}
+      onDay={(di) => navigate(`/plan/week/${wi}/day/${di}`)}
+      onBack={() => navigate("/plan")}
+      onPrevWeek={wi > 0 ? () => navigate(`/plan/week/${wi - 1}`) : null}
+      onNextWeek={wi < monthData.length - 1 ? () => navigate(`/plan/week/${wi + 1}`) : null}
     />
   );
 }
@@ -34,12 +34,12 @@ export function DayRoute({ monthData, plan }) {
   const di = parseInt(dayIdx, 10);
   const week = monthData[wi];
   const day = week?.days[di];
-  if (!day) return <Navigate to="/dashboard" replace />;
+  if (!day) return <Navigate to="/plan" replace />;
 
   if (day.isRest) {
     return (
       <div>
-        <button onClick={() => navigate(`/dashboard/week/${wi}`)} style={{ fontSize: 12, color: t.colors.primary, background: "none", border: "none", cursor: "pointer", marginBottom: 16 }}>&larr; Back to Week</button>
+        <button onClick={() => navigate(`/plan/week/${wi}`)} style={{ fontSize: 12, color: t.colors.primary, background: "none", border: "none", cursor: "pointer", marginBottom: 16 }}>&larr; Back to Week</button>
         <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 16, padding: 60, textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>😴</div>
           <div style={{ fontSize: 22, fontWeight: 700, color: t.text }}>Rest Day</div>
@@ -48,5 +48,5 @@ export function DayRoute({ monthData, plan }) {
       </div>
     );
   }
-  return <DayView day={day} planId={plan.planId} onBack={() => navigate(`/dashboard/week/${wi}`)} />;
+  return <DayView day={day} planId={plan.planId} onBack={() => navigate(`/plan/week/${wi}`)} />;
 }

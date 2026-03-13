@@ -15,6 +15,7 @@ import ProgressView from "./components/ProgressView.jsx";
 import AIInsights from "./components/AIInsights.jsx";
 import Onboarding from "./components/Onboarding.jsx";
 import ProfilePage from "./components/ProfilePage.jsx";
+import DashboardHome from "./components/DashboardHome.jsx";
 
 /* ── Main App ─────────────────────────────────────────────────── */
 export default function App() {
@@ -302,14 +303,20 @@ export default function App() {
         } />
 
         <Route path="/dashboard" element={<DashboardLayout {...dashLayoutProps} />}>
+          <Route index element={<DashboardHome plan={plan} monthData={monthData} />} />
+        </Route>
+
+        <Route path="/plan" element={<DashboardLayout {...dashLayoutProps} />}>
           <Route index element={<MonthRoute />} />
           <Route path="week/:weekIdx" element={<WeekRoute monthData={monthData} />} />
           <Route path="week/:weekIdx/day/:dayIdx" element={<DayRoute monthData={monthData} plan={plan} />} />
         </Route>
 
-        <Route path="/progress" element={<DashboardLayout {...dashLayoutProps} />}>
+        <Route path="/history" element={<DashboardLayout {...dashLayoutProps} />}>
           <Route index element={<ProgressView plan={plan} monthData={monthData} />} />
         </Route>
+
+        <Route path="/progress" element={<Navigate to="/history" replace />} />
 
         <Route path="/builder" element={
           <BuilderLayout
