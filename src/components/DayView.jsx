@@ -6,6 +6,7 @@ import { loadWorkoutLogs, saveWorkoutLogs, getWorkoutLogKey, migrateLegacyWorkou
 import { getPersonalizedConfig } from "../utils/personalization-engine.js";
 import { PatternBadge, cardStyle } from "./shared.jsx";
 import GymMode from "./GymMode.jsx";
+import WorkoutComplete from "./WorkoutComplete.jsx";
 
 function SetPill({ set, idx, logged }) {
   const t = useTheme();
@@ -93,6 +94,7 @@ export default function DayView({ day, planId, onBack }) {
   const dayKey = getWorkoutLogKey(planId, day.dayNum);
 
   const [sessionActive, setSessionActive] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const [sessionMeta, setSessionMeta] = useState(() => loadSessionMeta(dayKey));
   const [logged, setLogged] = useState(() => {
     const all = migrateLegacyWorkoutLog(day.dayNum, planId, loadWorkoutLogs());
@@ -146,7 +148,12 @@ export default function DayView({ day, planId, onBack }) {
     setSessionActive(true);
   };
 
-  const endSession = () => { setSessionActive(false); };
+  const endSession = () => {
+    setSessionActive(false);
+    if (Object.keys(logged).length > 0) {
+      setShowCelebration(true);
+    }
+  };
 
   const clearLogs = () => {
     setLogged({});
@@ -162,6 +169,16 @@ export default function DayView({ day, planId, onBack }) {
 
   return (
     <div>
+      {/* Celebration overlay */}
+      {showCelebration && (
+        <WorkoutComplete
+          completedSets={completedSets}
+          totalSets={totalSets}
+          duration={sessionMeta?.startTime ? Math.floor((new Date() - new Date(sessionMeta.startTime)) / 1000) : 0}
+          onClose={() => setShowCelebration(false)}
+        />
+      )}
+
       {/* GymMode full-screen overlay */}
       {sessionActive && (
         <GymMode

@@ -164,7 +164,7 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel, goa
             maxHeight: 300, overflowY: "auto",
           }}>
             <div style={{ fontSize: 11, fontWeight: 600, color: t.text, marginBottom: 8 }}>
-              Fitness Score Breakdown
+              Readiness Score Breakdown
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {goalBreakdown.map(({ name, pct: mPct, tier }) => {

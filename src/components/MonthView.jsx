@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useTheme, themes } from "../context/theme.js";
 import { usePlanData } from "../context/plan-data.js";
 import { DAY_NAMES, MO_NAMES, PATTERN_COLORS, getDayPattern, getDaySets, getWeekSets, weekMuscleVol, calcPersonalizedGoalPcts, personalizedOverallGoalPct, goalPctColor } from "../utils/helpers.js";
-import { loadProfile } from "../utils/storage.js";
+import { loadProfile, loadWorkoutLogs } from "../utils/storage.js";
 import { getPersonalizedConfig } from "../utils/personalization-engine.js";
 
 export default function MonthView({ onWeek, onDay }) {
@@ -13,7 +13,9 @@ export default function MonthView({ onWeek, onDay }) {
 
   const profile = useMemo(() => loadProfile(), []);
   const config = useMemo(() => getPersonalizedConfig(profile), [profile]);
-  
+  const logs = useMemo(() => loadWorkoutLogs(), []);
+  const dayHasLogs = (day) => Object.keys(logs).some(k => k.endsWith(`:${day.dayNum}`));
+
   return (
     <div>
       {/* Day headers */}
@@ -175,18 +177,38 @@ export default function MonthView({ onWeek, onDay }) {
                     </span>
                   )}
                   {isToday && !isRest && (
-                    <span style={{
-                      fontSize: 9,
-                      padding: "3px 8px",
-                      borderRadius: 4,
-                      background: t.ctaBg,
-                      color: t.ctaText,
-                      fontWeight: 600,
-                      marginTop: 4,
-                      letterSpacing: "0.02em",
-                    }}>
-                      Start Workout
-                    </span>
+                    dayHasLogs(day) ? (
+                      <span style={{
+                        fontSize: 9,
+                        padding: "3px 8px",
+                        borderRadius: 4,
+                        background: "rgba(34,197,94,0.12)",
+                        color: "#22C55E",
+                        fontWeight: 600,
+                        marginTop: 4,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 3,
+                      }}>
+                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                          <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Done
+                      </span>
+                    ) : (
+                      <span style={{
+                        fontSize: 9,
+                        padding: "3px 8px",
+                        borderRadius: 4,
+                        background: t.ctaBg,
+                        color: t.ctaText,
+                        fontWeight: 600,
+                        marginTop: 4,
+                        letterSpacing: "0.02em",
+                      }}>
+                        Start Workout
+                      </span>
+                    )
                   )}
                 </button>
               );

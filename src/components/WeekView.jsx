@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useTheme, themes } from "../context/theme.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { DAY_NAMES, MO_NAMES, PATTERN_COLORS, MUSCLE_COLORS, getDayPattern, getDaySets, getWeekSets, weekMuscleVol, calcPersonalizedGoalPcts, personalizedOverallGoalPct, goalPctColor } from "../utils/helpers.js";
-import { loadProfile } from "../utils/storage.js";
+import { loadProfile, loadWorkoutLogs } from "../utils/storage.js";
 import { getPersonalizedConfig } from "../utils/personalization-engine.js";
 import { PatternBadge, cardStyle } from "./shared.jsx";
 
@@ -16,13 +16,15 @@ const REST_DAY_TIPS = [
   "Mental rest is recovery too",
 ];
 
-export default function WeekView({ week, onDay, onBack }) {
+export default function WeekView({ week, onDay, onBack, onPrevWeek, onNextWeek }) {
   const t = useTheme();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const profile = useMemo(() => loadProfile(), []);
   const config = useMemo(() => getPersonalizedConfig(profile), [profile]);
+  const logs = useMemo(() => loadWorkoutLogs(), []);
+  const dayHasLogs = (day) => Object.keys(logs).some(k => k.endsWith(`:${day.dayNum}`));
 
   const mv = weekMuscleVol(week);
   const goalPcts = calcPersonalizedGoalPcts(mv, config);
@@ -57,15 +59,39 @@ export default function WeekView({ week, onDay, onBack }) {
 
       {/* Week header */}
       <div style={{ marginBottom: 32 }}>
-        <h2 style={{ 
-          fontSize: 28, 
-          fontWeight: 600, 
-          color: t.text, 
-          marginBottom: 8,
-          letterSpacing: -0.5,
-        }}>
-          {week.label}
-        </h2>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+          {onPrevWeek && (
+            <button onClick={onPrevWeek} style={{
+              width: 32, height: 32, borderRadius: 8, border: `1px solid ${t.border}`,
+              background: t.surface, cursor: "pointer", display: "flex", alignItems: "center",
+              justifyContent: "center", color: t.textMuted, flexShrink: 0,
+            }}>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          )}
+          <h2 style={{
+            fontSize: 28,
+            fontWeight: 600,
+            color: t.text,
+            letterSpacing: -0.5,
+            margin: 0,
+          }}>
+            {week.label}
+          </h2>
+          {onNextWeek && (
+            <button onClick={onNextWeek} style={{
+              width: 32, height: 32, borderRadius: 8, border: `1px solid ${t.border}`,
+              background: t.surface, cursor: "pointer", display: "flex", alignItems: "center",
+              justifyContent: "center", color: t.textMuted, flexShrink: 0,
+            }}>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          )}
+        </div>
         <div style={{ 
           display: "flex", 
           gap: 16, 
@@ -193,18 +219,39 @@ export default function WeekView({ week, onDay, onBack }) {
                 </span>
               )}
               {isToday && !isRest && (
-                <span style={{
-                  fontSize: 10,
-                  padding: "4px 10px",
-                  borderRadius: 6,
-                  background: t.ctaBg,
-                  color: t.ctaText,
-                  fontWeight: 600,
-                  marginTop: 8,
-                  alignSelf: "flex-start",
-                }}>
-                  Start Workout
-                </span>
+                dayHasLogs(day) ? (
+                  <span style={{
+                    fontSize: 10,
+                    padding: "4px 10px",
+                    borderRadius: 6,
+                    background: "rgba(34,197,94,0.12)",
+                    color: "#22C55E",
+                    fontWeight: 600,
+                    marginTop: 8,
+                    alignSelf: "flex-start",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}>
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                      <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Completed
+                  </span>
+                ) : (
+                  <span style={{
+                    fontSize: 10,
+                    padding: "4px 10px",
+                    borderRadius: 6,
+                    background: t.ctaBg,
+                    color: t.ctaText,
+                    fontWeight: 600,
+                    marginTop: 8,
+                    alignSelf: "flex-start",
+                  }}>
+                    Start Workout
+                  </span>
+                )
               )}
             </button>
           );
