@@ -1,8 +1,12 @@
 import { GOAL_OPTIONS, EQUIPMENT_OPTIONS, INJURY_OPTIONS } from "./constants.js";
 import { getSplitRecommendation } from "./getSplitRecommendation.js";
+import { getPersonalizedConfig, getModifierDescriptions, getMusclesByTier } from "../../utils/personalization-engine.js";
 
 export default function StepReview({ profile, t }) {
   const rec = getSplitRecommendation(profile);
+  const config = getPersonalizedConfig(profile);
+  const modDescriptions = getModifierDescriptions(config);
+  const tiers = getMusclesByTier(config);
 
   const sectionStyle = { background: t.surface, borderRadius: 12, padding: 20, boxShadow: t.shadow };
   const labelStyle = { fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8 };
@@ -16,6 +20,41 @@ export default function StepReview({ profile, t }) {
         <div style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.5 }}>{rec.reason}</div>
         <div style={{ fontSize: 11, color: t.textDim, marginTop: 8, fontStyle: "italic" }}>
           You can use this recommendation or build a completely custom plan in the Plan Builder.
+        </div>
+      </div>
+
+      {/* Personalization Preview */}
+      <div style={{ ...sectionStyle, border: `1px solid ${t.border}` }}>
+        <div style={labelStyle}>Your Personalized Profile</div>
+        {modDescriptions.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 12 }}>
+            {modDescriptions.map((d, i) => (
+              <div key={i} style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.4 }}>
+                <span style={{ fontWeight: 600, color: t.text }}>{d.label}:</span> {d.value}
+              </div>
+            ))}
+          </div>
+        )}
+        {tiers.priority.length > 0 && (
+          <div style={{ marginBottom: 6 }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "#22C55E" }}>Priority: </span>
+            <span style={{ fontSize: 11, color: t.textMuted }}>{tiers.priority.slice(0, 4).map(m => m.muscle).join(", ")}{tiers.priority.length > 4 ? ` +${tiers.priority.length - 4}` : ""}</span>
+          </div>
+        )}
+        {tiers.maintenance.length > 0 && (
+          <div style={{ marginBottom: 6 }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8" }}>Maintenance: </span>
+            <span style={{ fontSize: 11, color: t.textMuted }}>{tiers.maintenance.slice(0, 4).map(m => m.muscle).join(", ")}{tiers.maintenance.length > 4 ? ` +${tiers.maintenance.length - 4}` : ""}</span>
+          </div>
+        )}
+        {tiers.excluded.length > 0 && (
+          <div>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "#EF4444" }}>Excluded: </span>
+            <span style={{ fontSize: 11, color: t.textMuted }}>{tiers.excluded.map(m => m.muscle).join(", ")}</span>
+          </div>
+        )}
+        <div style={{ fontSize: 10, color: t.textFaint, marginTop: 8, fontStyle: "italic" }}>
+          Atlas uses your profile to personalize volume targets and plan scoring.
         </div>
       </div>
 

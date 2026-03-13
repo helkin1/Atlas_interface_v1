@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTheme } from "../context/theme.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { PATTERN_COLORS, MUSCLE_COLORS, getDayPattern, getDaySets, getDayVol, DAY_NAMES, MO_NAMES } from "../utils/helpers.js";
-import { loadWorkoutLogs, saveWorkoutLogs, getWorkoutLogKey, migrateLegacyWorkoutLog, loadSessionMeta, saveSessionMeta } from "../utils/storage.js";
+import { loadWorkoutLogs, saveWorkoutLogs, getWorkoutLogKey, migrateLegacyWorkoutLog, loadSessionMeta, saveSessionMeta, loadProfile } from "../utils/storage.js";
+import { getPersonalizedConfig } from "../utils/personalization-engine.js";
 import { PatternBadge, cardStyle } from "./shared.jsx";
 import GymMode from "./GymMode.jsx";
 
@@ -116,6 +117,9 @@ export default function DayView({ day, planId, onBack }) {
     }
     saveWorkoutLogs(all);
   }, [logged, dayKey, day.dayNum, planId]);
+
+  const profile = useMemo(() => loadProfile(), []);
+  const config = useMemo(() => getPersonalizedConfig(profile), [profile]);
 
   const hasLogs = Object.keys(logged).length > 0;
 
@@ -367,28 +371,34 @@ export default function DayView({ day, planId, onBack }) {
                     {ex.name}
                   </h3>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    {ex.muscles.filter((m) => m.role === "direct").map((m) => (
-                      <span 
-                        key={m.name} 
-                        style={{ 
-                          fontSize: 11, 
-                          padding: "3px 8px", 
-                          borderRadius: 4, 
-                          background: t.surface2,
-                          color: t.textMuted,
-                          fontWeight: 500,
-                        }}
-                      >
-                        {m.name}
-                      </span>
-                    ))}
+                    {ex.muscles.filter((m) => m.role === "direct").map((m) => {
+                      const tier = config.muscleTiers[m.name];
+                      const isPriority = tier === "priority";
+                      const isExcluded = tier === "excluded";
+                      return (
+                        <span
+                          key={m.name}
+                          style={{
+                            fontSize: 11,
+                            padding: "3px 8px",
+                            borderRadius: 4,
+                            background: isPriority ? "rgba(34,197,94,0.08)" : isExcluded ? "rgba(239,68,68,0.06)" : t.surface2,
+                            color: isPriority ? "#22C55E" : isExcluded ? t.textFaint : t.textMuted,
+                            fontWeight: isPriority ? 600 : 500,
+                            textDecoration: isExcluded ? "line-through" : "none",
+                          }}
+                        >
+                          {m.name}
+                        </span>
+                      );
+                    })}
                     {ex.muscles.filter((m) => m.role !== "direct").map((m) => (
-                      <span 
-                        key={m.name} 
-                        style={{ 
-                          fontSize: 11, 
-                          padding: "3px 8px", 
-                          borderRadius: 4, 
+                      <span
+                        key={m.name}
+                        style={{
+                          fontSize: 11,
+                          padding: "3px 8px",
+                          borderRadius: 4,
                           background: t.surface2,
                           color: t.textFaint,
                           fontWeight: 500,

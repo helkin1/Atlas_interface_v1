@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useTheme } from "../context/theme.js";
 import { loadProfile, saveProfile, DEFAULT_PROFILE } from "../utils/storage.js";
 import {
   EQUIPMENT_OPTIONS, INJURY_OPTIONS, FOCUS_MUSCLES,
   GOAL_OPTIONS, EXPERIENCE_OPTIONS, SESSION_DURATIONS,
 } from "./Onboarding.jsx";
+import { getPersonalizedConfig, getModifierDescriptions, getMusclesByTier } from "../utils/personalization-engine.js";
 
 /* ── Shared Styles ──────────────────────────────────────────── */
 
@@ -62,11 +63,18 @@ export default function ProfilePage({ onBack }) {
     setSaved(false);
   };
 
+  const [configChanged, setConfigChanged] = useState(false);
   const handleSave = () => {
     saveProfile(profile);
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setConfigChanged(true);
+    setTimeout(() => { setSaved(false); setConfigChanged(false); }, 3000);
   };
+
+  // Live personalization preview
+  const liveConfig = useMemo(() => getPersonalizedConfig(profile), [profile]);
+  const liveModifiers = useMemo(() => getModifierDescriptions(liveConfig), [liveConfig]);
+  const liveTiers = useMemo(() => getMusclesByTier(liveConfig), [liveConfig]);
 
   const isMetric = profile.unitPreference === "metric";
   const displayWeight = isMetric
@@ -318,7 +326,10 @@ export default function ProfilePage({ onBack }) {
 
           {/* Injuries */}
           <div>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 8, display: "block" }}>Injuries / Limitations</label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6, display: "block" }}>Injuries / Limitations</label>
+            <div style={{ fontSize: 11, color: t.textDim, marginBottom: 10, lineHeight: 1.4 }}>
+              Injured areas are excluded from plan scoring. Atlas will not penalize you for avoiding these movements and will adjust your training goals accordingly.
+            </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               {INJURY_OPTIONS.map(opt => (
                 <button key={opt.id} onClick={() => toggleList("injuries", opt.id)} style={cardStyle(t, (profile.injuries || []).includes(opt.id))}>
@@ -328,6 +339,53 @@ export default function ProfilePage({ onBack }) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Personalization Preview */}
+      <div style={sectionStyle}>
+        <div style={sectionTitle}>Personalization Preview</div>
+        {liveModifiers.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
+            {liveModifiers.map((d, i) => (
+              <div key={i} style={{ fontSize: 12, color: t.textMuted }}>
+                <span style={{ fontWeight: 600, color: t.text }}>{d.label}:</span> {d.value}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ fontSize: 12, color: t.textDim, marginBottom: 12 }}>Standard baseline — no adjustments active.</div>
+        )}
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {liveTiers.priority.length > 0 && (
+            <div style={{ fontSize: 11 }}>
+              <span style={{ fontWeight: 600, color: "#22C55E" }}>Priority: </span>
+              <span style={{ color: t.textMuted }}>{liveTiers.priority.map(m => m.muscle).join(", ")}</span>
+            </div>
+          )}
+          {liveTiers.supporting.length > 0 && (
+            <div style={{ fontSize: 11 }}>
+              <span style={{ fontWeight: 600, color: "#3B82F6" }}>Supporting: </span>
+              <span style={{ color: t.textMuted }}>{liveTiers.supporting.map(m => m.muscle).join(", ")}</span>
+            </div>
+          )}
+          {liveTiers.maintenance.length > 0 && (
+            <div style={{ fontSize: 11 }}>
+              <span style={{ fontWeight: 600, color: "#94A3B8" }}>Maintenance: </span>
+              <span style={{ color: t.textMuted }}>{liveTiers.maintenance.map(m => m.muscle).join(", ")}</span>
+            </div>
+          )}
+          {liveTiers.excluded.length > 0 && (
+            <div style={{ fontSize: 11 }}>
+              <span style={{ fontWeight: 600, color: "#EF4444" }}>Excluded: </span>
+              <span style={{ color: t.textMuted }}>{liveTiers.excluded.map(m => m.muscle).join(", ")}</span>
+            </div>
+          )}
+        </div>
+        {configChanged && (
+          <div style={{ fontSize: 11, color: t.colors.success, marginTop: 10, fontStyle: "italic" }}>
+            Your plan scores will update to reflect these changes.
+          </div>
+        )}
       </div>
     </div>
   );

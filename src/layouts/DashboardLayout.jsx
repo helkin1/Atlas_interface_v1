@@ -1,10 +1,83 @@
+import { useState, useMemo } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useTheme } from "../context/theme.js";
-import { MO_NAMES } from "../utils/helpers.js";
+import { MO_NAMES, weekMuscleVol, calcPersonalizedGoalPcts, personalizedOverallGoalPct, goalPctColor } from "../utils/helpers.js";
+import { loadProfile } from "../utils/storage.js";
+import { getPersonalizedConfig, getPersonalizedAlerts } from "../utils/personalization-engine.js";
+import { analyzePlan } from "../utils/science-engine.js";
 import ThemeToggle from "../components/ThemeToggle.jsx";
 import SettingsMenu from "../components/SettingsMenu.jsx";
 import Sidebar from "../components/Sidebar.jsx";
 import ErrorBoundary from "../components/ErrorBoundary.jsx";
+
+function IntelligenceBanner({ plan, monthData, t }) {
+  const [expanded, setExpanded] = useState(false);
+  const profile = useMemo(() => loadProfile(), []);
+  const config = useMemo(() => getPersonalizedConfig(profile), [profile]);
+
+  const { score, topAlerts } = useMemo(() => {
+    if (!plan?.weekTemplate) return { score: 0, topAlerts: [] };
+    const report = analyzePlan(plan.weekTemplate);
+    const numWeeks = monthData.length || 1;
+    const allMusc = {};
+    monthData.forEach(w => {
+      const mv = weekMuscleVol(w);
+      Object.entries(mv).forEach(([m, s]) => { allMusc[m] = (allMusc[m] || 0) + s; });
+    });
+    const avgMusc = {};
+    Object.entries(allMusc).forEach(([m, s]) => { avgMusc[m] = s / numWeeks; });
+    const goals = calcPersonalizedGoalPcts(avgMusc, config);
+    const sc = personalizedOverallGoalPct(goals, config);
+    const alerts = getPersonalizedAlerts(report, config);
+    return { score: sc, topAlerts: alerts.slice(0, 3) };
+  }, [plan, monthData, config]);
+
+  if (!topAlerts.length && score >= 80) return null;
+
+  const scoreColor = goalPctColor(score);
+  const topAlert = topAlerts[0];
+
+  return (
+    <div style={{
+      background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10,
+      padding: "10px 16px", marginBottom: 20, boxShadow: t.shadow,
+    }}>
+      <div
+        style={{ display: "flex", alignItems: "center", gap: 12, cursor: topAlerts.length > 1 ? "pointer" : "default" }}
+        onClick={() => topAlerts.length > 1 && setExpanded(!expanded)}
+      >
+        <div style={{
+          width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+          background: `${scoreColor}15`, color: scoreColor, fontSize: 12, fontWeight: 700, flexShrink: 0,
+        }}>
+          {score}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 12, fontWeight: 500, color: t.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {topAlert ? topAlert.title : "Plan looks good for your goals"}
+          </div>
+          <div style={{ fontSize: 10, color: t.textDim }}>
+            Your Plan Score · Weighted by {config.primaryGoal?.replace("_", " ") || "goal"}
+          </div>
+        </div>
+        {topAlerts.length > 1 && (
+          <span style={{ fontSize: 10, color: t.textDim, flexShrink: 0 }}>
+            {expanded ? "▴" : `▾ +${topAlerts.length - 1}`}
+          </span>
+        )}
+      </div>
+      {expanded && topAlerts.length > 1 && (
+        <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${t.border}` }}>
+          {topAlerts.slice(1).map(a => (
+            <div key={a.id} style={{ fontSize: 11, color: t.textMuted, padding: "3px 0", paddingLeft: 44 }}>
+              {a.title}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function DashboardLayout({ plan, monthData, themeMode, toggleTheme, onEditPlan, onSignOut, onAIInsights, onProfile, profile }) {
   const t = useTheme();
@@ -207,6 +280,9 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
             <SettingsMenu onEditPlan={onEditPlan} onSignOut={onSignOut} onAIInsights={onAIInsights} onProfile={onProfile} />
           </div>
         </header>
+
+        {/* Intelligence Banner — only on dashboard views */}
+        {!isProgress && <IntelligenceBanner plan={plan} monthData={monthData} t={t} />}
 
         {/* Content area */}
         {isProgress ? (
