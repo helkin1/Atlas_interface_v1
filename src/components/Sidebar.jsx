@@ -3,7 +3,7 @@ import { useTheme } from "../context/theme.js";
 import { usePlanData } from "../context/plan-data.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { calcMuscleVol, weekMuscleVol, calcGoalPcts, overallGoalPct, calcPersonalizedGoalPcts, personalizedOverallGoalPct, goalPctColor, getDaySets, getWeekSets } from "../utils/helpers.js";
-import { loadProfile } from "../utils/storage.js";
+import { loadProfile, loadWorkoutLogs } from "../utils/storage.js";
 import { getPersonalizedConfig } from "../utils/personalization-engine.js";
 import { MiniBar, GoalRing, MuscleGoalBar, MuscleDiagram, cardStyle } from "./shared.jsx";
 
@@ -93,7 +93,8 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <MuscleDiagram muscleVol={mv} size={100} config={config} />
             <div style={{ flex: 1 }}>
-              <GoalRing pct={overall} size={64} strokeWidth={4} label="Your Fitness Score" sublabel="Weighted by goal" />
+              <GoalRing pct={overall} size={64} strokeWidth={4} label="Fitness Score"
+                goalBreakdown={sortedGoals.map(([m, d]) => ({ name: m, pct: d.pct, tier: d.tier }))} />
               <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 <StatDisplay value={wkSets} label="Sets" t={t} />
                 <StatDisplay value={trainDays} label="Train Days" t={t} />
@@ -140,7 +141,8 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <MuscleDiagram muscleVol={dayMuscVol} size={100} config={config} />
             <div style={{ flex: 1 }}>
-              <GoalRing pct={wkOverall} size={64} strokeWidth={4} label="Week So Far" sublabel="Weighted by goal" />
+              <GoalRing pct={wkOverall} size={64} strokeWidth={4} label="Week So Far"
+                goalBreakdown={sortByTierThenPct(Object.entries(wkGoals).filter(([,d]) => d.eff > 0)).map(([m, d]) => ({ name: m, pct: d.pct, tier: d.tier }))} />
               <div style={{ marginTop: 12, textAlign: "center" }}>
                 <StatDisplay value={getDaySets(curDay)} label="Sets Today" t={t} />
               </div>
@@ -224,6 +226,26 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
   });
   const regionTotal = regionVol.upper + regionVol.lower + regionVol.core || 1;
 
+  // Weekly streak: count consecutive weeks (most recent first) with at least 1 logged workout
+  const logs = loadWorkoutLogs();
+  const logKeys = Object.keys(logs);
+  let streak = 0;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  for (let wi = MONTH.length - 1; wi >= 0; wi--) {
+    const wk = MONTH[wi];
+    const lastDayOfWeek = new Date(wk.days[6].date);
+    lastDayOfWeek.setHours(0, 0, 0, 0);
+    // Skip future weeks
+    if (wk.days[0].date > today) continue;
+    const hasLog = wk.days.some((d, di) => {
+      const key = `${plan?.id || "plan"}_day${d.dayNum}`;
+      return logKeys.some(k => k.includes(`day${d.dayNum}`));
+    });
+    if (hasLog) streak++;
+    else break;
+  }
+
   return (
     <div>
       <h3 style={{ fontSize: 14, fontWeight: 600, color: t.text, marginBottom: 16 }}>
@@ -234,7 +256,8 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <MuscleDiagram muscleVol={avgWeekMusc} size={100} config={config} />
           <div style={{ flex: 1 }}>
-            <GoalRing pct={overall} size={64} strokeWidth={4} label="Your Fitness Score" sublabel="Weighted by goal" />
+            <GoalRing pct={overall} size={64} strokeWidth={4} label="Fitness Score"
+              goalBreakdown={sortedGoals.map(([m, d]) => ({ name: m, pct: d.pct, tier: d.tier }))} />
             <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               <StatDisplay value={totalSets} label="Total Sets" t={t} />
               <StatDisplay value={trainDays} label="Train Days" t={t} />
@@ -242,6 +265,25 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
           </div>
         </div>
       </SidebarCard>
+
+      {streak > 0 && (
+        <SidebarCard t={t}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: 10,
+              background: streak >= 3 ? "rgba(34,197,94,0.1)" : "rgba(245,158,11,0.1)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 18,
+            }}>
+              {streak >= 4 ? "\uD83D\uDD25" : streak >= 2 ? "\u26A1" : "\uD83D\uDCAA"}
+            </div>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: t.text }}>{streak} week{streak !== 1 ? "s" : ""}</div>
+              <div style={{ fontSize: 11, color: t.textDim, fontWeight: 500 }}>Consecutive streak</div>
+            </div>
+          </div>
+        </SidebarCard>
+      )}
 
       <SidebarCard title="Volume Balance" t={t}>
         <div style={{ display: "flex", gap: 12 }}>

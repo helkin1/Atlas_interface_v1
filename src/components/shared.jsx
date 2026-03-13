@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTheme } from "../context/theme.js";
 import { PATTERN_COLORS, MUSCLE_COLORS, goalPctColor, calcGoalPcts, calcPersonalizedGoalPcts } from "../utils/helpers.js";
 
@@ -93,15 +94,16 @@ export function PatternBadge({ pattern, size }) {
   );
 }
 
-export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel }) {
+export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel, goalBreakdown }) {
   const t = useTheme();
+  const [showBreakdown, setShowBreakdown] = useState(false);
   const r = (size - strokeWidth) / 2;
   const circ = 2 * Math.PI * r;
   const capped = Math.min(pct, 100);
   const offset = circ - (capped / 100) * circ;
   const ringColor = pct >= 70 ? "#22C55E" : pct >= 40 ? "#F59E0B" : "#EF4444";
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, position: "relative" }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={t.surface3} strokeWidth={strokeWidth} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={ringColor} strokeWidth={strokeWidth}
@@ -118,17 +120,72 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel }) {
         justifyContent: "center",
       }}>
         <div style={{ fontSize: size > 60 ? 18 : 14, fontWeight: 600, color: ringColor }}>{pct}%</div>
-        {sublabel && <div style={{ fontSize: 9, color: t.textDim, marginTop: 1 }}>{sublabel}</div>}
       </div>
       {label && (
         <div style={{
-          fontSize: 11,
-          color: t.textDim,
-          fontWeight: 500,
+          display: "flex",
+          alignItems: "center",
+          gap: 4,
           marginTop: 4,
         }}>
-          {label}
+          <div style={{
+            fontSize: 11,
+            color: t.textDim,
+            fontWeight: 500,
+          }}>
+            {label}
+          </div>
+          {goalBreakdown && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowBreakdown(!showBreakdown); }}
+              style={{
+                width: 14, height: 14, borderRadius: "50%",
+                border: `1px solid ${t.border}`, background: t.surface2,
+                color: t.textDim, fontSize: 9, fontWeight: 700,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                padding: 0, lineHeight: 1,
+              }}
+              aria-label="Score breakdown"
+            >
+              ?
+            </button>
+          )}
         </div>
+      )}
+      {showBreakdown && goalBreakdown && (
+        <>
+          <div onClick={() => setShowBreakdown(false)} style={{ position: "fixed", inset: 0, zIndex: 199 }} />
+          <div style={{
+            position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)",
+            marginTop: 8, zIndex: 200,
+            background: t.surface, borderRadius: 10, padding: 12,
+            minWidth: 220, maxWidth: 280,
+            boxShadow: t.shadowLg, border: `1px solid ${t.border}`,
+            maxHeight: 300, overflowY: "auto",
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: t.text, marginBottom: 8 }}>
+              Fitness Score Breakdown
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {goalBreakdown.map(({ name, pct: mPct, tier }) => {
+                const barColor = mPct >= 80 ? "#22C55E" : mPct >= 50 ? "#F59E0B" : "#EF4444";
+                return (
+                  <div key={name} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{
+                      fontSize: 10, color: tier === "priority" ? "#22C55E" : t.textMuted,
+                      fontWeight: tier === "priority" ? 600 : 400,
+                      width: 65, textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    }}>{name}</span>
+                    <div style={{ flex: 1, height: 3, background: t.surface3, borderRadius: 2, overflow: "hidden" }}>
+                      <div style={{ width: `${Math.min(mPct, 100)}%`, height: "100%", background: barColor, borderRadius: 2 }} />
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: barColor, width: 28, textAlign: "right" }}>{mPct}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
