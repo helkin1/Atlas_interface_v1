@@ -104,22 +104,22 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel, goa
   const ringColor = pct >= 70 ? "#22C55E" : pct >= 40 ? "#F59E0B" : "#EF4444";
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, position: "relative" }}>
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={t.surface3} strokeWidth={strokeWidth} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={ringColor} strokeWidth={strokeWidth}
-          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-          style={{ transition: "stroke-dashoffset 0.5s ease" }} />
-      </svg>
-      <div style={{
-        position: "relative",
-        marginTop: -size + 2,
-        height: size - 2,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-      }}>
-        <div style={{ fontSize: size > 60 ? 18 : 14, fontWeight: 600, color: ringColor }}>{pct}%</div>
+      <div style={{ position: "relative", width: size, height: size }}>
+        <svg width={size} height={size} style={{ transform: "rotate(-90deg)", display: "block" }}>
+          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={t.surface3} strokeWidth={strokeWidth} />
+          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={ringColor} strokeWidth={strokeWidth}
+            strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+            style={{ transition: "stroke-dashoffset 0.5s ease" }} />
+        </svg>
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}>
+          <div style={{ fontSize: size > 60 ? 18 : 14, fontWeight: 600, color: ringColor }}>{pct}%</div>
+        </div>
       </div>
       {label && (
         <div style={{
@@ -164,7 +164,7 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel, goa
             maxHeight: 300, overflowY: "auto",
           }}>
             <div style={{ fontSize: 11, fontWeight: 600, color: t.text, marginBottom: 8 }}>
-              Readiness Score Breakdown
+              Fitness Score Breakdown
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {goalBreakdown.map(({ name, pct: mPct, tier }) => {
