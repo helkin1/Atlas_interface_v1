@@ -93,7 +93,7 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <MuscleDiagram muscleVol={mv} size={100} config={config} />
             <div style={{ flex: 1 }}>
-              <GoalRing pct={overall} size={64} strokeWidth={4} label="Fitness Score"
+              <GoalRing pct={overall} size={64} strokeWidth={4} label="Readiness Score"
                 goalBreakdown={sortedGoals.map(([m, d]) => ({ name: m, pct: d.pct, tier: d.tier }))} />
               <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 <StatDisplay value={wkSets} label="Sets" t={t} />
@@ -256,7 +256,7 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <MuscleDiagram muscleVol={avgWeekMusc} size={100} config={config} />
           <div style={{ flex: 1 }}>
-            <GoalRing pct={overall} size={64} strokeWidth={4} label="Fitness Score"
+            <GoalRing pct={overall} size={64} strokeWidth={4} label="Readiness Score"
               goalBreakdown={sortedGoals.map(([m, d]) => ({ name: m, pct: d.pct, tier: d.tier }))} />
             <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               <StatDisplay value={totalSets} label="Total Sets" t={t} />
@@ -285,71 +285,62 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
         </SidebarCard>
       )}
 
-      <SidebarCard title="Volume Balance" t={t}>
-        <div style={{ display: "flex", gap: 12 }}>
-          {[
-            { key: "upper", label: "Upper" },
-            { key: "lower", label: "Lower" },
-            { key: "core",  label: "Core" },
-          ].map(({ key, label }) => {
-            const v = regionVol[key];
-            const pct = Math.round((v / regionTotal) * 100);
-            return (
-              <div key={key} style={{ flex: 1, textAlign: "center" }}>
-                <div style={{ fontSize: 20, fontWeight: 600, color: t.text }}>{Math.round(v)}</div>
-                <div style={{ fontSize: 11, color: t.textDim, fontWeight: 500, marginBottom: 8 }}>{label}</div>
-                <div style={{ height: 4, background: t.surface3, borderRadius: 2, overflow: "hidden" }}>
-                  <div style={{ width: `${pct}%`, height: "100%", background: t.text, borderRadius: 2, opacity: 0.6 }} />
-                </div>
-                <div style={{ fontSize: 11, color: t.textFaint, marginTop: 6, fontWeight: 500 }}>{pct}%</div>
+      {/* Progress mini-summary */}
+      <SidebarCard t={t}>
+        {(() => {
+          // Find current week index
+          const todayTime = today.getTime();
+          let curWeekIdx = 0;
+          for (let i = 0; i < MONTH.length; i++) {
+            const wkStart = new Date(MONTH[i].days[0].date); wkStart.setHours(0,0,0,0);
+            const wkEnd = new Date(MONTH[i].days[6].date); wkEnd.setHours(23,59,59,999);
+            if (todayTime >= wkStart.getTime() && todayTime <= wkEnd.getTime()) { curWeekIdx = i; break; }
+          }
+          const curWk = MONTH[curWeekIdx];
+          const wkTrainDays = curWk.days.filter(d => !d.isRest).length;
+          const loggedDays = curWk.days.filter(d => !d.isRest && logKeys.some(k => k.includes(`day${d.dayNum}`) || k.endsWith(`:${d.dayNum}`))).length;
+          return (
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>This Week</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: loggedDays === wkTrainDays ? "#22C55E" : t.textDim }}>
+                  {loggedDays}/{wkTrainDays} workouts
+                </span>
               </div>
-            );
-          })}
-        </div>
-        <p style={{ fontSize: 11, color: t.textDim, marginTop: 12, textAlign: "center", margin: 0 }}>
-          avg weekly effective sets per region
-        </p>
-      </SidebarCard>
-
-      <SidebarCard title="Weekly Sets" t={t}>
-        <div style={{ display: "flex", gap: 6, alignItems: "flex-end", height: 60 }}>
-          {wkSets.map((s, i) => {
-            const h = (s / maxWS) * 100;
-            const sel = weekIdx === i;
-            return (
-              <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                <span style={{ fontSize: 10, color: sel ? t.text : t.textDim, fontWeight: sel ? 600 : 400 }}>{s}</span>
+              <div style={{ height: 4, background: t.surface3, borderRadius: 2, overflow: "hidden", marginBottom: 8 }}>
                 <div style={{
-                  width: "100%",
-                  height: `${h}%`,
-                  background: sel ? t.text : t.surface3,
-                  borderRadius: 3,
-                  minHeight: 4,
-                  transition: "all 0.2s ease",
+                  width: `${wkTrainDays > 0 ? Math.round((loggedDays / wkTrainDays) * 100) : 0}%`,
+                  height: "100%", background: loggedDays === wkTrainDays ? "#22C55E" : "#3B82F6",
+                  borderRadius: 2, transition: "width 0.3s ease",
                 }} />
-                <span style={{ fontSize: 10, color: t.textFaint, fontWeight: 500 }}>W{i + 1}</span>
               </div>
-            );
-          })}
-        </div>
+              <div style={{ display: "flex", gap: 12 }}>
+                {[
+                  { key: "upper", label: "Upper" },
+                  { key: "lower", label: "Lower" },
+                  { key: "core",  label: "Core" },
+                ].map(({ key, label }) => {
+                  const pct = Math.round((regionVol[key] / regionTotal) * 100);
+                  return (
+                    <div key={key} style={{ flex: 1, textAlign: "center" }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>{Math.round(regionVol[key])}</div>
+                      <div style={{ fontSize: 10, color: t.textFaint, fontWeight: 500 }}>{label} ({pct}%)</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
       </SidebarCard>
 
-      <SidebarCard title="Goal Progress" t={t}>
+      {/* Top muscle goals (compact) */}
+      <SidebarCard title="Top Goals" t={t}>
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          {sortedGoals.slice(0, 10).map(([m, data]) => (
+          {sortedGoals.slice(0, 6).map(([m, data]) => (
             <MuscleGoalBar key={m} name={m} eff={data.eff} target={data.target} tier={data.tier} compact />
           ))}
-          {excludedCount > 0 && (
-            <div style={{ fontSize: 10, color: t.textFaint, marginTop: 4, textAlign: "center" }}>
-              {excludedCount} excluded (injury)
-            </div>
-          )}
         </div>
-        {sortedGoals.length > 10 && (
-          <p style={{ fontSize: 11, color: t.textFaint, textAlign: "center", margin: 0, marginTop: 8 }}>
-            +{sortedGoals.length - 10} more
-          </p>
-        )}
       </SidebarCard>
     </div>
   );

@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-
 import { themes, ThemeContext, resolveThemeKey } from "./context/theme.js";
 import { PlanDataContext } from "./context/plan-data.js";
 import { buildMonthFromPlan, DEFAULT_PLAN, clonePlan, ensurePlanId } from "./utils/plan-engine.js";
-import { loadPlan, savePlan, loadTheme, saveTheme, hasSavedPlan, pullFromCloud, pushToCloud, loadProfile, saveProfile, isOnboardingComplete, seedDemoData, isDemoMode, exitDemoMode } from "./utils/storage.js";
+import { loadPlan, savePlan, loadTheme, saveTheme, hasSavedPlan, pullFromCloud, pushToCloud, loadProfile, saveProfile, isOnboardingComplete, seedDemoData, isDemoMode, exitDemoMode, archiveCurrentLogs } from "./utils/storage.js";
 import { onAuthStateChange, signOut, updateUserMetadata } from "./lib/supabase.js";
 
 import DashboardLayout from "./layouts/DashboardLayout.jsx";
@@ -156,6 +156,10 @@ export default function App() {
   };
 
   const activatePlan = () => {
+    // Archive current workout logs before switching plans
+    if (plan?.planId) {
+      archiveCurrentLogs(plan.planId, plan.splitName);
+    }
     const nextPlan = ensurePlanId(clonePlan(builderPlan));
     const newMonth = buildMonthFromPlan(nextPlan);
     setPlan(nextPlan);

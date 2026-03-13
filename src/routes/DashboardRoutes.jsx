@@ -15,7 +15,15 @@ export function WeekRoute({ monthData }) {
   const wi = parseInt(weekIdx, 10);
   const week = monthData[wi];
   if (!week) return <Navigate to="/dashboard" replace />;
-  return <WeekView week={week} onDay={(di) => navigate(`/dashboard/week/${wi}/day/${di}`)} onBack={() => navigate("/dashboard")} />;
+  return (
+    <WeekView
+      week={week}
+      onDay={(di) => navigate(`/dashboard/week/${wi}/day/${di}`)}
+      onBack={() => navigate("/dashboard")}
+      onPrevWeek={wi > 0 ? () => navigate(`/dashboard/week/${wi - 1}`) : null}
+      onNextWeek={wi < monthData.length - 1 ? () => navigate(`/dashboard/week/${wi + 1}`) : null}
+    />
+  );
 }
 
 export function DayRoute({ monthData, plan }) {

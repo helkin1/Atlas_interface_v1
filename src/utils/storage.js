@@ -17,6 +17,7 @@ const KEYS = {
   theme: `${PREFIX}theme`,
   sessions: `${PREFIX}sessions`,
   profile: `${PREFIX}profile`,
+  history: `${PREFIX}history`,
 };
 
 /* ── Helpers ──────────────────────────────────────────────────── */
@@ -106,6 +107,49 @@ export function migrateLegacyWorkoutLog(dayNum, planId, logs) {
     return { ...logs, [scopedKey]: logs[legacyKey] };
   }
   return logs;
+}
+
+/* ── Workout History (persists across plan switches) ──────────── */
+
+export function loadWorkoutHistory() {
+  try {
+    const raw = localStorage.getItem(KEYS.history);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveWorkoutHistory(history) {
+  try {
+    localStorage.setItem(KEYS.history, JSON.stringify(history));
+  } catch { /* */ }
+  cloudUpsert("workout_history", { data: history });
+}
+
+/**
+ * Archive current workout logs into history before switching plans.
+ * Each entry: { planId, splitName, archivedAt, logs: { dayKey: logData } }
+ */
+export function archiveCurrentLogs(planId, splitName) {
+  const logs = loadWorkoutLogs();
+  // Only archive logs that belong to this plan
+  const planLogs = {};
+  Object.entries(logs).forEach(([key, data]) => {
+    if (key.startsWith(`${planId}:`)) {
+      planLogs[key] = data;
+    }
+  });
+  if (Object.keys(planLogs).length === 0) return;
+
+  const history = loadWorkoutHistory();
+  history.push({
+    planId,
+    splitName: splitName || "Unknown Plan",
+    archivedAt: new Date().toISOString(),
+    logs: planLogs,
+  });
+  saveWorkoutHistory(history);
 }
 
 /* ── Session Metadata ─────────────────────────────────────────── */
