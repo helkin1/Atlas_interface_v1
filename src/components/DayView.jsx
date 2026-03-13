@@ -148,8 +148,14 @@ export default function DayView({ day, planId, onBack }) {
     setSessionActive(true);
   };
 
+  const [sessionEnded, setSessionEnded] = useState(false);
+
   const endSession = () => {
     setSessionActive(false);
+    setSessionEnded(true);
+    // Clear session meta so it can't be "resumed" — session is final
+    saveSessionMeta(dayKey, null);
+    setSessionMeta(null);
     if (Object.keys(logged).length > 0) {
       setShowCelebration(true);
     }
@@ -158,6 +164,7 @@ export default function DayView({ day, planId, onBack }) {
   const clearLogs = () => {
     setLogged({});
     setSessionActive(false);
+    setSessionEnded(false);
     saveSessionMeta(dayKey, null);
     setSessionMeta(null);
   };
@@ -185,7 +192,7 @@ export default function DayView({ day, planId, onBack }) {
           day={day}
           logged={logged}
           onLog={handleLog}
-          onEnd={endSession}
+          onEnd={sessionEnded ? () => setSessionActive(false) : endSession}
           startTime={sessionMeta?.startTime}
         />
       )}
@@ -283,22 +290,41 @@ export default function DayView({ day, planId, onBack }) {
                   Clear Logs
                 </button>
               )}
-              <button
-                onClick={startSession}
-                style={{
-                  padding: "12px 24px",
-                  borderRadius: 8,
-                  border: "none",
-                  background: t.ctaBg,
-                  color: t.ctaText,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                }}
-              >
-                {hasLogs ? "Resume Workout" : "Start Workout"}
-              </button>
+              {sessionEnded && hasLogs ? (
+                <button
+                  onClick={() => { setSessionActive(true); }}
+                  style={{
+                    padding: "12px 24px",
+                    borderRadius: 8,
+                    border: `1px solid ${t.border}`,
+                    background: t.surface2,
+                    color: t.text,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  Edit Log
+                </button>
+              ) : (
+                <button
+                  onClick={startSession}
+                  style={{
+                    padding: "12px 24px",
+                    borderRadius: 8,
+                    border: "none",
+                    background: t.ctaBg,
+                    color: t.ctaText,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  {hasLogs ? "Resume Workout" : "Start Workout"}
+                </button>
+              )}
             </>
           ) : (
             <span style={{

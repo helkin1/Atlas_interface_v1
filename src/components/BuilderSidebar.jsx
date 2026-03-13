@@ -64,7 +64,7 @@ export default function BuilderSidebar({ plan }) {
       <div style={{ background: t.surface, borderRadius: 12, padding: 20, marginBottom: 16, boxShadow: t.shadow, display: "flex", alignItems: "center", gap: 16 }}>
         <MuscleDiagram muscleVol={effectiveSets} size={120} config={config} />
         <div style={{ flex: 1 }}>
-          <GoalRing pct={personalizedScore} size={72} strokeWidth={5} label="Fitness Score" />
+          <GoalRing pct={personalizedScore} size={72} strokeWidth={5} label="Plan Score" />
           <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: "#3B82F6" }}>{trainDays}</div>

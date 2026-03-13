@@ -75,7 +75,7 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData, planScore,
   return (
     <div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 28 }}>
-        {planScore != null && <StatCard label="Fitness Score" value={`${planScore}%`} color={planScore >= 80 ? "#22C55E" : planScore >= 60 ? "#F59E0B" : "#EF4444"} />}
+        {planScore != null && <StatCard label="Plan Score" value={`${planScore}%`} color={planScore >= 80 ? "#22C55E" : planScore >= 60 ? "#F59E0B" : "#EF4444"} />}
         <StatCard label="Workouts" value={stats.totalWorkouts} color="#3B82F6" />
         <StatCard label="Total Volume" value={formatVolume(stats.totalVolume)} sub="lbs" color="#22C55E" />
         <StatCard label="Completion" value={`${stats.avgCompletion}%`} color="#F59E0B" />

@@ -94,7 +94,7 @@ export function PatternBadge({ pattern, size }) {
   );
 }
 
-export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel, goalBreakdown }) {
+export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel, goalBreakdown, readinessBreakdown }) {
   const t = useTheme();
   const [showBreakdown, setShowBreakdown] = useState(false);
   const r = (size - strokeWidth) / 2;
@@ -102,6 +102,7 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel, goa
   const capped = Math.min(pct, 100);
   const offset = circ - (capped / 100) * circ;
   const ringColor = pct >= 70 ? "#22C55E" : pct >= 40 ? "#F59E0B" : "#EF4444";
+  const hasBreakdown = goalBreakdown || readinessBreakdown;
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, position: "relative" }}>
       <div style={{ position: "relative", width: size, height: size }}>
@@ -135,7 +136,7 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel, goa
           }}>
             {label}
           </div>
-          {goalBreakdown && (
+          {hasBreakdown && (
             <button
               onClick={(e) => { e.stopPropagation(); setShowBreakdown(!showBreakdown); }}
               style={{
@@ -152,7 +153,7 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel, goa
           )}
         </div>
       )}
-      {showBreakdown && goalBreakdown && (
+      {showBreakdown && hasBreakdown && (
         <>
           <div onClick={() => setShowBreakdown(false)} style={{ position: "fixed", inset: 0, zIndex: 199 }} />
           <div style={{
@@ -163,27 +164,61 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel, goa
             boxShadow: t.shadowLg, border: `1px solid ${t.border}`,
             maxHeight: 300, overflowY: "auto",
           }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: t.text, marginBottom: 8 }}>
-              Fitness Score Breakdown
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              {goalBreakdown.map(({ name, pct: mPct, tier }) => {
-                const barColor = mPct >= 80 ? "#22C55E" : mPct >= 50 ? "#F59E0B" : "#EF4444";
-                return (
-                  <div key={name} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{
-                      fontSize: 10, color: tier === "priority" ? "#22C55E" : t.textMuted,
-                      fontWeight: tier === "priority" ? 600 : 400,
-                      width: 65, textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                    }}>{name}</span>
-                    <div style={{ flex: 1, height: 3, background: t.surface3, borderRadius: 2, overflow: "hidden" }}>
-                      <div style={{ width: `${Math.min(mPct, 100)}%`, height: "100%", background: barColor, borderRadius: 2 }} />
-                    </div>
-                    <span style={{ fontSize: 10, fontWeight: 600, color: barColor, width: 28, textAlign: "right" }}>{mPct}%</span>
-                  </div>
-                );
-              })}
-            </div>
+            {readinessBreakdown ? (
+              <>
+                <div style={{ fontSize: 11, fontWeight: 600, color: t.text, marginBottom: 8 }}>
+                  Readiness Breakdown
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {[
+                    { key: "executionConsistency", name: "Execution", weight: "50%" },
+                    { key: "planQuality", name: "Plan Quality", weight: "30%" },
+                    { key: "progressionTrend", name: "Progression", weight: "20%" },
+                  ].map(({ key, name, weight }) => {
+                    const val = readinessBreakdown[key] ?? 0;
+                    const barColor = val >= 70 ? "#22C55E" : val >= 40 ? "#F59E0B" : "#EF4444";
+                    return (
+                      <div key={key}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
+                          <span style={{ fontSize: 10, color: t.textMuted, fontWeight: 500 }}>{name}</span>
+                          <span style={{ fontSize: 10, color: t.textFaint }}>{weight}</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <div style={{ flex: 1, height: 4, background: t.surface3, borderRadius: 2, overflow: "hidden" }}>
+                            <div style={{ width: `${Math.min(val, 100)}%`, height: "100%", background: barColor, borderRadius: 2 }} />
+                          </div>
+                          <span style={{ fontSize: 10, fontWeight: 600, color: barColor, width: 28, textAlign: "right" }}>{val}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: 11, fontWeight: 600, color: t.text, marginBottom: 8 }}>
+                  Plan Score Breakdown
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  {goalBreakdown.map(({ name, pct: mPct, tier }) => {
+                    const barColor = mPct >= 80 ? "#22C55E" : mPct >= 50 ? "#F59E0B" : "#EF4444";
+                    return (
+                      <div key={name} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{
+                          fontSize: 10, color: tier === "priority" ? "#22C55E" : t.textMuted,
+                          fontWeight: tier === "priority" ? 600 : 400,
+                          width: 65, textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        }}>{name}</span>
+                        <div style={{ flex: 1, height: 3, background: t.surface3, borderRadius: 2, overflow: "hidden" }}>
+                          <div style={{ width: `${Math.min(mPct, 100)}%`, height: "100%", background: barColor, borderRadius: 2 }} />
+                        </div>
+                        <span style={{ fontSize: 10, fontWeight: 600, color: barColor, width: 28, textAlign: "right" }}>{mPct}%</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
         </>
       )}

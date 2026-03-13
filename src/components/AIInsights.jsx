@@ -232,7 +232,7 @@ function PersonalizedResult({ data, t }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ textAlign: "center", padding: 20, background: t.surface, borderRadius: 12, boxShadow: t.shadow }}>
         <div style={{ fontSize: 36, fontWeight: 700, color: score >= 80 ? "#22C55E" : score >= 60 ? "#F59E0B" : "#EF4444" }}>{score}%</div>
-        <div style={{ fontSize: 12, color: t.textDim, marginTop: 4 }}>Fitness Score</div>
+        <div style={{ fontSize: 12, color: t.textDim, marginTop: 4 }}>Plan Score</div>
         <div style={{ fontSize: 11, color: t.textFaint, marginTop: 2 }}>Weighted by your {goalLabel} goal</div>
       </div>
 

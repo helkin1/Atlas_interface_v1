@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/theme.js";
 import {
   weekMuscleVol,
-  calcPersonalizedGoalPcts,
-  personalizedOverallGoalPct,
   getWeekSets,
 } from "../utils/helpers.js";
 import { loadProfile, loadWorkoutLogs } from "../utils/storage.js";
@@ -50,38 +48,15 @@ export default function DashboardHome({ plan, monthData }) {
     return detectPRs(exHist);
   }, [logs, monthData, plan.planId]);
 
-  const insights = useMemo(() => {
+  const { insights, readiness } = useMemo(() => {
     const report = generateReport({
       weekTemplate: plan.weekTemplate,
       logs,
       monthData,
       planId: plan.planId,
     });
-    return generateInsights(report);
+    return { insights: generateInsights(report), readiness: report.readiness };
   }, [plan, logs, monthData]);
-
-  // Fitness score (same calc as Sidebar month view)
-  const { overall, goalBreakdown } = useMemo(() => {
-    const numWeeks = monthData.length;
-    const allMusc = {};
-    monthData.forEach((w) => {
-      const mv = weekMuscleVol(w);
-      Object.entries(mv).forEach(([m, s]) => {
-        allMusc[m] = (allMusc[m] || 0) + s;
-      });
-    });
-    const avgWeekMusc = {};
-    Object.entries(allMusc).forEach(([m, s]) => {
-      avgWeekMusc[m] = s / numWeeks;
-    });
-    const goalPcts = calcPersonalizedGoalPcts(avgWeekMusc, config);
-    const pct = personalizedOverallGoalPct(goalPcts, config);
-    const breakdown = Object.entries(goalPcts)
-      .filter(([, d]) => d.tier !== "excluded")
-      .sort((a, b) => b[1].pct - a[1].pct)
-      .map(([m, d]) => ({ name: m, pct: d.pct, tier: d.tier }));
-    return { overall: pct, goalBreakdown: breakdown };
-  }, [monthData, config]);
 
   // Find today's workout (or rest day + next upcoming)
   const { todayDay, todayWeekIdx, todayDayIdx, nextDay, nextWeekIdx, nextDayIdx, isRestDay } =
@@ -266,7 +241,7 @@ export default function DashboardHome({ plan, monthData }) {
         <StatCard label="Completion" value={`${stats.avgCompletion}%`} color={stats.avgCompletion >= 80 ? "#22C55E" : stats.avgCompletion >= 50 ? "#F59E0B" : "#EF4444"} />
         <StatCard label="Workouts" value={stats.totalWorkouts} color="#3B82F6" />
         <div style={{ ...cardStyle(t, { padding: 20 }), display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-          <GoalRing pct={overall} size={56} strokeWidth={4} label="Fitness Score" goalBreakdown={goalBreakdown} />
+          <GoalRing pct={readiness.overall} size={56} strokeWidth={4} label="Readiness" readinessBreakdown={readiness.components} />
         </div>
       </div>
 
