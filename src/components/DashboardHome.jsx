@@ -121,7 +121,7 @@ export default function DashboardHome({ plan, monthData }) {
   const topPRs = useMemo(() => {
     const prList = [];
     Object.entries(prs).forEach(([exId, prData]) => {
-      const ex = EXERCISES.find((e) => e.id === exId);
+      const ex = EXERCISES[exId];
       const name = ex ? ex.name : exId;
       if (prData.weight?.value) {
         prList.push({ name, type: "Weight", value: `${prData.weight.value} lbs`, date: prData.weight.date });
@@ -232,7 +232,7 @@ export default function DashboardHome({ plan, monthData }) {
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {nextDay.exercises?.slice(0, 6).map((ex, i) => {
-              const exData = EXERCISES.find((e) => e.id === ex.exercise_id);
+              const exData = EXERCISES[ex.exercise_id];
               return (
                 <span key={i} style={{
                   fontSize: 12,
