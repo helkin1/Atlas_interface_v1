@@ -99,7 +99,7 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel }) {
   const circ = 2 * Math.PI * r;
   const capped = Math.min(pct, 100);
   const offset = circ - (capped / 100) * circ;
-  const ringColor = pct >= 80 ? t.colors.success : t.text;
+  const ringColor = pct >= 70 ? "#22C55E" : pct >= 40 ? "#F59E0B" : "#EF4444";
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
