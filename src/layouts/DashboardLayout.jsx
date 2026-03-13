@@ -177,8 +177,8 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Derive viewLevel, weekIdx, dayIdx from URL
-  const pathParts = location.pathname.replace(/^\/dashboard\/?/, "").split("/").filter(Boolean);
+  // Derive viewLevel, weekIdx, dayIdx from URL (plan sub-routes)
+  const pathParts = location.pathname.replace(/^\/plan\/?/, "").split("/").filter(Boolean);
   let viewLevel = "month", weekIdx = null, dayIdx = null;
   if (pathParts[0] === "week" && pathParts[1] != null) {
     weekIdx = parseInt(pathParts[1], 10);
@@ -193,7 +193,9 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
   const curWeek = weekIdx !== null ? monthData[weekIdx] : null;
   const curDay = curWeek && dayIdx !== null ? curWeek.days[dayIdx] : null;
 
-  const isProgress = location.pathname.startsWith("/progress");
+  const isDashboard = location.pathname === "/dashboard";
+  const isPlan = location.pathname.startsWith("/plan");
+  const isHistory = location.pathname.startsWith("/history");
 
   return (
     <div style={{ 
@@ -240,52 +242,42 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
 
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             {/* Tab navigation */}
-            <nav style={{ 
-              display: "inline-flex", 
-              gap: 2, 
-              background: t.surface2, 
-              borderRadius: 10, 
+            <nav style={{
+              display: "inline-flex",
+              gap: 2,
+              background: t.surface2,
+              borderRadius: 10,
               padding: 4,
               border: `1px solid ${t.border}`,
             }}>
-              <button 
-                onClick={() => navigate("/dashboard")} 
-                style={{
-                  fontSize: 13, 
-                  padding: "8px 16px", 
-                  borderRadius: 8, 
-                  border: "none", 
-                  cursor: "pointer",
-                  background: !isProgress ? t.surface : "transparent",
-                  color: !isProgress ? t.text : t.textDim,
-                  fontWeight: !isProgress ? 500 : 400,
-                  boxShadow: !isProgress ? t.shadow : "none",
-                  transition: "all 0.15s ease",
-                }}
-              >
-                Dashboard
-              </button>
-              <button 
-                onClick={() => navigate("/progress")} 
-                style={{
-                  fontSize: 13, 
-                  padding: "8px 16px", 
-                  borderRadius: 8, 
-                  border: "none", 
-                  cursor: "pointer",
-                  background: isProgress ? t.surface : "transparent",
-                  color: isProgress ? t.text : t.textDim,
-                  fontWeight: isProgress ? 500 : 400,
-                  boxShadow: isProgress ? t.shadow : "none",
-                  transition: "all 0.15s ease",
-                }}
-              >
-                Progress
-              </button>
+              {[
+                { label: "Dashboard", path: "/dashboard", active: isDashboard },
+                { label: "Plan", path: "/plan", active: isPlan },
+                { label: "History", path: "/history", active: isHistory },
+              ].map(tab => (
+                <button
+                  key={tab.path}
+                  onClick={() => navigate(tab.path)}
+                  style={{
+                    fontSize: 13,
+                    padding: "8px 16px",
+                    borderRadius: 8,
+                    border: "none",
+                    cursor: "pointer",
+                    background: tab.active ? t.surface : "transparent",
+                    color: tab.active ? t.text : t.textDim,
+                    fontWeight: tab.active ? 500 : 400,
+                    boxShadow: tab.active ? t.shadow : "none",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </nav>
 
             {/* Breadcrumb */}
-            {!isProgress && viewLevel !== "month" && (
+            {isPlan && viewLevel !== "month" && (
               <nav style={{ 
                 display: "flex", 
                 gap: 8, 
@@ -297,12 +289,12 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
                 border: `1px solid ${t.border}`,
               }}>
                 <button 
-                  onClick={() => navigate("/dashboard")} 
-                  style={{ 
-                    color: t.textMuted, 
-                    background: "none", 
-                    border: "none", 
-                    cursor: "pointer", 
+                  onClick={() => navigate("/plan")}
+                  style={{
+                    color: t.textMuted,
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
                     fontSize: "inherit",
                     fontWeight: 400,
                     padding: 0,
@@ -314,7 +306,7 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
                   <>
                     <span style={{ color: t.textFaint }}>/</span>
                     <button 
-                      onClick={() => navigate(`/dashboard/week/${weekIdx}`)} 
+                      onClick={() => navigate(`/plan/week/${weekIdx}`)} 
                       style={{ 
                         color: viewLevel === "week" ? t.text : t.textMuted, 
                         background: "none", 
@@ -339,34 +331,34 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
             )}
 
             <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
-            {!isProgress && <NotificationsButton plan={plan} monthData={monthData} />}
+            {!isHistory && <NotificationsButton plan={plan} monthData={monthData} />}
             <SettingsMenu onEditPlan={onEditPlan} onSignOut={onSignOut} onAIInsights={onAIInsights} onProfile={onProfile} />
           </div>
         </header>
 
         {/* Content area */}
-        {isProgress ? (
-          <ErrorBoundary><Outlet /></ErrorBoundary>
-        ) : (
-          <div style={{ 
-            display: "grid", 
-            gridTemplateColumns: "1fr 300px", 
+        {isPlan ? (
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 300px",
             gap: 40,
             alignItems: "start",
           }}>
             <main>
               <ErrorBoundary><Outlet /></ErrorBoundary>
             </main>
-            <aside style={{ 
-              position: "sticky", 
-              top: 32, 
-              maxHeight: "calc(100vh - 64px)", 
+            <aside style={{
+              position: "sticky",
+              top: 32,
+              maxHeight: "calc(100vh - 64px)",
               overflowY: "auto",
               overflowX: "hidden",
             }}>
               <Sidebar weekIdx={weekIdx} viewLevel={viewLevel} curWeek={curWeek} curDay={curDay} plan={plan} />
             </aside>
           </div>
+        ) : (
+          <ErrorBoundary><Outlet /></ErrorBoundary>
         )}
       </div>
     </div>
