@@ -93,7 +93,7 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <MuscleDiagram muscleVol={mv} size={100} config={config} />
             <div style={{ flex: 1 }}>
-              <GoalRing pct={overall} size={64} strokeWidth={4} label="Fitness Score"
+              <GoalRing pct={overall} size={64} strokeWidth={4} label="Plan Score"
                 goalBreakdown={sortedGoals.map(([m, d]) => ({ name: m, pct: d.pct, tier: d.tier }))} />
               <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 <StatDisplay value={wkSets} label="Sets" t={t} />
@@ -256,7 +256,7 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <MuscleDiagram muscleVol={avgWeekMusc} size={100} config={config} />
           <div style={{ flex: 1 }}>
-            <GoalRing pct={overall} size={64} strokeWidth={4} label="Fitness Score"
+            <GoalRing pct={overall} size={64} strokeWidth={4} label="Plan Score"
               goalBreakdown={sortedGoals.map(([m, d]) => ({ name: m, pct: d.pct, tier: d.tier }))} />
             <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               <StatDisplay value={totalSets} label="Total Sets" t={t} />
