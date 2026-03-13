@@ -15,15 +15,15 @@ function rpeColor(v) {
 
 /* ── Inline Rest Timer (right panel) ─────────────────────────── */
 
-function InlineRestTimer({ duration = 90, onDone }) {
+function InlineRestTimer({ duration = 90, onDone, paused }) {
   const t = useTheme();
   const [remaining, setRemaining] = useState(duration);
 
   useEffect(() => {
-    if (remaining <= 0) return;
+    if (remaining <= 0 || paused) return;
     const id = setInterval(() => setRemaining((r) => r - 1), 1000);
     return () => clearInterval(id);
-  }, [remaining]);
+  }, [remaining, paused]);
 
   const pct = (remaining / duration) * 100;
   const mins = Math.floor(remaining / 60);
@@ -134,28 +134,31 @@ function GymLogModal({ exercise, setData, idx, onConfirm, onCancel }) {
 
 /* ── GymSetPill ───────────────────────────────────────────────── */
 
-function GymSetPill({ set, idx, logged, onLog }) {
+function GymSetPill({ set, idx, logged, onLog, isNext }) {
   const t = useTheme();
   const isL = logged != null;
   const hit = isL && logged.reps >= set.r;
   const up = isL && logged.w > set.w;
+  const canLog = !isL && isNext;
 
   let bc = t.borderLight, bg = "transparent", tc = t.textMuted, icon = "";
   if (isL && hit && !up) { bc = "#22C55E"; bg = "rgba(34,197,94,0.06)"; tc = "#22C55E"; icon = " \u2713"; }
   else if (isL && up)    { bc = "#F59E0B"; bg = "rgba(245,158,11,0.06)";  tc = "#F59E0B"; icon = " \u2191"; }
   else if (isL && !hit)  { bc = "#EF4444"; bg = "rgba(239,68,68,0.06)";   tc = "#EF4444"; icon = " \u2717"; }
+  else if (canLog)       { bc = "#3B82F6"; bg = "rgba(59,130,246,0.06)";   tc = "#3B82F6"; }
 
   const dw = isL ? logged.w : set.w;
   const dr = isL ? logged.reps : set.r;
 
   return (
     <button
-      onClick={() => !isL && onLog()}
+      onClick={() => canLog && onLog()}
       style={{
         border: `1px solid ${bc}`, background: bg, color: tc, borderRadius: 10,
         padding: "12px 14px", fontSize: 13,
-        cursor: !isL ? "pointer" : "default", minWidth: 88, textAlign: "center",
+        cursor: canLog ? "pointer" : "default", minWidth: 88, textAlign: "center",
         transition: "all 0.15s", position: "relative",
+        opacity: !isL && !isNext ? 0.4 : 1,
       }}
     >
       <div style={{ fontSize: 10, opacity: 0.6, marginBottom: 4 }}>Set {idx + 1}</div>
@@ -185,16 +188,18 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
   const [paused, setPaused] = useState(false);
   const [elapsed, setElapsed] = useState(0);
 
+  const isEditMode = !startTime;
+
   // effectiveStart adjusts when pausing/resuming so the clock stays continuous
   const effectiveStartRef = useRef(startTime ? new Date(startTime) : new Date());
 
   useEffect(() => {
-    if (paused) return;
+    if (paused || isEditMode) return;
     const tick = () => setElapsed(Math.max(0, Math.floor((new Date() - effectiveStartRef.current) / 1000)));
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [paused]);
+  }, [paused, isEditMode]);
 
   const togglePause = () => {
     if (paused) {
@@ -209,6 +214,15 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
   const totalSets = day.exercises.reduce((acc, e) => acc + e.sets.length, 0);
   const completedSets = Object.keys(logged).length;
   const pct = totalSets > 0 ? Math.round((completedSets / totalSets) * 100) : 0;
+
+  // Find the next unlogged set key (first in exercise/set order)
+  let nextSetKey = null;
+  for (let ei = 0; ei < day.exercises.length && !nextSetKey; ei++) {
+    for (let si = 0; si < day.exercises[ei].sets.length && !nextSetKey; si++) {
+      const key = `${ei}_${si}`;
+      if (logged[key] == null) nextSetKey = key;
+    }
+  }
 
   const hrs = Math.floor(elapsed / 3600);
   const mins = Math.floor((elapsed % 3600) / 60);
@@ -264,7 +278,7 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
               color: t.textMuted, fontSize: 13, fontWeight: 600, cursor: "pointer",
               letterSpacing: 0.3,
             }}
-          >Exit</button>
+          >{isEditMode ? "Done" : "Exit"}</button>
         </div>
         {/* progress bar */}
         <div style={{ height: 2, background: t.surface3, borderRadius: 2, overflow: "hidden" }}>
@@ -313,6 +327,7 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
                     return (
                       <GymSetPill
                         key={si} set={s} idx={si} logged={logged[key]}
+                        isNext={key === nextSetKey}
                         onLog={() => setModal({ exercise: entry, set: s, exIdx: ei, setIdx: si })}
                       />
                     );
@@ -330,20 +345,27 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
           padding: 20, display: "flex", flexDirection: "column", gap: 20, overflowY: "auto",
         }}>
 
-          {/* Session clock */}
-          <div>
-            <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 8 }}>Session Time</div>
-            <div style={{ fontSize: 38, fontWeight: 700, color: paused ? t.textMuted : t.text, marginBottom: 10, letterSpacing: -1 }}>
-              {clockStr}
+          {/* Session clock (hidden in edit mode) */}
+          {!isEditMode && (
+            <div>
+              <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 8 }}>Session Time</div>
+              <div style={{ fontSize: 38, fontWeight: 700, color: paused ? t.textMuted : t.text, marginBottom: 10, letterSpacing: -1 }}>
+                {clockStr}
+              </div>
+              <button onClick={togglePause} style={{
+                width: "100%", padding: "8px 0", borderRadius: 8,
+                border: `1px solid ${t.borderLight}`, background: "transparent",
+                color: t.textMuted, fontSize: 12, fontWeight: 600, cursor: "pointer",
+              }}>
+                {paused ? "\u25B6 Resume" : "\u23F8 Pause"}
+              </button>
             </div>
-            <button onClick={togglePause} style={{
-              width: "100%", padding: "8px 0", borderRadius: 8,
-              border: `1px solid ${t.borderLight}`, background: "transparent",
-              color: t.textMuted, fontSize: 12, fontWeight: 600, cursor: "pointer",
-            }}>
-              {paused ? "\u25B6 Resume" : "\u23F8 Pause"}
-            </button>
-          </div>
+          )}
+          {isEditMode && (
+            <div style={{ fontSize: 13, color: t.textMuted, fontWeight: 600 }}>
+              Editing Log
+            </div>
+          )}
 
           {/* Muscles hit */}
           {hitEntries.length > 0 && (
@@ -359,20 +381,31 @@ export default function GymMode({ day, logged, onLog, onEnd, startTime }) {
           {restActive && (
             <div>
               <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 8 }}>Rest Timer</div>
-              <InlineRestTimer onDone={() => setRestActive(false)} />
+              <InlineRestTimer paused={paused} onDone={() => setRestActive(false)} />
             </div>
           )}
 
-          {/* End session — pushed to bottom */}
+          {/* End session / Done — pushed to bottom */}
           <div style={{ marginTop: "auto" }}>
-            <button onClick={onEnd} style={{
-              width: "100%", padding: "12px 0", borderRadius: 10,
-              border: "1px solid rgba(239,68,68,0.3)",
-              background: "rgba(239,68,68,0.06)",
-              color: "#EF4444", fontSize: 13, fontWeight: 700, cursor: "pointer",
-            }}>
-              End Session
-            </button>
+            {isEditMode ? (
+              <button onClick={onEnd} style={{
+                width: "100%", padding: "12px 0", borderRadius: 10,
+                border: `1px solid ${t.borderLight}`,
+                background: "transparent",
+                color: t.textMuted, fontSize: 13, fontWeight: 700, cursor: "pointer",
+              }}>
+                Done Editing
+              </button>
+            ) : (
+              <button onClick={onEnd} style={{
+                width: "100%", padding: "12px 0", borderRadius: 10,
+                border: "1px solid rgba(239,68,68,0.3)",
+                background: "rgba(239,68,68,0.06)",
+                color: "#EF4444", fontSize: 13, fontWeight: 700, cursor: "pointer",
+              }}>
+                End Session
+              </button>
+            )}
           </div>
         </div>
 
