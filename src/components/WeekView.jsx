@@ -6,6 +6,16 @@ import { loadProfile } from "../utils/storage.js";
 import { getPersonalizedConfig } from "../utils/personalization-engine.js";
 import { PatternBadge, cardStyle } from "./shared.jsx";
 
+const REST_DAY_TIPS = [
+  "Focus on sleep quality tonight",
+  "Light stretching or yoga helps recovery",
+  "Stay hydrated \u2014 aim for 3L today",
+  "Foam roll any tight spots",
+  "Nutrition matters \u2014 prioritize protein",
+  "Active recovery: a light walk helps",
+  "Mental rest is recovery too",
+];
+
 export default function WeekView({ week, onDay, onBack }) {
   const t = useTheme();
   const today = new Date();
@@ -160,14 +170,40 @@ export default function WeekView({ week, onDay, onBack }) {
                   {pat}
                 </span>
               )}
+              {isRest && (
+                <span style={{
+                  marginTop: "auto",
+                  fontSize: 10,
+                  color: t.textFaint,
+                  fontWeight: 400,
+                  fontStyle: "italic",
+                  lineHeight: 1.3,
+                }}>
+                  {REST_DAY_TIPS[di % REST_DAY_TIPS.length]}
+                </span>
+              )}
               {!isRest && (
-                <span style={{ 
-                  marginTop: "auto", 
-                  fontSize: 12, 
+                <span style={{
+                  marginTop: "auto",
+                  fontSize: 12,
                   color: t.textMuted,
                   fontWeight: 500,
                 }}>
                   {day.exercises.length} exercises
+                </span>
+              )}
+              {isToday && !isRest && (
+                <span style={{
+                  fontSize: 10,
+                  padding: "4px 10px",
+                  borderRadius: 6,
+                  background: t.ctaBg,
+                  color: t.ctaText,
+                  fontWeight: 600,
+                  marginTop: 8,
+                  alignSelf: "flex-start",
+                }}>
+                  Start Workout
                 </span>
               )}
             </button>

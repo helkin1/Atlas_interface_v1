@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useTheme } from "../context/theme.js";
-import { MO_NAMES, weekMuscleVol, calcPersonalizedGoalPcts, personalizedOverallGoalPct, goalPctColor } from "../utils/helpers.js";
+import { weekMuscleVol, calcPersonalizedGoalPcts, personalizedOverallGoalPct, goalPctColor } from "../utils/helpers.js";
 import { loadProfile } from "../utils/storage.js";
 import { getPersonalizedConfig, getPersonalizedAlerts } from "../utils/personalization-engine.js";
 import { analyzePlan } from "../utils/science-engine.js";
@@ -9,6 +9,36 @@ import ThemeToggle from "../components/ThemeToggle.jsx";
 import SettingsMenu from "../components/SettingsMenu.jsx";
 import Sidebar from "../components/Sidebar.jsx";
 import ErrorBoundary from "../components/ErrorBoundary.jsx";
+
+const MOTIVATIONAL_MESSAGES = [
+  "Let's build something strong today.",
+  "Consistency beats perfection.",
+  "One rep closer to your goals.",
+  "Your future self will thank you.",
+  "Trust the process.",
+  "Progress is progress, no matter how small.",
+  "Show up, lift heavy, repeat.",
+  "The iron never lies.",
+  "Discipline is choosing between what you want now and what you want most.",
+  "You don't have to be extreme, just consistent.",
+  "The only bad workout is the one that didn't happen.",
+  "Stronger than yesterday.",
+];
+
+function getMotivationalMessage() {
+  const today = new Date();
+  const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+  return MOTIVATIONAL_MESSAGES[dayOfYear % MOTIVATIONAL_MESSAGES.length];
+}
+
+const NOTIF_STORAGE_KEY = "atlas_read_notifications";
+
+function loadReadNotifs() {
+  try { return JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY) || "[]"); } catch { return []; }
+}
+function saveReadNotifs(ids) {
+  try { localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(ids)); } catch { /* */ }
+}
 
 const NOTIF_SEVERITY_STYLES = {
   critical: { color: "#EF4444", dot: "#EF4444" },
@@ -19,6 +49,7 @@ const NOTIF_SEVERITY_STYLES = {
 function NotificationsButton({ plan, monthData }) {
   const t = useTheme();
   const [open, setOpen] = useState(false);
+  const [readIds, setReadIds] = useState(() => loadReadNotifs());
   const profile = useMemo(() => loadProfile(), []);
   const config = useMemo(() => getPersonalizedConfig(profile), [profile]);
 
@@ -28,7 +59,21 @@ function NotificationsButton({ plan, monthData }) {
     return getPersonalizedAlerts(report, config).slice(0, 8);
   }, [plan, monthData, config]);
 
-  const count = alerts.length;
+  const unreadCount = alerts.filter(a => !readIds.includes(a.id)).length;
+
+  const markRead = (id) => {
+    if (!readIds.includes(id)) {
+      const next = [...readIds, id];
+      setReadIds(next);
+      saveReadNotifs(next);
+    }
+  };
+
+  const markAllRead = () => {
+    const next = alerts.map(a => a.id);
+    setReadIds(next);
+    saveReadNotifs(next);
+  };
 
   return (
     <div style={{ position: "relative" }}>
@@ -47,7 +92,7 @@ function NotificationsButton({ plan, monthData }) {
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
-        {count > 0 && (
+        {unreadCount > 0 && (
           <span style={{
             position: "absolute", top: -4, right: -4,
             width: 18, height: 18, borderRadius: "50%",
@@ -55,7 +100,7 @@ function NotificationsButton({ plan, monthData }) {
             fontSize: 10, fontWeight: 700,
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            {count}
+            {unreadCount}
           </span>
         )}
       </button>
@@ -71,9 +116,17 @@ function NotificationsButton({ plan, monthData }) {
           }}>
             <div style={{
               padding: "12px 16px", borderBottom: `1px solid ${t.border}`,
-              fontSize: 13, fontWeight: 600, color: t.text,
+              display: "flex", justifyContent: "space-between", alignItems: "center",
             }}>
-              Notifications
+              <span style={{ fontSize: 13, fontWeight: 600, color: t.text }}>Notifications</span>
+              {unreadCount > 0 && (
+                <button onClick={markAllRead} style={{
+                  fontSize: 10, color: t.textDim, background: "none", border: "none",
+                  cursor: "pointer", fontWeight: 500,
+                }}>
+                  Mark all read
+                </button>
+              )}
             </div>
             {alerts.length === 0 ? (
               <div style={{ padding: "24px 16px", textAlign: "center" }}>
@@ -83,21 +136,24 @@ function NotificationsButton({ plan, monthData }) {
               <div style={{ padding: 8 }}>
                 {alerts.map(alert => {
                   const s = NOTIF_SEVERITY_STYLES[alert.severity] || NOTIF_SEVERITY_STYLES.info;
+                  const isRead = readIds.includes(alert.id);
                   return (
                     <div key={alert.id} style={{
                       display: "flex", alignItems: "flex-start", gap: 10,
                       padding: "10px 12px", borderRadius: 8,
                       transition: "background 0.1s ease",
+                      opacity: isRead ? 0.55 : 1,
                     }}
+                    onClick={() => markRead(alert.id)}
                     onMouseEnter={(e) => e.currentTarget.style.background = t.surface2}
                     onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
                     >
                       <div style={{
                         width: 6, height: 6, borderRadius: "50%",
-                        background: s.dot, marginTop: 5, flexShrink: 0,
+                        background: isRead ? t.textFaint : s.dot, marginTop: 5, flexShrink: 0,
                       }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: t.text, lineHeight: 1.3, marginBottom: 2 }}>
+                        <div style={{ fontSize: 12, fontWeight: isRead ? 500 : 600, color: t.text, lineHeight: 1.3, marginBottom: 2 }}>
                           {alert.title}
                         </div>
                         <div style={{ fontSize: 11, color: t.textDim, lineHeight: 1.4 }}>
@@ -137,10 +193,6 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
   const curWeek = weekIdx !== null ? monthData[weekIdx] : null;
   const curDay = curWeek && dayIdx !== null ? curWeek.days[dayIdx] : null;
 
-  const firstDate = monthData[0]?.days[0]?.date;
-  const lastDate = monthData[monthData.length - 1]?.days[6]?.date;
-  const dateRange = firstDate && lastDate ? `${MO_NAMES[firstDate.getMonth()]} ${firstDate.getDate()} \u2013 ${MO_NAMES[lastDate.getMonth()]} ${lastDate.getDate()}` : "";
-
   const isProgress = location.pathname.startsWith("/progress");
 
   return (
@@ -166,51 +218,24 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
         }}>
           <div>
             {profile?.displayName && (
-              <p style={{ 
-                fontSize: 13, 
-                color: t.textMuted, 
+              <p style={{
+                fontSize: 14,
+                color: t.textMuted,
                 marginBottom: 4,
                 fontWeight: 400,
               }}>
                 {(() => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; })()}, {profile.displayName}
               </p>
             )}
-            <h1 style={{ 
-              fontSize: 28, 
-              fontWeight: 600, 
-              letterSpacing: -0.5, 
-              color: t.text, 
-              marginBottom: 6,
-              lineHeight: 1.2,
+            <p style={{
+              fontSize: 16,
+              color: t.textDim,
+              fontWeight: 500,
+              fontStyle: "italic",
+              margin: 0,
             }}>
-              {plan.splitName}
-            </h1>
-            <p style={{ 
-              fontSize: 14, 
-              color: t.textDim, 
-              marginBottom: 16,
-            }}>
-              {plan.weeks}-week mesocycle
+              {getMotivationalMessage()}
             </p>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {[
-                { text: profile?.primaryGoal?.replace(/_/g, " ") || "hypertrophy" },
-                { text: dateRange },
-                { text: "progressive overload" },
-              ].map(({ text }) => (
-                <span key={text} style={{
-                  fontSize: 12, 
-                  padding: "6px 12px",
-                  borderRadius: 6,
-                  background: t.surface2,
-                  color: t.textMuted, 
-                  fontWeight: 500,
-                  border: `1px solid ${t.border}`,
-                }}>
-                  {text}
-                </span>
-              ))}
-            </div>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

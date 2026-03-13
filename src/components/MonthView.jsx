@@ -174,6 +174,20 @@ export default function MonthView({ onWeek, onDay }) {
                       {pat}
                     </span>
                   )}
+                  {isToday && !isRest && (
+                    <span style={{
+                      fontSize: 9,
+                      padding: "3px 8px",
+                      borderRadius: 4,
+                      background: t.ctaBg,
+                      color: t.ctaText,
+                      fontWeight: 600,
+                      marginTop: 4,
+                      letterSpacing: "0.02em",
+                    }}>
+                      Start Workout
+                    </span>
+                  )}
                 </button>
               );
             })}
