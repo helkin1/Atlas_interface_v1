@@ -10,70 +10,107 @@ import SettingsMenu from "../components/SettingsMenu.jsx";
 import Sidebar from "../components/Sidebar.jsx";
 import ErrorBoundary from "../components/ErrorBoundary.jsx";
 
-function IntelligenceBanner({ plan, monthData, t }) {
-  const [expanded, setExpanded] = useState(false);
+const NOTIF_SEVERITY_STYLES = {
+  critical: { color: "#EF4444", dot: "#EF4444" },
+  warning:  { color: "#F59E0B", dot: "#F59E0B" },
+  info:     { color: "#3B82F6", dot: "#3B82F6" },
+};
+
+function NotificationsButton({ plan, monthData }) {
+  const t = useTheme();
+  const [open, setOpen] = useState(false);
   const profile = useMemo(() => loadProfile(), []);
   const config = useMemo(() => getPersonalizedConfig(profile), [profile]);
 
-  const { score, topAlerts } = useMemo(() => {
-    if (!plan?.weekTemplate) return { score: 0, topAlerts: [] };
+  const alerts = useMemo(() => {
+    if (!plan?.weekTemplate) return [];
     const report = analyzePlan(plan.weekTemplate);
-    const numWeeks = monthData.length || 1;
-    const allMusc = {};
-    monthData.forEach(w => {
-      const mv = weekMuscleVol(w);
-      Object.entries(mv).forEach(([m, s]) => { allMusc[m] = (allMusc[m] || 0) + s; });
-    });
-    const avgMusc = {};
-    Object.entries(allMusc).forEach(([m, s]) => { avgMusc[m] = s / numWeeks; });
-    const goals = calcPersonalizedGoalPcts(avgMusc, config);
-    const sc = personalizedOverallGoalPct(goals, config);
-    const alerts = getPersonalizedAlerts(report, config);
-    return { score: sc, topAlerts: alerts.slice(0, 3) };
+    return getPersonalizedAlerts(report, config).slice(0, 8);
   }, [plan, monthData, config]);
 
-  if (!topAlerts.length && score >= 80) return null;
-
-  const scoreColor = goalPctColor(score);
-  const topAlert = topAlerts[0];
+  const count = alerts.length;
 
   return (
-    <div style={{
-      background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10,
-      padding: "10px 16px", marginBottom: 20, boxShadow: t.shadow,
-    }}>
-      <div
-        style={{ display: "flex", alignItems: "center", gap: 12, cursor: topAlerts.length > 1 ? "pointer" : "default" }}
-        onClick={() => topAlerts.length > 1 && setExpanded(!expanded)}
+    <div style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: 40, height: 40, borderRadius: 10,
+          border: `1px solid ${t.border}`, background: t.surface,
+          cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+          color: t.textMuted, boxShadow: t.shadow, transition: "all 0.15s ease",
+          position: "relative",
+        }}
+        aria-label="Notifications"
       >
-        <div style={{
-          width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-          background: `${scoreColor}15`, color: scoreColor, fontSize: 12, fontWeight: 700, flexShrink: 0,
-        }}>
-          {score}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 500, color: t.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {topAlert ? topAlert.title : "Plan looks good for your goals"}
-          </div>
-          <div style={{ fontSize: 10, color: t.textDim }}>
-            Your Plan Score · Weighted by {config.primaryGoal?.replace("_", " ") || "goal"}
-          </div>
-        </div>
-        {topAlerts.length > 1 && (
-          <span style={{ fontSize: 10, color: t.textDim, flexShrink: 0 }}>
-            {expanded ? "▴" : `▾ +${topAlerts.length - 1}`}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        {count > 0 && (
+          <span style={{
+            position: "absolute", top: -4, right: -4,
+            width: 18, height: 18, borderRadius: "50%",
+            background: "#EF4444", color: "#fff",
+            fontSize: 10, fontWeight: 700,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            {count}
           </span>
         )}
-      </div>
-      {expanded && topAlerts.length > 1 && (
-        <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${t.border}` }}>
-          {topAlerts.slice(1).map(a => (
-            <div key={a.id} style={{ fontSize: 11, color: t.textMuted, padding: "3px 0", paddingLeft: 44 }}>
-              {a.title}
+      </button>
+      {open && (
+        <>
+          <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 99 }} />
+          <div style={{
+            position: "absolute", right: 0, top: 48,
+            background: t.surface, borderRadius: 12, padding: 0,
+            minWidth: 300, maxWidth: 360, zIndex: 100,
+            boxShadow: t.shadowLg, border: `1px solid ${t.border}`,
+            maxHeight: 400, overflowY: "auto",
+          }}>
+            <div style={{
+              padding: "12px 16px", borderBottom: `1px solid ${t.border}`,
+              fontSize: 13, fontWeight: 600, color: t.text,
+            }}>
+              Notifications
             </div>
-          ))}
-        </div>
+            {alerts.length === 0 ? (
+              <div style={{ padding: "24px 16px", textAlign: "center" }}>
+                <div style={{ fontSize: 12, color: t.textDim }}>No notifications</div>
+              </div>
+            ) : (
+              <div style={{ padding: 8 }}>
+                {alerts.map(alert => {
+                  const s = NOTIF_SEVERITY_STYLES[alert.severity] || NOTIF_SEVERITY_STYLES.info;
+                  return (
+                    <div key={alert.id} style={{
+                      display: "flex", alignItems: "flex-start", gap: 10,
+                      padding: "10px 12px", borderRadius: 8,
+                      transition: "background 0.1s ease",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = t.surface2}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                    >
+                      <div style={{
+                        width: 6, height: 6, borderRadius: "50%",
+                        background: s.dot, marginTop: 5, flexShrink: 0,
+                      }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: t.text, lineHeight: 1.3, marginBottom: 2 }}>
+                          {alert.title}
+                        </div>
+                        <div style={{ fontSize: 11, color: t.textDim, lineHeight: 1.4 }}>
+                          {alert.message}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
@@ -277,12 +314,10 @@ export default function DashboardLayout({ plan, monthData, themeMode, toggleThem
             )}
 
             <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
+            {!isProgress && <NotificationsButton plan={plan} monthData={monthData} />}
             <SettingsMenu onEditPlan={onEditPlan} onSignOut={onSignOut} onAIInsights={onAIInsights} onProfile={onProfile} />
           </div>
         </header>
-
-        {/* Intelligence Banner — only on dashboard views */}
-        {!isProgress && <IntelligenceBanner plan={plan} monthData={monthData} t={t} />}
 
         {/* Content area */}
         {isProgress ? (

@@ -3,10 +3,9 @@ import { useTheme } from "../context/theme.js";
 import { usePlanData } from "../context/plan-data.js";
 import { EXERCISES } from "../data/exercise-data.js";
 import { calcMuscleVol, weekMuscleVol, calcGoalPcts, overallGoalPct, calcPersonalizedGoalPcts, personalizedOverallGoalPct, goalPctColor, getDaySets, getWeekSets } from "../utils/helpers.js";
-import { analyzePlan } from "../utils/science-engine.js";
 import { loadProfile } from "../utils/storage.js";
-import { getPersonalizedConfig, getPersonalizedAlerts } from "../utils/personalization-engine.js";
-import { MiniBar, GoalRing, MuscleGoalBar, MuscleDiagram, AlertsPanel, PersonalizationSummary, cardStyle } from "./shared.jsx";
+import { getPersonalizedConfig } from "../utils/personalization-engine.js";
+import { MiniBar, GoalRing, MuscleGoalBar, MuscleDiagram, cardStyle } from "./shared.jsx";
 
 // Reusable card wrapper for sidebar sections
 function SidebarCard({ title, children, t }) {
@@ -90,15 +89,11 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
           Week {curWeek.weekNum} Overview
         </h3>
 
-        <div style={{ marginBottom: 12 }}>
-          <PersonalizationSummary config={config} linkTo="/profile" />
-        </div>
-
         <SidebarCard t={t}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <MuscleDiagram muscleVol={mv} size={100} config={config} />
             <div style={{ flex: 1 }}>
-              <GoalRing pct={overall} size={64} strokeWidth={4} label="Your Weekly Score" sublabel="Weighted by goal" />
+              <GoalRing pct={overall} size={64} strokeWidth={4} label="Your Fitness Score" sublabel="Weighted by goal" />
               <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 <StatDisplay value={wkSets} label="Sets" t={t} />
                 <StatDisplay value={trainDays} label="Train Days" t={t} />
@@ -229,37 +224,23 @@ export default function Sidebar({ weekIdx, viewLevel, curWeek, curDay, plan }) {
   });
   const regionTotal = regionVol.upper + regionVol.lower + regionVol.core || 1;
 
-  // Science engine: run on canonical plan weekTemplate for personalized alerts
-  const scienceReport = plan ? analyzePlan(plan.weekTemplate || []) : null;
-  const planAlerts = scienceReport ? getPersonalizedAlerts(scienceReport, config) : [];
-
   return (
     <div>
       <h3 style={{ fontSize: 14, fontWeight: 600, color: t.text, marginBottom: 16 }}>
         Mesocycle Overview
       </h3>
 
-      {/* Profile summary */}
-      <div style={{ marginBottom: 12 }}>
-        <PersonalizationSummary config={config} linkTo="/profile" />
-      </div>
-
       <SidebarCard t={t}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <MuscleDiagram muscleVol={avgWeekMusc} size={100} config={config} />
           <div style={{ flex: 1 }}>
-            <GoalRing pct={overall} size={64} strokeWidth={4} label="Your Plan Score" sublabel="Weighted by goal" />
+            <GoalRing pct={overall} size={64} strokeWidth={4} label="Your Fitness Score" sublabel="Weighted by goal" />
             <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               <StatDisplay value={totalSets} label="Total Sets" t={t} />
               <StatDisplay value={trainDays} label="Train Days" t={t} />
             </div>
           </div>
         </div>
-      </SidebarCard>
-
-      {/* Plan alerts — personalized severity */}
-      <SidebarCard title="Plan Alerts" t={t}>
-        <AlertsPanel alerts={planAlerts} maxVisible={4} />
       </SidebarCard>
 
       <SidebarCard title="Volume Balance" t={t}>

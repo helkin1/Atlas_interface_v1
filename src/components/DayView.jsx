@@ -123,6 +123,13 @@ export default function DayView({ day, planId, onBack }) {
 
   const hasLogs = Object.keys(logged).length > 0;
 
+  // Check if this day is today
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+  const dayDate = new Date(day.date);
+  dayDate.setHours(0, 0, 0, 0);
+  const isToday = dayDate.getTime() === todayDate.getTime();
+
   const pat = getDayPattern(day);
   const totalSets = getDaySets(day);
   const completedSets = Object.keys(logged).length;
@@ -239,40 +246,56 @@ export default function DayView({ day, planId, onBack }) {
           </p>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          {hasLogs && (
-            <button 
-              onClick={clearLogs} 
-              style={{ 
-                padding: "10px 16px", 
-                borderRadius: 8, 
-                border: `1px solid ${t.border}`, 
-                background: "transparent", 
-                color: t.textMuted, 
-                fontSize: 13, 
-                fontWeight: 500, 
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-              }}
-            >
-              Clear Logs
-            </button>
+          {isToday ? (
+            <>
+              {hasLogs && (
+                <button
+                  onClick={clearLogs}
+                  style={{
+                    padding: "10px 16px",
+                    borderRadius: 8,
+                    border: `1px solid ${t.border}`,
+                    background: "transparent",
+                    color: t.textMuted,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  Clear Logs
+                </button>
+              )}
+              <button
+                onClick={startSession}
+                style={{
+                  padding: "12px 24px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: t.ctaBg,
+                  color: t.ctaText,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                {hasLogs ? "Resume Workout" : "Start Workout"}
+              </button>
+            </>
+          ) : (
+            <span style={{
+              fontSize: 12,
+              color: t.textDim,
+              fontWeight: 500,
+              padding: "10px 16px",
+              background: t.surface2,
+              borderRadius: 8,
+              border: `1px solid ${t.border}`,
+            }}>
+              {dayDate < todayDate ? "Past workout" : "Upcoming workout"}
+            </span>
           )}
-          <button
-            onClick={startSession}
-            style={{
-              padding: "12px 24px", 
-              borderRadius: 8, 
-              border: "none",
-              background: t.ctaBg, 
-              color: t.ctaText,
-              fontSize: 14, 
-              fontWeight: 600, 
-              cursor: "pointer",
-              transition: "all 0.15s ease",
-            }}
-          >
-            {hasLogs ? "Resume Workout" : "Start Workout"}
-          </button>
         </div>
       </div>
 
