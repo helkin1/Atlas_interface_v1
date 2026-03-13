@@ -1,15 +1,22 @@
+import { useMemo } from "react";
 import { useTheme, themes } from "../context/theme.js";
 import { EXERCISES } from "../data/exercise-data.js";
-import { DAY_NAMES, MO_NAMES, PATTERN_COLORS, MUSCLE_COLORS, getDayPattern, getDaySets, getWeekSets, weekMuscleVol, calcGoalPcts, overallGoalPct, goalPctColor } from "../utils/helpers.js";
+import { DAY_NAMES, MO_NAMES, PATTERN_COLORS, MUSCLE_COLORS, getDayPattern, getDaySets, getWeekSets, weekMuscleVol, calcPersonalizedGoalPcts, personalizedOverallGoalPct, goalPctColor } from "../utils/helpers.js";
+import { loadProfile } from "../utils/storage.js";
+import { getPersonalizedConfig } from "../utils/personalization-engine.js";
 import { PatternBadge, cardStyle } from "./shared.jsx";
 
 export default function WeekView({ week, onDay, onBack }) {
   const t = useTheme();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+
+  const profile = useMemo(() => loadProfile(), []);
+  const config = useMemo(() => getPersonalizedConfig(profile), [profile]);
+
   const mv = weekMuscleVol(week);
-  const goalPcts = calcGoalPcts(mv);
-  const overall = overallGoalPct(goalPcts);
+  const goalPcts = calcPersonalizedGoalPcts(mv, config);
+  const overall = personalizedOverallGoalPct(goalPcts, config);
 
   const trainingDays = week.days.filter((d) => !d.isRest);
 

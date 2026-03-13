@@ -98,3 +98,43 @@ export function overallGoalPct(goalPcts) {
   if (!entries.length) return 0;
   return Math.round(entries.reduce((s, e) => s + Math.min(e.pct, 100), 0) / entries.length);
 }
+
+/**
+ * Like calcGoalPcts but uses personalized volume targets from the config.
+ * Falls back to flat MAV if no config provided.
+ */
+export function calcPersonalizedGoalPcts(muscleVol, config) {
+  if (!config) return calcGoalPcts(muscleVol);
+  const results = {};
+  Object.keys(VOLUME_LANDMARKS).forEach(m => {
+    const tier = config.muscleTiers[m];
+    const target = config.volumeTargets[m];
+    const weight = config.muscleWeights[m];
+    const eff = muscleVol[m] || 0;
+    if (tier === "excluded") {
+      results[m] = { eff, target: 0, pct: 100, tier, weight: 0 };
+      return;
+    }
+    const pct = target > 0 ? Math.round((eff / target) * 100) : (eff > 0 ? 100 : 0);
+    results[m] = { eff, target, pct, tier, weight };
+  });
+  return results;
+}
+
+/**
+ * Weighted overall score using personalized muscle weights.
+ * Priority muscles count more than maintenance. Excluded muscles omitted.
+ */
+export function personalizedOverallGoalPct(goalPcts, config) {
+  if (!config) return overallGoalPct(goalPcts);
+  let weightedSum = 0;
+  let totalWeight = 0;
+  Object.entries(goalPcts).forEach(([muscle, data]) => {
+    if (data.tier === "excluded") return;
+    const w = config.muscleWeights[muscle] || 0;
+    if (w <= 0) return;
+    weightedSum += Math.min(data.pct, 100) * w;
+    totalWeight += w;
+  });
+  return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+}

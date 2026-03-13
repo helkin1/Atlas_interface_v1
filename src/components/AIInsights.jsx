@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTheme } from "../context/theme.js";
 import { loadWorkoutLogs, loadPlan, loadProfile } from "../utils/storage.js";
+import { getPersonalizedConfig, calcPersonalizedGoalPcts, personalizedOverallScore, getMusclesByTier } from "../utils/personalization-engine.js";
+import { analyzePlan } from "../utils/science-engine.js";
+import { TierBadge, cardStyle } from "./shared.jsx";
 
 const MODES = [
   { key: "analyze", label: "Quick Analysis", desc: "Overall plan assessment" },
   { key: "stall", label: "Stall Detection", desc: "Find plateaus in your lifts" },
   { key: "swap", label: "Exercise Swaps", desc: "Fresh alternatives" },
+  { key: "personalized", label: "Personalized Review", desc: "How well your plan fits YOUR goals" },
 ];
 
 export default function AIInsights({ plan, onClose }) {
@@ -20,14 +24,54 @@ export default function AIInsights({ plan, onClose }) {
     setLoading(true);
     setError(null);
     setResult(null);
+
+    // Personalized review runs client-side — no API call needed
+    if (type === "personalized") {
+      try {
+        const currentPlan = plan || loadPlan(null);
+        const profile = loadProfile();
+        const config = getPersonalizedConfig(profile);
+        if (!currentPlan?.weekTemplate) throw new Error("No plan found");
+        const report = analyzePlan(currentPlan.weekTemplate);
+        const goals = calcPersonalizedGoalPcts(report.effectiveSets, config);
+        const score = personalizedOverallScore(goals, config);
+        const tiers = getMusclesByTier(config);
+
+        // Build insights
+        const insights = [];
+        Object.entries(goals).forEach(([m, d]) => {
+          if (d.tier === "excluded") return;
+          if (d.tier === "priority" && d.pct < 80 && d.target > 0) {
+            insights.push({ type: "gap", muscle: m, tier: d.tier, pct: d.pct, target: d.target, eff: d.eff });
+          }
+          if (d.tier === "maintenance" && d.pct > 120) {
+            insights.push({ type: "excess", muscle: m, tier: d.tier, pct: d.pct, target: d.target, eff: d.eff });
+          }
+        });
+        // Check injured muscles still being trained
+        const excluded = Object.entries(goals).filter(([, d]) => d.tier === "excluded" && d.eff > 0);
+        excluded.forEach(([m, d]) => {
+          insights.push({ type: "injury_concern", muscle: m, eff: d.eff });
+        });
+
+        setResult({ data: { score, insights, tiers, config } });
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     try {
       const logs = loadWorkoutLogs();
       const currentPlan = plan || loadPlan(null);
       const profile = loadProfile();
+      const personalizedConfig = getPersonalizedConfig(profile);
       const res = await fetch("/api/ai-suggest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, plan: currentPlan, logs, profile }),
+        body: JSON.stringify({ type, plan: currentPlan, logs, profile, personalizedConfig }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -103,6 +147,7 @@ export default function AIInsights({ plan, onClose }) {
             {mode === "analyze" && <AnalyzeResult data={result.data} t={t} />}
             {mode === "stall" && <StallResult data={result.data} t={t} />}
             {mode === "swap" && <SwapResult data={result.data} t={t} />}
+            {mode === "personalized" && <PersonalizedResult data={result.data} t={t} />}
           </div>
         )}
       </div>
@@ -175,6 +220,50 @@ function SwapResult({ data, t }) {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+function PersonalizedResult({ data, t }) {
+  const { score, insights, config } = data;
+  const goalLabel = config.primaryGoal ? config.primaryGoal.charAt(0).toUpperCase() + config.primaryGoal.slice(1).replace("_", " ") : "your";
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ textAlign: "center", padding: 20, background: t.surface, borderRadius: 12, boxShadow: t.shadow }}>
+        <div style={{ fontSize: 36, fontWeight: 700, color: score >= 80 ? "#22C55E" : score >= 60 ? "#F59E0B" : "#EF4444" }}>{score}%</div>
+        <div style={{ fontSize: 12, color: t.textDim, marginTop: 4 }}>Personalized Plan Score</div>
+        <div style={{ fontSize: 11, color: t.textFaint, marginTop: 2 }}>Weighted by your {goalLabel} goal</div>
+      </div>
+
+      {insights.length > 0 ? (
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 10 }}>Insights</div>
+          {insights.map((ins, i) => (
+            <div key={i} style={{ padding: "10px 12px", borderRadius: 10, marginBottom: 6, background: ins.type === "injury_concern" ? "rgba(239,68,68,0.06)" : ins.type === "gap" ? "rgba(245,158,11,0.06)" : "rgba(59,130,246,0.06)" }}>
+              {ins.type === "gap" && (
+                <div style={{ fontSize: 12, color: t.textMuted }}>
+                  <span style={{ fontWeight: 600 }}>{ins.muscle}</span> is at {ins.pct}% of target — a <TierBadge tier={ins.tier} /> muscle that needs +{Math.round(ins.target - ins.eff)} sets/wk
+                </div>
+              )}
+              {ins.type === "excess" && (
+                <div style={{ fontSize: 12, color: t.textMuted }}>
+                  <span style={{ fontWeight: 600 }}>{ins.muscle}</span> has {Math.round(ins.eff)} sets/wk but only needs {Math.round(ins.target)} as a <TierBadge tier={ins.tier} /> muscle — consider redistributing volume
+                </div>
+              )}
+              {ins.type === "injury_concern" && (
+                <div style={{ fontSize: 12, color: "#EF4444" }}>
+                  <span style={{ fontWeight: 600 }}>{ins.muscle}</span> is excluded (injury) but still getting {Math.round(ins.eff * 10) / 10} effective sets — review exercises targeting this area
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ fontSize: 12, color: "#22C55E", textAlign: "center", padding: 16 }}>
+          Your plan is well-aligned with your {goalLabel} goal. No major adjustments needed.
+        </div>
+      )}
     </div>
   );
 }

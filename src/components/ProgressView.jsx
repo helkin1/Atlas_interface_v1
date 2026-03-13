@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
 import { useTheme } from "../context/theme.js";
 import { EXERCISES } from "../data/exercise-data.js";
-import { loadWorkoutLogs } from "../utils/storage.js";
-import { MUSCLE_COLORS } from "../utils/helpers.js";
+import { loadWorkoutLogs, loadProfile } from "../utils/storage.js";
+import { MUSCLE_COLORS, weekMuscleVol, calcPersonalizedGoalPcts, personalizedOverallGoalPct } from "../utils/helpers.js";
+import { getPersonalizedConfig } from "../utils/personalization-engine.js";
 import {
   getWorkoutHistory,
   getExerciseHistory,
@@ -19,6 +20,7 @@ import {
   Tabs,
   EmptyState,
   SectionLabel,
+  TierBadge,
   cardStyle,
 } from "./shared.jsx";
 
@@ -42,7 +44,7 @@ function formatDate(d) {
 
 /* ── Overview Tab ────────────────────────────────────────────── */
 
-function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
+function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData, planScore, goalAlignmentBullets, config }) {
   const t = useTheme();
 
   if (!hasData) {
@@ -73,6 +75,7 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
   return (
     <div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 28 }}>
+        {planScore != null && <StatCard label="Plan Score" value={`${planScore}%`} sub="weighted by goal" color={planScore >= 80 ? "#22C55E" : planScore >= 60 ? "#F59E0B" : "#EF4444"} />}
         <StatCard label="Workouts" value={stats.totalWorkouts} color="#3B82F6" />
         <StatCard label="Total Volume" value={formatVolume(stats.totalVolume)} sub="lbs" color="#22C55E" />
         <StatCard label="Completion" value={`${stats.avgCompletion}%`} color="#F59E0B" />
@@ -104,6 +107,20 @@ function OverviewTab({ stats, weeklyTrend, muscleTrend, prs, hasData }) {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {goalAlignmentBullets && goalAlignmentBullets.length > 0 && (
+        <div style={{ ...cardStyle(t, { padding: 20, marginBottom: 20 }) }}>
+          <SectionLabel>Goal Alignment</SectionLabel>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {goalAlignmentBullets.map((b, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 12, color: t.textMuted, lineHeight: 1.5 }}>
+                <span style={{ color: b.color, flexShrink: 0, marginTop: 1 }}>{b.icon}</span>
+                <span>{b.text}</span>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -353,7 +370,10 @@ function HistoryTab({ workoutHistory }) {
 export default function ProgressView({ plan, monthData }) {
   const [activeTab, setActiveTab] = useState("overview");
 
-  const { stats, workoutHistory, exerciseHistory, prs, weeklyTrend, muscleTrend, hasData } = useMemo(() => {
+  const profile = useMemo(() => loadProfile(), []);
+  const config = useMemo(() => getPersonalizedConfig(profile), [profile]);
+
+  const { stats, workoutHistory, exerciseHistory, prs, weeklyTrend, muscleTrend, hasData, planScore, goalAlignmentBullets } = useMemo(() => {
     const logs = loadWorkoutLogs();
     const planId = plan?.planId;
     const workoutHistory = getWorkoutHistory(logs, monthData, planId);
@@ -363,15 +383,52 @@ export default function ProgressView({ plan, monthData }) {
     const muscleTrend = getMuscleTrend(logs, monthData, planId);
     const stats = getOverviewStats(logs, monthData, planId);
     const hasData = workoutHistory.length > 0;
-    return { stats, workoutHistory, exerciseHistory, prs, weeklyTrend, muscleTrend, hasData };
-  }, [plan, monthData]);
+
+    // Personalized plan score + goal alignment
+    let planScore = null;
+    let goalAlignmentBullets = [];
+    if (monthData.length > 0) {
+      const numWeeks = monthData.length;
+      const allMusc = {};
+      monthData.forEach(w => {
+        const mv = weekMuscleVol(w);
+        Object.entries(mv).forEach(([m, s]) => { allMusc[m] = (allMusc[m] || 0) + s; });
+      });
+      const avgMusc = {};
+      Object.entries(allMusc).forEach(([m, s]) => { avgMusc[m] = s / numWeeks; });
+      const goals = calcPersonalizedGoalPcts(avgMusc, config);
+      planScore = personalizedOverallGoalPct(goals, config);
+
+      // Generate goal alignment bullets
+      const goalLabel = config.primaryGoal ? config.primaryGoal.charAt(0).toUpperCase() + config.primaryGoal.slice(1).replace("_", " ") : "your";
+      Object.entries(goals).forEach(([m, d]) => {
+        if (d.tier === "excluded") return;
+        const sets = Math.round(d.eff * 10) / 10;
+        if (d.tier === "priority" && d.pct >= 80) {
+          goalAlignmentBullets.push({ icon: "✓", color: "#22C55E", text: `${m} volume (${sets} sets/wk) is on target for your ${goalLabel} goal` });
+        } else if (d.tier === "priority" && d.pct < 80 && d.target > 0) {
+          const gap = Math.round(d.target - d.eff);
+          goalAlignmentBullets.push({ icon: "↑", color: "#F59E0B", text: `${m} could use +${gap} sets/wk to reach priority target` });
+        } else if (d.tier === "maintenance" && d.pct < 50 && d.target > 0) {
+          goalAlignmentBullets.push({ icon: "·", color: "#94A3B8", text: `${m} is below minimum but is maintenance-level for ${goalLabel}` });
+        }
+      });
+      const excludedCount = Object.values(goals).filter(d => d.tier === "excluded").length;
+      if (excludedCount > 0) {
+        goalAlignmentBullets.push({ icon: "⊘", color: "#EF4444", text: `${excludedCount} muscle${excludedCount > 1 ? "s" : ""} excluded due to injury` });
+      }
+      goalAlignmentBullets = goalAlignmentBullets.slice(0, 6);
+    }
+
+    return { stats, workoutHistory, exerciseHistory, prs, weeklyTrend, muscleTrend, hasData, planScore, goalAlignmentBullets };
+  }, [plan, monthData, config]);
 
   return (
     <div>
       <Tabs items={TABS} active={activeTab} onChange={setActiveTab} />
 
       {activeTab === "overview" && (
-        <OverviewTab stats={stats} weeklyTrend={weeklyTrend} muscleTrend={muscleTrend} prs={prs} hasData={hasData} />
+        <OverviewTab stats={stats} weeklyTrend={weeklyTrend} muscleTrend={muscleTrend} prs={prs} hasData={hasData} planScore={planScore} goalAlignmentBullets={goalAlignmentBullets} config={config} />
       )}
       {activeTab === "exercises" && (
         <ExercisesTab exerciseHistory={exerciseHistory} prs={prs} />

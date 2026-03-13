@@ -1,12 +1,18 @@
+import { useMemo } from "react";
 import { useTheme, themes } from "../context/theme.js";
 import { usePlanData } from "../context/plan-data.js";
-import { DAY_NAMES, MO_NAMES, PATTERN_COLORS, getDayPattern, getDaySets, getWeekSets } from "../utils/helpers.js";
+import { DAY_NAMES, MO_NAMES, PATTERN_COLORS, getDayPattern, getDaySets, getWeekSets, weekMuscleVol, calcPersonalizedGoalPcts, personalizedOverallGoalPct, goalPctColor } from "../utils/helpers.js";
+import { loadProfile } from "../utils/storage.js";
+import { getPersonalizedConfig } from "../utils/personalization-engine.js";
 
 export default function MonthView({ onWeek, onDay }) {
   const t = useTheme();
   const MONTH = usePlanData();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+
+  const profile = useMemo(() => loadProfile(), []);
+  const config = useMemo(() => getPersonalizedConfig(profile), [profile]);
   
   return (
     <div>
@@ -63,12 +69,23 @@ export default function MonthView({ onWeek, onDay }) {
                 <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            <span style={{ 
-              fontSize: 12, 
+            <span style={{
+              fontSize: 12,
               color: t.textDim,
               fontWeight: 500,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
             }}>
               {getWeekSets(week)} sets
+              {(() => {
+                const mv = weekMuscleVol(week);
+                const goals = calcPersonalizedGoalPcts(mv, config);
+                const pct = personalizedOverallGoalPct(goals, config);
+                return (
+                  <span style={{ color: goalPctColor(pct), fontWeight: 600, fontSize: 11 }}>{pct}% goal</span>
+                );
+              })()}
             </span>
           </div>
 

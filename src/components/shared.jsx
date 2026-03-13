@@ -1,5 +1,5 @@
 import { useTheme } from "../context/theme.js";
-import { PATTERN_COLORS, MUSCLE_COLORS, goalPctColor, calcGoalPcts } from "../utils/helpers.js";
+import { PATTERN_COLORS, MUSCLE_COLORS, goalPctColor, calcGoalPcts, calcPersonalizedGoalPcts } from "../utils/helpers.js";
 
 /**
  * Clean, elevated card style — rounded corners, soft shadow, white/dark surface.
@@ -93,7 +93,7 @@ export function PatternBadge({ pattern, size }) {
   );
 }
 
-export function GoalRing({ pct, size = 80, strokeWidth = 6, label }) {
+export function GoalRing({ pct, size = 80, strokeWidth = 6, label, sublabel }) {
   const t = useTheme();
   const r = (size - strokeWidth) / 2;
   const circ = 2 * Math.PI * r;
@@ -108,21 +108,22 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label }) {
           strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
           style={{ transition: "stroke-dashoffset 0.5s ease" }} />
       </svg>
-      <div style={{ 
-        position: "relative", 
-        marginTop: -size + 2, 
-        height: size - 2, 
-        display: "flex", 
-        flexDirection: "column", 
-        alignItems: "center", 
+      <div style={{
+        position: "relative",
+        marginTop: -size + 2,
+        height: size - 2,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
         justifyContent: "center",
       }}>
         <div style={{ fontSize: size > 60 ? 18 : 14, fontWeight: 600, color: ringColor }}>{pct}%</div>
+        {sublabel && <div style={{ fontSize: 9, color: t.textDim, marginTop: 1 }}>{sublabel}</div>}
       </div>
       {label && (
-        <div style={{ 
-          fontSize: 11, 
-          color: t.textDim, 
+        <div style={{
+          fontSize: 11,
+          color: t.textDim,
           fontWeight: 500,
           marginTop: 4,
         }}>
@@ -133,43 +134,52 @@ export function GoalRing({ pct, size = 80, strokeWidth = 6, label }) {
   );
 }
 
-export function MuscleGoalBar({ name, eff, target, compact }) {
+export function MuscleGoalBar({ name, eff, target, compact, tier }) {
   const t = useTheme();
   const pct = target > 0 ? Math.round((eff / target) * 100) : 0;
   const barPct = Math.min(pct, 100);
+
+  // Tier-aware styling
+  const isExcluded = tier === "excluded";
+  const isMaintenance = tier === "maintenance";
+  const isPriority = tier === "priority";
+
+  if (isExcluded) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 10, opacity: 0.4 }}>
+        <span style={{
+          fontSize: 12, color: t.textFaint, width: 75, textAlign: "right",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          fontWeight: 400, textDecoration: "line-through",
+        }}>{name}</span>
+        <div style={{ flex: 1, height: 4, background: t.surface3, borderRadius: 2 }} />
+        <span style={{ fontSize: 10, color: t.textFaint, width: 36, textAlign: "right" }}>—</span>
+      </div>
+    );
+  }
+
+  const nameWeight = isPriority ? 600 : 500;
+  const nameColor = isMaintenance ? t.textFaint : t.textMuted;
+  const barBg = pct >= 80 ? t.colors.success : t.text;
+  const barOpacity = isMaintenance ? 0.3 : (pct >= 80 ? 1 : 0.5);
+  const pctColor = pct >= 80 ? t.colors.success : (isMaintenance ? t.textFaint : t.text);
+
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <span style={{ 
-        fontSize: 12, 
-        color: t.textMuted, 
-        width: 75, 
-        textAlign: "right", 
-        overflow: "hidden", 
-        textOverflow: "ellipsis", 
-        whiteSpace: "nowrap",
-        fontWeight: 500,
-      }}>
-        {name}
-      </span>
+      <span style={{
+        fontSize: 12, color: nameColor, width: 75, textAlign: "right",
+        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        fontWeight: nameWeight,
+      }}>{name}</span>
       <div style={{ flex: 1, height: 4, background: t.surface3, borderRadius: 2, overflow: "hidden" }}>
-        <div style={{ 
-          width: `${barPct}%`, 
-          height: "100%", 
-          background: pct >= 80 ? t.colors.success : t.text, 
-          opacity: pct >= 80 ? 1 : 0.5,
-          borderRadius: 2, 
-          transition: "width 0.3s ease",
+        <div style={{
+          width: `${barPct}%`, height: "100%", background: barBg,
+          opacity: barOpacity, borderRadius: 2, transition: "width 0.3s ease",
         }} />
       </div>
-      <span style={{ 
-        fontSize: 12, 
-        fontWeight: 600, 
-        color: pct >= 80 ? t.colors.success : t.text, 
-        width: 36, 
-        textAlign: "right",
-      }}>
-        {pct}%
-      </span>
+      <span style={{
+        fontSize: 12, fontWeight: 600, color: pctColor, width: 36, textAlign: "right",
+      }}>{pct}%</span>
     </div>
   );
 }
@@ -344,9 +354,9 @@ export function SectionLabel({ children }) {
   );
 }
 
-export function MuscleDiagram({ muscleVol, size = 160 }) {
+export function MuscleDiagram({ muscleVol, size = 160, config }) {
   const t = useTheme();
-  const goals = calcGoalPcts(muscleVol);
+  const goals = config ? calcPersonalizedGoalPcts(muscleVol, config) : calcGoalPcts(muscleVol);
 
   const regionMap = {
     "Front Delts": "shoulders", "Side Delts": "shoulders", "Rear Delts": "shoulders",
@@ -371,7 +381,17 @@ export function MuscleDiagram({ muscleVol, size = 160 }) {
     regionAvg[reg] = Math.round(pcts.reduce((s, p) => s + p, 0) / pcts.length);
   });
 
+  // Check if any muscle in a region is excluded
+  const regionHasExcluded = {};
+  if (config) {
+    Object.entries(goals).forEach(([m, data]) => {
+      const reg = regionMap[m] || "other";
+      if (data.tier === "excluded") regionHasExcluded[reg] = true;
+    });
+  }
+
   const getRegionColor = (region) => {
+    if (regionHasExcluded[region]) return { fill: t.textFaint, opacity: 0.15 };
     const pct = regionAvg[region] || 0;
     const c = goalPctColor(pct);
     const alpha = Math.max(0.15, Math.min(pct / 100, 1));
@@ -424,6 +444,59 @@ export function MuscleDiagram({ muscleVol, size = 160 }) {
         <ellipse cx="30" cy="142" rx="5" ry="7" fill={t.surface3} stroke={t.borderLight} strokeWidth="0.5" />
         <ellipse cx="130" cy="142" rx="5" ry="7" fill={t.surface3} stroke={t.borderLight} strokeWidth="0.5" />
       </svg>
+    </div>
+  );
+}
+
+// ── TierBadge ─────────────────────────────────────────────
+const TIER_STYLES = {
+  priority:    { bg: "rgba(34,197,94,0.10)", color: "#22C55E", label: "Priority" },
+  supporting:  { bg: "rgba(59,130,246,0.10)", color: "#3B82F6", label: "Supporting" },
+  maintenance: { bg: "rgba(148,163,184,0.10)", color: "#94A3B8", label: "Maintenance" },
+  excluded:    { bg: "rgba(239,68,68,0.08)", color: "#EF4444", label: "Excluded" },
+};
+
+export function TierBadge({ tier }) {
+  const s = TIER_STYLES[tier] || TIER_STYLES.maintenance;
+  return (
+    <span style={{
+      fontSize: 9, fontWeight: 600, padding: "2px 6px", borderRadius: 4,
+      background: s.bg, color: s.color, textTransform: "uppercase", letterSpacing: "0.03em",
+    }}>{s.label}</span>
+  );
+}
+
+// ── PersonalizationSummary ────────────────────────────────
+export function PersonalizationSummary({ config, linkTo }) {
+  const t = useTheme();
+  if (!config) return null;
+  const { experienceLevel, primaryGoal, age, modifiers } = config;
+
+  const expLabel = experienceLevel ? experienceLevel.charAt(0).toUpperCase() + experienceLevel.slice(1) : "";
+  const goalLabel = primaryGoal ? primaryGoal.charAt(0).toUpperCase() + primaryGoal.slice(1).replace("_", " ") : "";
+  const parts = [expLabel, goalLabel, age ? `${age}y/o` : ""].filter(Boolean);
+  const injuryCount = modifiers.injuryExclusions.length;
+
+  return (
+    <div style={{
+      ...cardStyle(t, { padding: "10px 14px" }),
+      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
+    }}>
+      <div style={{ minWidth: 0 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {parts.join(" · ")}
+        </div>
+        {injuryCount > 0 && (
+          <div style={{ fontSize: 10, color: t.textFaint, marginTop: 2 }}>
+            {injuryCount} injury adjustment{injuryCount > 1 ? "s" : ""} active
+          </div>
+        )}
+      </div>
+      {linkTo && (
+        <a href={linkTo} style={{ fontSize: 10, color: t.textDim, textDecoration: "none", fontWeight: 500, flexShrink: 0 }}>
+          Edit
+        </a>
+      )}
     </div>
   );
 }

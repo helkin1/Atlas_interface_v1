@@ -1,6 +1,9 @@
+import { useMemo } from "react";
 import { useTheme } from "../context/theme.js";
 import { analyzePlan } from "../utils/science-engine.js";
-import { GoalRing, MuscleGoalBar, MuscleDiagram, AlertsPanel } from "./shared.jsx";
+import { loadProfile } from "../utils/storage.js";
+import { getPersonalizedConfig, calcPersonalizedGoalPcts, personalizedOverallScore, getPersonalizedAlerts } from "../utils/personalization-engine.js";
+import { GoalRing, MuscleGoalBar, MuscleDiagram, AlertsPanel, PersonalizationSummary } from "./shared.jsx";
 
 const BODY_REGION = {
   Chest: "upper", "Upper Chest": "upper",
@@ -17,9 +20,26 @@ export default function BuilderSidebar({ plan }) {
   const wt = plan.weekTemplate || [];
 
   const report = analyzePlan(wt);
-  const { effectiveSets, goalPcts, overallScore, alerts } = report;
+  const { effectiveSets, alerts: rawAlerts } = report;
 
-  const sorted = Object.entries(goalPcts).sort((a, b) => b[1].pct - a[1].pct);
+  // Personalization
+  const profile = useMemo(() => loadProfile(), []);
+  const config = useMemo(() => getPersonalizedConfig(profile), [profile]);
+  const personalizedGoals = useMemo(() => calcPersonalizedGoalPcts(effectiveSets, config), [effectiveSets, config]);
+  const personalizedScore = useMemo(() => personalizedOverallScore(personalizedGoals, config), [personalizedGoals, config]);
+  const personalizedAlerts = useMemo(() => getPersonalizedAlerts(report, config), [report, config]);
+
+  // Sort by tier (priority first), then by pct descending
+  const tierOrder = { priority: 0, supporting: 1, maintenance: 2, excluded: 3 };
+  const sorted = Object.entries(personalizedGoals)
+    .filter(([, d]) => d.tier !== "excluded")
+    .sort((a, b) => {
+      const tDiff = (tierOrder[a[1].tier] || 2) - (tierOrder[b[1].tier] || 2);
+      if (tDiff !== 0) return tDiff;
+      return b[1].pct - a[1].pct;
+    });
+
+  const excludedCount = Object.values(personalizedGoals).filter(d => d.tier === "excluded").length;
   const trainDays = wt.filter(d => !d.isRest && d.exercises.length > 0).length;
   const totalExercises = wt.reduce((s, d) => s + (d.isRest ? 0 : d.exercises.length), 0);
 
@@ -35,11 +55,16 @@ export default function BuilderSidebar({ plan }) {
     <div>
       <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, marginBottom: 16 }}>Live Analysis</div>
 
+      {/* Profile summary */}
+      <div style={{ marginBottom: 12 }}>
+        <PersonalizationSummary config={config} linkTo="/profile" />
+      </div>
+
       {/* Muscle diagram + coverage ring */}
       <div style={{ background: t.surface, borderRadius: 12, padding: 20, marginBottom: 16, boxShadow: t.shadow, display: "flex", alignItems: "center", gap: 16 }}>
-        <MuscleDiagram muscleVol={effectiveSets} size={120} />
+        <MuscleDiagram muscleVol={effectiveSets} size={120} config={config} />
         <div style={{ flex: 1 }}>
-          <GoalRing pct={overallScore} size={72} strokeWidth={5} label="Coverage" />
+          <GoalRing pct={personalizedScore} size={72} strokeWidth={5} label="Your Plan Score" sublabel="Weighted by goal" />
           <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: "#3B82F6" }}>{trainDays}</div>
@@ -74,16 +99,23 @@ export default function BuilderSidebar({ plan }) {
         </div>
       </div>
 
-      {/* Weekly Volume (vs Target) */}
+      {/* Weekly Volume (vs Target) — personalized */}
       <div style={{ background: t.surface, borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: t.shadow }}>
         <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Weekly Volume (vs Target)</div>
-        {sorted.slice(0, 14).map(([m, data]) => <MuscleGoalBar key={m} name={m} eff={data.eff} target={data.target} compact />)}
+        {sorted.slice(0, 14).map(([m, data]) => (
+          <MuscleGoalBar key={m} name={m} eff={data.eff} target={data.target} tier={data.tier} compact />
+        ))}
+        {excludedCount > 0 && (
+          <div style={{ fontSize: 10, color: t.textFaint, marginTop: 8, textAlign: "center" }}>
+            {excludedCount} excluded (injury)
+          </div>
+        )}
       </div>
 
-      {/* Plan Alerts — below weekly volume */}
+      {/* Plan Alerts — personalized severity */}
       <div style={{ background: t.surface, borderRadius: 12, padding: 16, boxShadow: t.shadow }}>
         <div style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 12 }}>Plan Alerts</div>
-        <AlertsPanel alerts={alerts} maxVisible={4} />
+        <AlertsPanel alerts={personalizedAlerts} maxVisible={4} />
       </div>
     </div>
   );
