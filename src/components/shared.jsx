@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "../context/theme.js";
 import { PATTERN_COLORS, MUSCLE_COLORS, goalPctColor, calcGoalPcts, calcPersonalizedGoalPcts } from "../utils/helpers.js";
+import Body from "react-muscle-highlighter";
 
 /**
  * Clean, elevated card style — rounded corners, soft shadow, white/dark surface.
@@ -447,95 +448,86 @@ export function SectionLabel({ children }) {
 }
 
 export function MuscleDiagram({ muscleVol, size = 160, config }) {
+  const [view, setView] = useState("front");
   const t = useTheme();
-  const goals = config ? calcPersonalizedGoalPcts(muscleVol, config) : calcGoalPcts(muscleVol);
+  const goals = config
+    ? calcPersonalizedGoalPcts(muscleVol, config)
+    : calcGoalPcts(muscleVol);
 
-  const regionMap = {
-    "Front Delts": "shoulders", "Side Delts": "shoulders", "Rear Delts": "shoulders",
-    Chest: "chest", "Upper Chest": "chest",
-    Biceps: "arms", Triceps: "arms", Forearms: "forearms", Brachialis: "arms",
-    Core: "core",
-    Quads: "quads", Hamstrings: "hamstrings", Glutes: "glutes",
-    Calves: "calves",
-    Lats: "back", "Upper Back": "back",
-    Traps: "traps", "Lower Back": "lowerback",
-    "Rotator Cuff": "shoulders",
+  /* ── Map Atlas muscle names → library slugs ────────────── */
+  const SLUG_MAP = {
+    chest:       ["Chest", "Upper Chest"],
+    deltoids:    ["Front Delts", "Side Delts", "Rear Delts"],
+    biceps:      ["Biceps", "Brachialis"],
+    triceps:     ["Triceps"],
+    forearm:     ["Forearms"],
+    abs:         ["Core"],
+    obliques:    ["Obliques"],
+    trapezius:   ["Traps"],
+    "upper-back":["Upper Back", "Lats"],
+    "lower-back":["Lower Back"],
+    gluteal:     ["Glutes"],
+    quadriceps:  ["Quads", "Hip Flexors"],
+    hamstring:   ["Hamstrings"],
+    adductors:   ["Adductors"],
+    calves:      ["Calves"],
   };
 
-  const regionPcts = {};
-  Object.entries(goals).forEach(([m, data]) => {
-    const reg = regionMap[m] || "other";
-    if (!regionPcts[reg]) regionPcts[reg] = [];
-    regionPcts[reg].push(data.pct);
-  });
-  const regionAvg = {};
-  Object.entries(regionPcts).forEach(([reg, pcts]) => {
-    regionAvg[reg] = Math.round(pcts.reduce((s, p) => s + p, 0) / pcts.length);
-  });
+  /* ── Build the data array for the Body component ───────── */
+  const excluded = [];
+  const bodyData = Object.entries(SLUG_MAP).map(([slug, muscles]) => {
+    const pcts = muscles.filter((m) => goals[m]).map((m) => goals[m].pct);
+    if (!pcts.length) return { slug, styles: { fill: t.surface3 } };
 
-  // Check if any muscle in a region is excluded
-  const regionHasExcluded = {};
-  if (config) {
-    Object.entries(goals).forEach(([m, data]) => {
-      const reg = regionMap[m] || "other";
-      if (data.tier === "excluded") regionHasExcluded[reg] = true;
-    });
-  }
+    const isExcluded = config && muscles.some((m) => goals[m]?.tier === "excluded");
+    if (isExcluded) {
+      excluded.push(slug);
+      return null;
+    }
 
-  const getRegionColor = (region) => {
-    if (regionHasExcluded[region]) return { fill: t.textFaint, opacity: 0.15 };
-    const pct = regionAvg[region] || 0;
-    const c = goalPctColor(pct);
-    const alpha = Math.max(0.15, Math.min(pct / 100, 1));
-    return { fill: c, opacity: alpha };
-  };
+    const avg = Math.round(pcts.reduce((s, p) => s + p, 0) / pcts.length);
+    const color = goalPctColor(avg);
+    const opacity = Math.max(0.25, Math.min(avg / 100, 1));
+
+    return { slug, styles: { fill: color, opacity } };
+  }).filter(Boolean);
+
+  const scale = size / 160;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <svg width={size} height={size * 1.65} viewBox="0 0 160 264" fill="none">
-        <ellipse cx="80" cy="18" rx="12" ry="14" fill={t.surface3} stroke={t.borderLight} strokeWidth="0.8" />
-        <rect x="74" y="30" width="12" height="8" rx="3" fill={t.surface3} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M62 38 L74 34 L80 38 L86 34 L98 38 L95 48 L65 48 Z"
-          fill={getRegionColor("traps").fill} opacity={getRegionColor("traps").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <ellipse cx="50" cy="52" rx="14" ry="10"
-          fill={getRegionColor("shoulders").fill} opacity={getRegionColor("shoulders").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <ellipse cx="110" cy="52" rx="14" ry="10"
-          fill={getRegionColor("shoulders").fill} opacity={getRegionColor("shoulders").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M62 46 Q80 42 98 46 L98 70 Q80 76 62 70 Z"
-          fill={getRegionColor("chest").fill} opacity={getRegionColor("chest").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M44 60 Q38 80 36 100 Q42 102 48 100 Q46 80 50 60 Z"
-          fill={getRegionColor("arms").fill} opacity={getRegionColor("arms").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M116 60 Q122 80 124 100 Q118 102 112 100 Q114 80 110 60 Z"
-          fill={getRegionColor("arms").fill} opacity={getRegionColor("arms").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M36 100 Q32 120 30 136 Q36 138 40 136 Q40 120 44 100 Z"
-          fill={getRegionColor("forearms").fill} opacity={getRegionColor("forearms").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M124 100 Q128 120 130 136 Q124 138 120 136 Q120 120 116 100 Z"
-          fill={getRegionColor("forearms").fill} opacity={getRegionColor("forearms").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M66 70 Q80 76 94 70 L92 120 Q80 124 68 120 Z"
-          fill={getRegionColor("core").fill} opacity={getRegionColor("core").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M56 50 L62 46 L62 70 L58 72 Q54 62 56 50 Z"
-          fill={getRegionColor("back").fill} opacity={getRegionColor("back").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M104 50 L98 46 L98 70 L102 72 Q106 62 104 50 Z"
-          fill={getRegionColor("back").fill} opacity={getRegionColor("back").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M64 120 Q80 126 96 120 L98 140 Q80 146 62 140 Z"
-          fill={getRegionColor("glutes").fill} opacity={getRegionColor("glutes").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M62 140 Q58 170 56 200 Q66 204 72 200 Q72 170 74 140 Z"
-          fill={getRegionColor("quads").fill} opacity={getRegionColor("quads").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M98 140 Q102 170 104 200 Q94 204 88 200 Q88 170 86 140 Z"
-          fill={getRegionColor("quads").fill} opacity={getRegionColor("quads").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M56 200 Q54 186 58 172 Q62 170 62 186 Q60 200 56 200 Z"
-          fill={getRegionColor("hamstrings").fill} opacity={getRegionColor("hamstrings").opacity} stroke={t.borderLight} strokeWidth="0.3" />
-        <path d="M104 200 Q106 186 102 172 Q98 170 98 186 Q100 200 104 200 Z"
-          fill={getRegionColor("hamstrings").fill} opacity={getRegionColor("hamstrings").opacity} stroke={t.borderLight} strokeWidth="0.3" />
-        <path d="M58 204 Q56 224 54 244 Q62 248 66 244 Q66 224 68 204 Z"
-          fill={getRegionColor("calves").fill} opacity={getRegionColor("calves").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <path d="M102 204 Q104 224 106 244 Q98 248 94 244 Q94 224 92 204 Z"
-          fill={getRegionColor("calves").fill} opacity={getRegionColor("calves").opacity} stroke={t.borderLight} strokeWidth="0.5" />
-        <ellipse cx="60" cy="254" rx="10" ry="4" fill={t.surface3} stroke={t.borderLight} strokeWidth="0.5" />
-        <ellipse cx="100" cy="254" rx="10" ry="4" fill={t.surface3} stroke={t.borderLight} strokeWidth="0.5" />
-        <ellipse cx="30" cy="142" rx="5" ry="7" fill={t.surface3} stroke={t.borderLight} strokeWidth="0.5" />
-        <ellipse cx="130" cy="142" rx="5" ry="7" fill={t.surface3} stroke={t.borderLight} strokeWidth="0.5" />
-      </svg>
+      <Body
+        data={bodyData}
+        side={view}
+        gender="male"
+        scale={scale}
+        border={t.borderLight}
+        defaultFill={t.surface3}
+        disabledParts={excluded}
+      />
+
+      {/* ── View toggle ───────────────────────────────────── */}
+      <div style={{ display: "flex", gap: 4, marginTop: 6 }}>
+        {["front", "back"].map((v) => (
+          <button
+            key={v}
+            onClick={() => setView(v)}
+            style={{
+              padding: "3px 10px",
+              fontSize: 11,
+              borderRadius: 6,
+              border: `1px solid ${view === v ? t.accent : t.borderLight}`,
+              background: view === v ? t.accent + "18" : "transparent",
+              color: view === v ? t.accent : t.textMuted,
+              cursor: "pointer",
+              textTransform: "capitalize",
+              fontWeight: view === v ? 600 : 400,
+            }}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
